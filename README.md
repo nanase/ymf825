@@ -62,20 +62,21 @@ FT232H と YMF825Board の接続は以下のとおりです。
 
 ### Ymf825
 
-** [MIT License](./LICENSE) **
+[** MIT License **](./LICENSE)
 
 ### Silk icon set 1.3
 
 Ymf825Server のボタンとして使用しています。
 
+```
 This work is licensed under a
 Creative Commons Attribution 2.5 License.
 [ http://creativecommons.org/licenses/by/2.5/ ]
-
+```
 
 ## リポジトリ作成者
 
 七瀬 (Tomona Nanase)
 
-[@nanase_coder](https://twitter.com/nanase_coder)
-[nanase.cc](https://nanase.cc/)
+- [@nanase_coder](https://twitter.com/nanase_coder)
+- [nanase.cc](https://nanase.cc/)
