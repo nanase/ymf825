@@ -31,7 +31,7 @@ WCF を用いた IPC（プロセス間通信）でクライアントからのレ
 ## 想定回路
 
 ![回路図](https://raw.githubusercontent.com/nanase/ymf825/master/doc/ymf825board.png)|![ブレッドボード写真 正面](https://raw.githubusercontent.com/nanase/ymf825/master/doc/breadboard_1.jpg)|![ブレッドボード写真 裏面](https://raw.githubusercontent.com/nanase/ymf825/master/doc/breadboard_2.jpg)|![ブレッドボード写真 上 配線](https://raw.githubusercontent.com/nanase/ymf825/master/doc/breadboard_3.jpg)
----|---|---|---
+:-:|:-:|:-:|:-:
 **回路図** | **正面** | **裏面** | **上**
 
 FT232H と YMF825Board の接続は以下のとおりです。
