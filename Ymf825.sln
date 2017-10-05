@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ymf825Server", "Ymf825Serve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ymf825", "Ymf825\Ymf825.csproj", "{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegisterMap", "submodule\RegisterMap\RegisterMap\RegisterMap.csproj", "{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

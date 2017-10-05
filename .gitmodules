@@ -1,0 +1,3 @@
+[submodule "submodule/RegisterMap"]
+	path = submodule/RegisterMap
+	url = git@github.com:nanase/RegisterMap.git

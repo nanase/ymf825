@@ -37,12 +37,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RegisterMap">
-      <HintPath>D:\Dropbox\Program\Projects\RegisterMap\RegisterMap\bin\Release\RegisterMap.dll</HintPath>
-    </Reference>
-    <Reference Include="Synker">
-      <HintPath>D:\Dropbox\Program\Projects\Synker\bin\Release\Synker.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
@@ -98,6 +92,10 @@
     <None Include="Resources\lightning.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\submodule\RegisterMap\RegisterMap\RegisterMap.csproj">
+      <Project>{df42a16c-d481-45a5-af57-06fd0b92d8c7}</Project>
+      <Name>RegisterMap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Ymf825\Ymf825.csproj">
       <Project>{7b92175f-edaf-42bf-88a7-d113c1c40aff}</Project>
       <Name>Ymf825</Name>
