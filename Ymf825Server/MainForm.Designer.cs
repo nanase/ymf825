@@ -441,9 +441,9 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(6, 18);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(85, 13);
+            this.label7.Size = new System.Drawing.Size(75, 13);
             this.label7.TabIndex = 6;
-            this.label7.Text = "SPI Clock (MHz)";
+            this.label7.Text = "SPI Clock (Hz)";
             // 
             // label6
             // 
