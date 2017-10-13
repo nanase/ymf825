@@ -36,7 +36,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalogBlock.cs" />
+    <Compile Include="Gain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SequencerSetting.cs" />
     <Compile Include="Spi.cs" />
     <Compile Include="Ymf825Client.cs" />
     <Compile Include="Ymf825Driver.cs" />
