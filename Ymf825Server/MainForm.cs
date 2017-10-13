@@ -194,7 +194,7 @@ namespace Ymf825Server
                 return;
             }
 
-            label_spiClock.Text = spiChannelConfig.ClockRate.ToString("N3");
+            label_spiClock.Text = spiChannelConfig.ClockRate.ToString("N0");
 
             switch ((Spi.ChannelConfigOptions)((int)spiChannelConfig.ConfigOptions & 0b011100))
             {
