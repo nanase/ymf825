@@ -6,8 +6,7 @@ namespace Ymf825
     public class Ymf825Driver
     {
         #region -- Private Fields --
-
-        private readonly byte[] register = new byte[256];
+        
         private Action<int> sleepAction = Thread.Sleep;
 
         #endregion
@@ -54,6 +53,43 @@ namespace Ymf825
 
             Client.WriteGpio(direction, resetDisableValue);
             sleepAction(30);
+        }
+
+        #endregion
+
+        #region Software Reset
+
+        public void ResetSoftware()
+        {
+            SetPowerRailSelection(false);
+            SetAnalogBlockPowerDown(AnalogBlock.Ap0 | AnalogBlock.Ap1 | AnalogBlock.Ap2);
+            sleepAction(1);
+
+            SetClockEnable(true);
+            SetAllRegisterReset(false);
+            SetSoftReset(0xa3);
+            sleepAction(1);
+
+            SetSoftReset(0x00);
+            sleepAction(30);
+
+            SetAnalogBlockPowerDown(AnalogBlock.Ap2);
+            sleepAction(1);
+
+            SetAnalogBlockPowerDown(AnalogBlock.None);
+            SetMasterVolume(0xf0);
+            SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
+            SetInterporationInMuteState(true);
+            SetGain(Gain.Level65);
+
+            SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute |SequencerSetting.AllEgReset |
+                                SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
+            sleepAction(21);
+
+            SetSequencerSetting(SequencerSetting.Reset);
+            SetSequencerVolume(0x1f, false, 0);
+
+            SetSequencerTimeUnitSetting(0x2000);
         }
 
         #endregion
