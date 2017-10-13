@@ -14,6 +14,7 @@ namespace Ymf825Server
         private readonly MapRenderer registerMap;
         private Spi spiDevice;
         private Spi.ChannelConfig spiChannelConfig;
+        private Spi.ChannelConfigOption[] spiCsConfig;
         private Ymf825Client spiService;
         private ServiceHost serviceHost;
         private bool connected;
@@ -115,9 +116,13 @@ namespace Ymf825Server
         {
             spiChannelConfig = new Spi.ChannelConfig(10000000,
                 latencyTimer: 1,
-                configOptions: Spi.ChannelConfigOptions.CsActiveLow | Spi.ChannelConfigOptions.CsDbus7 |
-                               Spi.ChannelConfigOptions.Mode0);
-            spiDevice = new Spi(toolStripComboBox_deviceList.SelectedIndex, spiChannelConfig);
+                configOption: Spi.ChannelConfigOption.CsActiveLow | Spi.ChannelConfigOption.Mode0);
+            spiCsConfig = new[]
+            {
+                Spi.ChannelConfigOption.CsDbus6,
+                Spi.ChannelConfigOption.CsDbus7
+            };
+            spiDevice = new Spi(toolStripComboBox_deviceList.SelectedIndex, spiChannelConfig, spiCsConfig);
             spiService = new Ymf825Client(spiDevice);
             spiService.DataWrote += (sender, args) =>
             {
@@ -149,6 +154,7 @@ namespace Ymf825Server
             }
 
             connected = true;
+            spiService.SetTarget(0, 1);
             spiService.SendReset();
         }
 
@@ -196,34 +202,31 @@ namespace Ymf825Server
 
             label_spiClock.Text = spiChannelConfig.ClockRate.ToString("N0");
 
-            switch ((Spi.ChannelConfigOptions)((int)spiChannelConfig.ConfigOptions & 0b011100))
+            label_ssPinout.Text = string.Join(", ", spiCsConfig.Select(o =>
             {
-                case Spi.ChannelConfigOptions.CsDbus3:
-                    label_ssPinout.Text = "D3";
-                    break;
-                case Spi.ChannelConfigOptions.CsDbus4:
-                    label_ssPinout.Text = "D4";
-                    break;
-                case Spi.ChannelConfigOptions.CsDbus5:
-                    label_ssPinout.Text = "D5";
-                    break;
-                case Spi.ChannelConfigOptions.CsDbus6:
-                    label_ssPinout.Text = "D6";
-                    break;
-                case Spi.ChannelConfigOptions.CsDbus7:
-                    label_ssPinout.Text = "D7";
-                    break;
-                default:
-                    label_ssPinout.Text = "unknown";
-                    break;
-            }
-
-            switch ((Spi.ChannelConfigOptions)((int)spiChannelConfig.ConfigOptions & 0b100000))
+                switch ((Spi.ChannelConfigOption) ((int) o & 0b011100))
+                {
+                    case Spi.ChannelConfigOption.CsDbus3:
+                        return "D3";
+                    case Spi.ChannelConfigOption.CsDbus4:
+                        return "D4";
+                    case Spi.ChannelConfigOption.CsDbus5:
+                        return "D5";
+                    case Spi.ChannelConfigOption.CsDbus6:
+                        return "D6";
+                    case Spi.ChannelConfigOption.CsDbus7:
+                        return "D7";
+                    default:
+                        return "unknown";
+                }
+            }));
+            
+            switch ((Spi.ChannelConfigOption)((int)spiChannelConfig.ConfigOption & 0b100000))
             {
-                case Spi.ChannelConfigOptions.CsActiveHigh:
+                case Spi.ChannelConfigOption.CsActiveHigh:
                     label_ssActiveOutput.Text = "H (5V)";
                     break;
-                case Spi.ChannelConfigOptions.CsActiveLow:
+                case Spi.ChannelConfigOption.CsActiveLow:
                     label_ssActiveOutput.Text = "L (GND)";
                     break;
                 default:
