@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -53,7 +52,7 @@ namespace Ymf825
         }
 
         [Flags]
-        public enum ChannelConfigOptions : uint
+        public enum ChannelConfigOption : uint
         {
             Default = 0x00000000,
 
@@ -79,7 +78,7 @@ namespace Ymf825
 
             private readonly uint clockRate;
             private readonly byte latencyTimer;
-            private readonly ChannelConfigOptions configOptions;
+            private readonly ChannelConfigOption configOption;
             private readonly uint pin;              /* FinalVal-FinalDir-InitVal-InitDir (for dir 0=in, 1=out) */
 
             // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
@@ -94,18 +93,18 @@ namespace Ymf825
             // ReSharper disable once ConvertToAutoProperty
             public byte LatencyTimer => latencyTimer;
             // ReSharper disable once ConvertToAutoProperty
-            public ChannelConfigOptions ConfigOptions => configOptions;
+            public ChannelConfigOption ConfigOption => configOption;
             public int Pin => (int)pin;
 
             #endregion
 
             #region -- Constructors --
 
-            public ChannelConfig(int clockRateHz, byte latencyTimer = 255, ChannelConfigOptions configOptions = ChannelConfigOptions.Default, int pin = 0x00000000)
+            public ChannelConfig(int clockRateHz, byte latencyTimer = 255, ChannelConfigOption configOption = ChannelConfigOption.Default, int pin = 0x00000000)
             {
                 clockRate = (uint)clockRateHz;
                 this.latencyTimer = latencyTimer;
-                this.configOptions = configOptions;
+                this.configOption = configOption;
                 this.pin = (uint)pin;
 
                 reserved = 0;
@@ -220,8 +219,8 @@ namespace Ymf825
         [DllImport("libmpsse", CallingConvention = CallingConvention.Cdecl)]
         private static extern void Cleanup_libMPSSE();
 
-        //[DllImport("libmpsse", CallingConvention = CallingConvention.Cdecl)]
-        //private static extern Status SPI_ChangeCS(IntPtr handle, uint configOptions);
+        [DllImport("libmpsse", CallingConvention = CallingConvention.Cdecl)]
+        private static extern Status SPI_ChangeCS(IntPtr handle, ChannelConfigOption configOptions);
 
         [DllImport("libmpsse", CallingConvention = CallingConvention.Cdecl)]
         private static extern Status FT_WriteGPIO(IntPtr handle, byte dir, byte value);
@@ -243,7 +242,7 @@ namespace Ymf825
         //FTDI_API FT_STATUS SPI_IsBusy(FT_HANDLE handle, bool* state);
         //FTDI_API void Init_libMPSSE(void);
         //FTDI_API void Cleanup_libMPSSE(void);
-        //FTDI_API FT_STATUS SPI_ChangeCS(FT_HANDLE handle, uint32 configOptions);
+        //FTDI_API FT_STATUS SPI_ChangeCS(FT_HANDLE handle, uint32 configOption);
         //FTDI_API FT_STATUS FT_WriteGPIO(FT_HANDLE handle, uint8 dir, uint8 value);
         //FTDI_API FT_STATUS FT_ReadGPIO(FT_HANDLE handle, uint8* value);
         //FTDI_API FT_STATUS SPI_ToggleCS(FT_HANDLE handle, bool state);
@@ -256,6 +255,7 @@ namespace Ymf825
         private readonly IntPtr handle;
         private readonly int deviceIndex;
         private DeviceInfo deviceInfo;
+        private readonly ChannelConfigOption[] configOption;
         
         private const int SpiTransferOptionsSizeInBytes = 0x00000000;
         private const int SpiTransferOptionsChipselectEnable = 0x00000002;
@@ -289,11 +289,21 @@ namespace Ymf825
 
         #region -- Constructors --
 
-        public Spi(int deviceIndex, ChannelConfig config)
+        public Spi(int deviceIndex, ChannelConfig channelConfig, params ChannelConfigOption[] configOption)
         {
+            var config = new ChannelConfig(
+                channelConfig.ClockRate,
+                channelConfig.LatencyTimer,
+                channelConfig.ConfigOption | configOption[0],
+                channelConfig.Pin);
+
             CheckStatus(SPI_OpenChannel((uint)deviceIndex, out handle));
             CheckStatus(SPI_InitChannel(handle, ref config));
 
+            for (var i = 0; i < configOption.Length; i++)
+                configOption[i] |= channelConfig.ConfigOption;
+
+            this.configOption = configOption;
             this.deviceIndex = deviceIndex;
         }
 
@@ -413,6 +423,11 @@ namespace Ymf825
             //Marshal.FreeHGlobal(heapBuffer);
 
             //return sizeTransferedWrite > 0 && sizeTransferedRead > 0 ? readByte : -1;
+        }
+
+        public void ChangeConfig(int index)
+        {
+            CheckStatus(SPI_ChangeCS(handle, configOption[index]));
         }
 
         public void Dispose()
