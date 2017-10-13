@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using System.Threading;
 
 namespace Ymf825
 {
@@ -232,37 +231,11 @@ namespace Ymf825
 
         public void SendReset()
         {
-            Write(0x1D, 0);
-            Write(0x02, 0x0E);
-            Thread.Sleep(1);
+            var driver = new Ymf825Driver(this);
+            driver.ResetHardware();
+            driver.ResetSoftware();
+        }
 
-            Write(0x00, 0x01); //CLKEN
-            Write(0x01, 0x00); //AKRST
-            Write(0x1A, 0xA3);
-            Thread.Sleep(1);
-
-            Write(0x1A, 0x00);
-            Thread.Sleep(30);
-
-            Write(0x02, 0x04); //AP1,AP3
-            Thread.Sleep(1);
-
-            Write(0x02, 0x00);
-            //add
-            Write(0x19, 0xF0); //MASTER VOL
-            Write(0x1B, 0x3F); //interpolation
-            Write(0x14, 0x00); //interpolation
-            Write(0x03, 0x01); //Analog Gain
-
-            Write(0x08, 0xF6);
-            Thread.Sleep(21);
-
-            Write(0x08, 0x00);
-            Write(0x09, 0xF8);
-            Write(0x0A, 0x00);
-
-            Write(0x17, 0x40); //MS_S
-            Write(0x18, 0x00);
         public void SetTarget(params int[] target)
         {
             targetIndices = target;
