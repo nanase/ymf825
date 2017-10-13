@@ -66,7 +66,7 @@ namespace Ymf825
         /// <param name="enable">true のとき、クロック有効。false のとき、クロック無効。</param>
         public void SetClockEnable(bool enable)
         {
-            Client.Write(0x00, enable ? (byte)0x01 : (byte)0x00);
+            Client.Write(0x00, (byte)(enable ? 0x01 : 0x00));
         }
 
         /// <summary>
