@@ -31,6 +31,12 @@ namespace Ymf825
         [OperationContract]
         void SendReset();
 
+        [OperationContract]
+        void SetTarget(params int[] targetIndices);
+
+        [OperationContract]
+        void ChangeTarget(int newTargetIndex);
+
         #endregion
     }
 
@@ -51,6 +57,8 @@ namespace Ymf825
         #region -- Private Fields --
 
         private readonly Spi spiDevice;
+        private int[] targetIndices;
+        private int currentTargetIndex;
 
         #endregion
 
@@ -115,27 +123,33 @@ namespace Ymf825
 
         public int Write(byte address, byte data)
         {
-            var transfered = 0;
+            var totalTransfered = 0;
+            address &= 0b01111111;
 
-            try
+            for (var i = 0; i < targetIndices.Length; i++)
             {
-                address &= 0b01111111;
-                transfered = spiDevice.WriteBytes(address, data);
-                WriteBytesTotal += transfered;
-                WriteCommandsTotal++;
-                FailedWriteBytesTotal += 2 - transfered;
+                var transfered = 0;
 
-                DataWrote?.Invoke(this, new SpiServiceTransferedEventArgs(address, data));
+                try
+                {
+                    ChangeTarget(i);
+                    transfered = spiDevice.WriteBytes(address, data);
+                    WriteBytesTotal += transfered;
+                    WriteCommandsTotal++;
+                    FailedWriteBytesTotal += 2 - transfered;
 
-                return transfered;
+                    DataWrote?.Invoke(this, new SpiServiceTransferedEventArgs(address, data));
+
+                    totalTransfered += transfered;
+                }
+                catch (InvalidOperationException)
+                {
+                    FailedWriteBytesTotal += 2 - transfered;
+                    WriteErrorTotal++;
+                }
             }
-            catch (InvalidOperationException)
-            {
-                FailedWriteBytesTotal += 2 - transfered;
-                WriteErrorTotal++;
 
-                return 0;
-            }
+            return totalTransfered;
         }
 
         public int WriteBuffer(byte[] buffer, int offset, int count)
@@ -156,27 +170,33 @@ namespace Ymf825
 
         public int BurstWriteBytes(byte address, params byte[] data)
         {
-            var transfered = 0;
+            var totalTransfered = 0;
+            address &= 0b01111111;
 
-            try
+            for (var i = 0; i < targetIndices.Length; i++)
             {
-                address &= 0b01111111;
-                transfered = spiDevice.BurstWriteBytes(address, data);
-                BurstWriteBytesTotal += transfered;
-                BurstWriteCommandsTotal++;
-                FailedBurstWriteBytesTotal += (1 + data.Length) - transfered;
+                var transfered = 0;
 
-                DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data));
+                try
+                {
+                    ChangeTarget(i);
+                    transfered = spiDevice.BurstWriteBytes(address, data);
+                    BurstWriteBytesTotal += transfered;
+                    BurstWriteCommandsTotal++;
+                    FailedBurstWriteBytesTotal += (1 + data.Length) - transfered;
 
-                return transfered;
+                    DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data));
+
+                    totalTransfered += transfered;
+                }
+                catch (InvalidOperationException)
+                {
+                    FailedBurstWriteBytesTotal += (1 + data.Length) - transfered;
+                    BurstWriteErrorTotal++;
+                }
             }
-            catch (InvalidOperationException)
-            {
-                FailedBurstWriteBytesTotal += (1 + data.Length) - transfered;
-                BurstWriteErrorTotal++;
 
-                return 0;
-            }
+            return totalTransfered;
         }
 
         public int ReadByte(byte address)
@@ -243,6 +263,9 @@ namespace Ymf825
 
             Write(0x17, 0x40); //MS_S
             Write(0x18, 0x00);
+        public void SetTarget(params int[] target)
+        {
+            targetIndices = target;
         }
 
         public static bool IsAvailable()
@@ -282,6 +305,15 @@ namespace Ymf825
             }
 
             return spiService;
+        }
+
+        public void ChangeTarget(int newTargetIndex)
+        {
+            if (currentTargetIndex == newTargetIndex)
+                return;
+
+            spiDevice.ChangeConfig(newTargetIndex);
+            currentTargetIndex = newTargetIndex;
         }
 
         #endregion
