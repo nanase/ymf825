@@ -6,7 +6,7 @@ namespace Ymf825
     public class Ymf825Driver
     {
         #region -- Private Fields --
-        
+
         private Action<int> sleepAction = Thread.Sleep;
 
         #endregion
@@ -74,7 +74,7 @@ namespace Ymf825
             SetInterporationInMuteState(true);
             SetGain(Gain.Level65);
 
-            SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute |SequencerSetting.AllEgReset |
+            SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
                                 SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
             sleepAction(21);
 
@@ -116,7 +116,7 @@ namespace Ymf825
         /// <param name="state">true のとき、リセット状態。false のとき、非リセット状態。</param>
         public void SetAllRegisterReset(bool state)
         {
-            Client.Write(0x01, state ? (byte)0x80 : (byte)0x00);
+            Client.Write(0x01, (byte)(state ? 0x80 : 0x00));
         }
 
         /// <summary>
@@ -255,18 +255,18 @@ namespace Ymf825
 
         public void SetVoiceVolume(int volume)
         {
-            Client.Write(0x0c, (byte)(volume & 0x1f << 2));
+            Client.Write(0x0c, (byte)((volume & 0x1f) << 2));
         }
 
         #endregion
 
         #region #13,14 FNUM, BLOCK (0x0d, 0x0e)
 
-        public void SetFNumAndBlock(int fnum, int block)
+        public void SetFnumAndBlock(int fnum, int block)
         {
-            fnum &= 0x07ff;
-            Client.Write(0x0d, (byte)(fnum & 0x0700 >> 4 | block & 0x07));
-            Client.Write(0x0e, (byte)(fnum & 0xff));
+            fnum &= 0x03ff;
+            Client.Write(0x0d, (byte)(((fnum & 0x0380) >> 4) | (block & 0x07)));
+            Client.Write(0x0e, (byte)(fnum & 0x7f));
         }
 
         #endregion
@@ -289,7 +289,7 @@ namespace Ymf825
         public void SetChannelVolume(int volume, bool applyInterpolation)
         {
             Client.Write(0x10, (byte)(
-                volume & 0x1f << 2 |
+                (volume & 0x1f) << 2 |
                 (applyInterpolation ? 0x00 : 0x01)));
         }
 
@@ -309,8 +309,8 @@ namespace Ymf825
         public void SetFrequencyMultiplier(int integer, int fraction)
         {
             fraction &= 0x01ff;
-            Client.Write(0x12, (byte)(integer & 0x03 << 3 | fraction >> 5));
-            Client.Write(0x13, (byte)(fraction & 0x3f << 1));
+            Client.Write(0x12, (byte)((integer & 0x03) << 3 | fraction >> 6));
+            Client.Write(0x13, (byte)((fraction & 0x3f) << 1));
         }
 
         #endregion
@@ -339,7 +339,7 @@ namespace Ymf825
 
         public void SetMasterVolume(int volume)
         {
-            Client.Write(0x19, (byte)(volume & 0x3f << 2));
+            Client.Write(0x19, (byte)((volume & 0x3f) << 2));
         }
 
         public int GetMasterVolume(TargetDevice device)
@@ -371,8 +371,8 @@ namespace Ymf825
             // TODO: パラメータは列挙体を使って書き換える
             Client.Write(0x1b, (byte)(
                 (dadjt ? 0x40 : 0x00) |
-                (muteItime & 0x03 << 4) |
-                (chvolItime & 0x03 << 2) |
+                ((muteItime & 0x03) << 4) |
+                ((chvolItime & 0x03) << 2) |
                 (mvolItime & 0x03)));
         }
 
@@ -439,6 +439,24 @@ namespace Ymf825
         }
 
         #endregion
+
+        #endregion
+
+        #region -- Static Methods --
+
+        public static double CalcFnum(double frequency, int block)
+        {
+            // Original Formula
+            // const fnum = (freq * Math.pow(2, 19)) / (Math.pow(2, block - 1) * 48000);
+            return Math.Pow(2.0, 13 - block) * frequency / 375.0;
+        }
+
+        public static double CalcFrequency(double fnum, double block)
+        {
+            // Original Formula
+            // const freq = (48000 * Math.pow(2, block - 1) * fnum) / Math.pow(2, 19);
+            return 375.0 * Math.Pow(2.0, block - 13) * fnum;
+        }
 
         #endregion
     }
