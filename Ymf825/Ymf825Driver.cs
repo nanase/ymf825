@@ -42,17 +42,9 @@ namespace Ymf825
         /// <summary>
         /// ハードウェアリセット信号を /RST に送信します。
         /// </summary>
-        /// <param name="resetEnableValue">リセットを開始するときに GPIO ピンから出力される信号。デフォルトは <code>0x00</code> です。</param>
-        /// <param name="resetDisableValue">リセットを解除するときに GPIO ピンから出力される信号。デフォルトは <code>0xff</code> です。</param>
-        /// <param name="direction">GPIO ピンの入出力方向。デフォルトは <code>0xff</code> (すべて出力) です。</param>
-        public void ResetHardware(byte resetEnableValue = 0x00, byte resetDisableValue = 0xff, byte direction = 0xff)
+        public void ResetHardware()
         {
-            Client.WriteGpio(direction, resetDisableValue);
-            Client.WriteGpio(direction, resetEnableValue);
-            sleepAction(1);
-
-            Client.WriteGpio(direction, resetDisableValue);
-            sleepAction(30);
+            Client.ResetHardware();
         }
 
         #endregion
@@ -109,9 +101,9 @@ namespace Ymf825
         /// 内部マスタークロック (CLKE) の状態をデバイスから取得します。
         /// </summary>
         /// <returns>true のとき、クロック有効。false のとき、クロック無効。</returns>
-        public bool GetClockEnable()
+        public bool GetClockEnable(TargetDevice device)
         {
-            return Client.ReadByte(0x00) == 0x01;
+            return Client.Read(device, 0x00) == 0x01;
         }
 
         #endregion
@@ -131,9 +123,9 @@ namespace Ymf825
         /// レジスタのリセット状態 (ALRST) をデバイスから取得します。
         /// </summary>
         /// <returns>true のとき、リセット状態。false のとき、非リセット状態。</returns>
-        public bool GetAllRegisterReset()
+        public bool GetAllRegisterReset(TargetDevice device)
         {
-            return Client.ReadByte(0x01) == 0x80;
+            return Client.Read(device, 0x01) == 0x80;
         }
 
         #endregion
@@ -153,9 +145,9 @@ namespace Ymf825
         /// アナログブロックの Power-down 状態を取得します。
         /// </summary>
         /// <returns>Power-down 状態に設定されたブロックを表す <see cref="AnalogBlock"/> 構造体の値。</returns>
-        public AnalogBlock GetAnalogBlockPowerDown()
+        public AnalogBlock GetAnalogBlockPowerDown(TargetDevice device)
         {
-            return (AnalogBlock)(Client.ReadByte(0x02) & 0x0f);
+            return (AnalogBlock)(Client.Read(device, 0x02) & 0x0f);
         }
 
         #endregion
@@ -175,9 +167,9 @@ namespace Ymf825
         /// 出力のゲインレベルを取得します。
         /// </summary>
         /// <returns>ゲインレベルを表す <see cref="Gain"/> 構造体の値。</returns>
-        public Gain GetGein()
+        public Gain GetGein(TargetDevice device)
         {
-            return (Gain)(Client.ReadByte(0x03) & 0x03);
+            return (Gain)(Client.Read(device, 0x03) & 0x03);
         }
 
         #endregion
@@ -188,9 +180,9 @@ namespace Ymf825
         /// ハードウェアの ID を取得します。
         /// </summary>
         /// <returns>デバイスに割り当てられているハードウェア ID を表す整数値。</returns>
-        public int GetHardwareId()
+        public int GetHardwareId(TargetDevice device)
         {
-            return Client.ReadByte(0x04);
+            return Client.Read(device, 0x04);
         }
 
         #endregion
@@ -219,9 +211,9 @@ namespace Ymf825
             Client.Write(0x08, (byte)((int)setting & 0xff));
         }
 
-        public SequencerSetting GetSequencerSetting()
+        public SequencerSetting GetSequencerSetting(TargetDevice device)
         {
-            return (SequencerSetting)(Client.ReadByte(0x08) & 0xff);
+            return (SequencerSetting)(Client.Read(device, 0x08) & 0xff);
         }
 
         #endregion
@@ -236,10 +228,10 @@ namespace Ymf825
             Client.Write(0x0a, (byte)(size & 0xff));
         }
 
-        public (int volume, bool applyInterpolation, int size) GetSequencerVolume()
+        public (int volume, bool applyInterpolation, int size) GetSequencerVolume(TargetDevice device)
         {
-            var msb = Client.ReadByte(0x09);
-            var lsb = Client.ReadByte(0x0a);
+            var msb = Client.Read(device, 0x09);
+            var lsb = Client.Read(device, 0x0a);
             return (msb >> 3, (msb & 0x04) == 0, (msb & 0x01) << 8 | lsb);
         }
 
@@ -252,9 +244,9 @@ namespace Ymf825
             Client.Write(0x0b, (byte)(number & 0x0f));
         }
 
-        public int GetVoiceNumber()
+        public int GetVoiceNumber(TargetDevice device)
         {
-            return Client.ReadByte(0x0b);
+            return Client.Read(device, 0x0b);
         }
 
         #endregion
@@ -350,9 +342,9 @@ namespace Ymf825
             Client.Write(0x19, (byte)(volume & 0x3f << 2));
         }
 
-        public int GetMasterVolume()
+        public int GetMasterVolume(TargetDevice device)
         {
-            return Client.ReadByte(0x19) >> 2;
+            return Client.Read(device, 0x19) >> 2;
         }
 
         #endregion
@@ -365,9 +357,9 @@ namespace Ymf825
             Client.Write(0x1a, value);
         }
 
-        public byte GetSoftReset()
+        public byte GetSoftReset(TargetDevice device)
         {
-            return (byte)Client.ReadByte(0x1a);
+            return Client.Read(device, 0x1a);
         }
 
         #endregion
@@ -384,9 +376,9 @@ namespace Ymf825
                 (mvolItime & 0x03)));
         }
 
-        public (bool dadjt, byte muteItime, byte chvolItime, byte mvolItime) GetVolumeInterpolationSetting()
+        public (bool dadjt, byte muteItime, byte chvolItime, byte mvolItime) GetVolumeInterpolationSetting(TargetDevice device)
         {
-            var readByte = (byte)Client.ReadByte(0x1b);
+            var readByte = Client.Read(device, 0x1b);
             return (
                 (readByte & 0x40) != 0,
                 (byte)((readByte >> 4) & 0x03),
@@ -403,9 +395,9 @@ namespace Ymf825
             Client.Write(0x1c, (byte)(reset ? 0x01 : 0x00));
         }
 
-        public bool GetLfoReset()
+        public bool GetLfoReset(TargetDevice device)
         {
-            return Client.ReadByte(0x1c) == 0x01;
+            return Client.Read(device, 0x1c) == 0x01;
         }
 
         #endregion
@@ -417,9 +409,9 @@ namespace Ymf825
             Client.Write(0x1d, (byte)(select ? 0x01 : 0x00));
         }
 
-        public bool GetPowerRailSelection()
+        public bool GetPowerRailSelection(TargetDevice device)
         {
-            return Client.ReadByte(0x1d) == 0x01;
+            return Client.Read(device, 0x1d) == 0x01;
         }
 
         #endregion
@@ -441,9 +433,9 @@ namespace Ymf825
             Client.Write(0x50, value);
         }
 
-        public byte GetSoftwareTestCommunication()
+        public byte GetSoftwareTestCommunication(TargetDevice device)
         {
-            return (byte)Client.ReadByte(0x50);
+            return Client.Read(device, 0x50);
         }
 
         #endregion

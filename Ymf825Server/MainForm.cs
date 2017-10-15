@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Ports;
 using System.Linq;
 using System.ServiceModel;
 using System.Windows.Forms;
@@ -12,10 +13,8 @@ namespace Ymf825Server
         #region -- Private Fields --
 
         private readonly MapRenderer registerMap;
-        private Spi spiDevice;
-        private Spi.ChannelConfig spiChannelConfig;
-        private Spi.ChannelConfigOption[] spiCsConfig;
-        private Ymf825Client spiService;
+        private SerialPort serialPort;
+        private Ymf825Client ymf825Client;
         private ServiceHost serviceHost;
         private bool connected;
 
@@ -50,21 +49,21 @@ namespace Ymf825Server
 
         private void timer_stat_Tick(object sender, EventArgs e)
         {
-            label_writeBytes.Text = spiService.WriteBytesTotal.ToString("N0");
-            label_burstWriteBytes.Text = spiService.BurstWriteBytesTotal.ToString("N0");
-            label_readBytes.Text = spiService.ReadBytesTotal.ToString("N0");
+            label_writeBytes.Text = ymf825Client.WriteBytesTotal.ToString("N0");
+            label_burstWriteBytes.Text = ymf825Client.BurstWriteBytesTotal.ToString("N0");
+            label_readBytes.Text = ymf825Client.ReadBytesTotal.ToString("N0");
 
-            label_writeCommands.Text = spiService.WriteCommandsTotal.ToString("N0");
-            label_burstWriteCommands.Text = spiService.BurstWriteCommandsTotal.ToString("N0");
-            label_readCommands.Text = spiService.ReadCommandsTotal.ToString("N0");
+            label_writeCommands.Text = ymf825Client.WriteCommandsTotal.ToString("N0");
+            label_burstWriteCommands.Text = ymf825Client.BurstWriteCommandsTotal.ToString("N0");
+            label_readCommands.Text = ymf825Client.ReadCommandsTotal.ToString("N0");
 
-            label_failedWriteBytes.Text = spiService.FailedWriteBytesTotal.ToString("N0");
-            label_failedBurstWriteBytes.Text = spiService.FailedBurstWriteBytesTotal.ToString("N0");
-            label_failedReadBytes.Text = spiService.FailedReadBytesTotal.ToString("N0");
+            label_failedWriteBytes.Text = ymf825Client.FailedWriteBytesTotal.ToString("N0");
+            label_failedBurstWriteBytes.Text = ymf825Client.FailedBurstWriteBytesTotal.ToString("N0");
+            label_failedReadBytes.Text = ymf825Client.FailedReadBytesTotal.ToString("N0");
 
-            label_writeError.Text = spiService.WriteErrorTotal.ToString("N0");
-            label_burstWriteError.Text = spiService.BurstWriteErrorTotal.ToString("N0");
-            label_readError.Text = spiService.ReadErrorTotal.ToString("N0");
+            label_writeError.Text = ymf825Client.WriteErrorTotal.ToString("N0");
+            label_burstWriteError.Text = ymf825Client.BurstWriteErrorTotal.ToString("N0");
+            label_readError.Text = ymf825Client.ReadErrorTotal.ToString("N0");
         }
 
         private void toolStripButton_refresh_Click(object sender, EventArgs e)
@@ -100,7 +99,8 @@ namespace Ymf825Server
             if (!connected)
                 return;
 
-            spiService.SendReset();
+            ymf825Client.ResetHardware();
+            ymf825Client.ResetSoftware();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -114,26 +114,20 @@ namespace Ymf825Server
 
         private void ConnectDevice()
         {
-            spiChannelConfig = new Spi.ChannelConfig(10000000,
-                latencyTimer: 1,
-                configOption: Spi.ChannelConfigOption.CsActiveLow | Spi.ChannelConfigOption.Mode0);
-            spiCsConfig = new[]
-            {
-                Spi.ChannelConfigOption.CsDbus6,
-                Spi.ChannelConfigOption.CsDbus7
-            };
-            spiDevice = new Spi(toolStripComboBox_deviceList.SelectedIndex, spiChannelConfig, spiCsConfig);
-            spiService = new Ymf825Client(spiDevice);
-            spiService.DataWrote += (sender, args) =>
+            serialPort = new SerialPort(toolStripComboBox_deviceList.SelectedItem.ToString(), 256000, Parity.None);
+            serialPort.Open();
+
+            ymf825Client = new Ymf825Client(serialPort);
+            ymf825Client.DataWrote += (sender, args) =>
             {
                 registerMap.SetData(args.Address, args.Data);
             };
-            spiService.DataBurstWrote += (sender, args) =>
+            ymf825Client.DataBurstWrote += (sender, args) =>
             {
                 if (args.Data.Count > 0)
                     registerMap.SetData(args.Address, args.Data.Last());
             };
-            serviceHost = new ServiceHost(spiService, new Uri(Ymf825Client.ServiceUri));
+            serviceHost = new ServiceHost(ymf825Client, new Uri(Ymf825Client.ServiceUri));
 
             try
             {
@@ -154,8 +148,7 @@ namespace Ymf825Server
             }
 
             connected = true;
-            spiService.SetTarget(0, 1);
-            spiService.SendReset();
+            ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
         }
 
         private void DisconnectDevice()
@@ -164,18 +157,10 @@ namespace Ymf825Server
                 serviceHost.Close();
 
             serviceHost = null;
-            spiService = null;
+            ymf825Client = null;
 
-            try
-            {
-                spiDevice?.Dispose();
-            }
-            catch (InvalidOperationException)
-            {
-                // もみ消して破棄できたことにする
-            }
-
-            spiDevice = null;
+            serialPort?.Dispose();
+            serialPort = null;
             connected = false;
         }
 
@@ -194,52 +179,19 @@ namespace Ymf825Server
         {
             if (reset)
             {
-                label_spiClock.Text = "";
-                label_ssPinout.Text = "";
-                label_ssActiveOutput.Text = "";
+                label_serialPortName.Text = "";
+                label_serialPortBaudRate.Text = "";
                 return;
             }
 
-            label_spiClock.Text = spiChannelConfig.ClockRate.ToString("N0");
-
-            label_ssPinout.Text = string.Join(", ", spiCsConfig.Select(o =>
-            {
-                switch ((Spi.ChannelConfigOption) ((int) o & 0b011100))
-                {
-                    case Spi.ChannelConfigOption.CsDbus3:
-                        return "D3";
-                    case Spi.ChannelConfigOption.CsDbus4:
-                        return "D4";
-                    case Spi.ChannelConfigOption.CsDbus5:
-                        return "D5";
-                    case Spi.ChannelConfigOption.CsDbus6:
-                        return "D6";
-                    case Spi.ChannelConfigOption.CsDbus7:
-                        return "D7";
-                    default:
-                        return "unknown";
-                }
-            }));
-            
-            switch ((Spi.ChannelConfigOption)((int)spiChannelConfig.ConfigOption & 0b100000))
-            {
-                case Spi.ChannelConfigOption.CsActiveHigh:
-                    label_ssActiveOutput.Text = "H (5V)";
-                    break;
-                case Spi.ChannelConfigOption.CsActiveLow:
-                    label_ssActiveOutput.Text = "L (GND)";
-                    break;
-                default:
-                    label_ssActiveOutput.Text = "unknown";
-                    break;
-            }
+            label_serialPortName.Text = serialPort.PortName;
+            label_serialPortBaudRate.Text = serialPort.BaudRate.ToString("N0");
         }
 
         private void RefreshDeviceList()
         {
             toolStripComboBox_deviceList.Items.Clear();
-            var deviceInfoList = Spi.GetDeviceInfoList();
-            var deviceInfoArray = deviceInfoList as Spi.DeviceInfo[] ?? deviceInfoList.ToArray();
+            var deviceInfoArray = SerialPort.GetPortNames();
 
             foreach (var deviceInfo in deviceInfoArray)
             {
@@ -253,7 +205,7 @@ namespace Ymf825Server
             }
             else
             {
-                toolStripComboBox_deviceList.Items.Add("デバイスが見つかりません");
+                toolStripComboBox_deviceList.Items.Add("ポートが見つかりません");
                 toolStripComboBox_deviceList.Enabled = false;
                 toolStripButton_connect.Enabled = false;
             }

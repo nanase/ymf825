@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.ServiceModel;
+using System.Text;
 
 namespace Ymf825
 {
@@ -10,33 +12,39 @@ namespace Ymf825
         #region -- Methods --
 
         [OperationContract]
-        void WriteGpio(byte direction, byte value);
+        bool CheckAvailable();
 
         [OperationContract]
-        byte ReadGpio();
+        void ResetHardware();
 
         [OperationContract]
-        int Write(byte address, byte data);
+        void ResetSoftware();
 
         [OperationContract]
-        int WriteBuffer(byte[] buffer, int offset, int count);
+        void Write(byte address, byte data);
 
         [OperationContract]
-        int BurstWriteBytes(byte address, params byte[] data);
+        void WriteBuffer(byte[] buffer, int offset, int count);
 
         [OperationContract]
-        int ReadByte(byte address);
+        void BurstWriteBytes(byte address, params byte[] data);
 
         [OperationContract]
-        void SendReset();
+        byte Read(TargetDevice device, byte address);
 
         [OperationContract]
-        void SetTarget(params int[] targetIndices);
-
-        [OperationContract]
-        void ChangeTarget(int newTargetIndex);
+        void SetTarget(TargetDevice device);
 
         #endregion
+    }
+
+    [Flags]
+    public enum TargetDevice : byte
+    {
+        None = 0x00,
+
+        Ymf825Board0 = 0x01,
+        Ymf825Board1 = 0x02
     }
 
     [ServiceBehavior(
@@ -55,10 +63,11 @@ namespace Ymf825
 
         #region -- Private Fields --
 
-        private readonly Spi spiDevice;
-        private int[] targetIndices;
-        private int currentTargetIndex;
+        private readonly SerialPort port;
 
+        private static readonly byte[] DataHardwareReset = { 0xfe };
+        private static readonly byte[] DataVersion = { 0xff };
+        private const string VersionString = "V1YMF825";
         #endregion
 
         #region -- Public Properties --
@@ -101,122 +110,115 @@ namespace Ymf825
 
         #region -- Constructors --
 
-        public Ymf825Client(Spi spiDevice)
+        public Ymf825Client(SerialPort port)
         {
-            this.spiDevice = spiDevice;
+            this.port = port;
         }
 
         #endregion
 
         #region -- Public Methods --
 
-        public void WriteGpio(byte direction, byte value)
+        public bool CheckAvailable()
         {
-            spiDevice.WriteGpio(direction, value);
+            var readBuffer = new byte[8];
+            port.Write(DataVersion, 0, DataVersion.Length);
+            port.Read(readBuffer, 0, 8);
+
+            return Encoding.ASCII.GetString(readBuffer) == VersionString;
         }
 
-        public byte ReadGpio()
+        public void ResetHardware()
         {
-            return spiDevice.ReadGpio();
+            port.Write(DataHardwareReset, 0, DataHardwareReset.Length);
         }
 
-        public int Write(byte address, byte data)
+        public void ResetSoftware()
         {
-            var totalTransfered = 0;
+            new Ymf825Driver(this).ResetSoftware();
+        }
+
+        public void Write(byte address, byte data)
+        {
             address &= 0b01111111;
 
-            for (var i = 0; i < targetIndices.Length; i++)
+            try
             {
-                var transfered = 0;
+                port.Write(new byte[] { 0x00, address, data }, 0, 3);
+                WriteBytesTotal += 2;
+                WriteCommandsTotal++;
 
-                try
-                {
-                    ChangeTarget(i);
-                    transfered = spiDevice.WriteBytes(address, data);
-                    WriteBytesTotal += transfered;
-                    WriteCommandsTotal++;
-                    FailedWriteBytesTotal += 2 - transfered;
-
-                    DataWrote?.Invoke(this, new SpiServiceTransferedEventArgs(address, data));
-
-                    totalTransfered += transfered;
-                }
-                catch (InvalidOperationException)
-                {
-                    FailedWriteBytesTotal += 2 - transfered;
-                    WriteErrorTotal++;
-                }
+                DataWrote?.Invoke(this, new SpiServiceTransferedEventArgs(address, data));
             }
-
-            return totalTransfered;
+            catch (InvalidOperationException)
+            {
+                FailedWriteBytesTotal += 2;
+                WriteErrorTotal++;
+            }
         }
 
-        public int WriteBuffer(byte[] buffer, int offset, int count)
+        public void WriteBuffer(byte[] buffer, int offset, int count)
         {
             if (count < 1)
-                return 0;
+                return;
 
             if (count == 1)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             if (count == 2)
-                return Write(buffer[offset], buffer[offset + 1]);
+            {
+                Write(buffer[offset], buffer[offset + 1]);
+                return;
+            }
 
             var newBuffer = new byte[count - 1];
             Array.Copy(buffer, offset, newBuffer, 0, count - 1);
-            return BurstWriteBytes(buffer[offset], newBuffer);
+            BurstWriteBytes(buffer[offset], newBuffer);
         }
 
-        public int BurstWriteBytes(byte address, params byte[] data)
+        public void BurstWriteBytes(byte address, params byte[] data)
         {
-            var totalTransfered = 0;
             address &= 0b01111111;
 
-            for (var i = 0; i < targetIndices.Length; i++)
-            {
-                var transfered = 0;
+            if (data.Length > 512)
+                throw new ArgumentOutOfRangeException(nameof(data));
 
-                try
-                {
-                    ChangeTarget(i);
-                    transfered = spiDevice.BurstWriteBytes(address, data);
-                    BurstWriteBytesTotal += transfered;
-                    BurstWriteCommandsTotal++;
-                    FailedBurstWriteBytesTotal += (1 + data.Length) - transfered;
+            var size = BitConverter.GetBytes((short)data.Length);
 
-                    DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data));
-
-                    totalTransfered += transfered;
-                }
-                catch (InvalidOperationException)
-                {
-                    FailedBurstWriteBytesTotal += (1 + data.Length) - transfered;
-                    BurstWriteErrorTotal++;
-                }
-            }
-
-            return totalTransfered;
-        }
-
-        public int ReadByte(byte address)
-        {
             try
             {
-                address |= 0b10000000;
-                var readData = spiDevice.WriteAndReadByte(address);
-                ReadBytesTotal += readData > -1 ? 1 : 0;
-                WriteBytesTotal += readData > -1 ? 1 : 0;
+                port.Write(new byte[] { 0x01 }, 0, 1);
+                port.Write(size, 0, 2);
+                port.Write(new[] { address }, 0, 1);
+                port.Write(data, 0, data.Length);
+
+                BurstWriteBytesTotal += 3 + data.Length;
+                BurstWriteCommandsTotal++;
+                DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data));
+            }
+            catch (InvalidOperationException)
+            {
+                FailedBurstWriteBytesTotal += 3 + data.Length;
+                BurstWriteErrorTotal++;
+            }
+        }
+
+        public byte Read(TargetDevice device, byte address)
+        {
+            address |= 0b10000000;
+            var readBuffer = new byte[1];
+
+            try
+            {
+                port.Write(new byte[] { 0x20, (byte)device, address }, 0, 3);
+                port.Read(readBuffer, 0, 1);
+                ReadBytesTotal++;
+                WriteBytesTotal++;
                 ReadCommandsTotal++;
                 WriteCommandsTotal++;
-                FailedWriteBytesTotal += readData > -1 ? 0 : 1;
-                FailedReadBytesTotal += readData > -1 ? 0 : 1;
-                WriteErrorTotal += readData > -1 ? 0 : 1;
-                ReadErrorTotal += readData > -1 ? 0 : 1;
+                DataRead?.Invoke(this, new SpiServiceTransferedEventArgs(address, readBuffer[0]));
 
-                if (readData >= 0)
-                    DataRead?.Invoke(this, new SpiServiceTransferedEventArgs(address, (byte)readData));
-
-                return readData;
+                return readBuffer[0];
             }
             catch (InvalidOperationException)
             {
@@ -229,16 +231,9 @@ namespace Ymf825
             }
         }
 
-        public void SendReset()
+        public void SetTarget(TargetDevice device)
         {
-            var driver = new Ymf825Driver(this);
-            driver.ResetHardware();
-            driver.ResetSoftware();
-        }
-
-        public void SetTarget(params int[] target)
-        {
-            targetIndices = target;
+            port.Write(new byte[] { 0x40, (byte)device }, 0, 2);
         }
 
         public static bool IsAvailable()
@@ -278,15 +273,6 @@ namespace Ymf825
             }
 
             return spiService;
-        }
-
-        public void ChangeTarget(int newTargetIndex)
-        {
-            if (currentTargetIndex == newTargetIndex)
-                return;
-
-            spiDevice.ChangeConfig(newTargetIndex);
-            currentTargetIndex = newTargetIndex;
         }
 
         #endregion

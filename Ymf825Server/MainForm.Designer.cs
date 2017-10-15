@@ -50,16 +50,14 @@
             this.label_readBytes = new System.Windows.Forms.Label();
             this.label_burstWriteBytes = new System.Windows.Forms.Label();
             this.label_writeBytes = new System.Windows.Forms.Label();
-            this.label_ssActiveOutput = new System.Windows.Forms.Label();
-            this.label_ssPinout = new System.Windows.Forms.Label();
-            this.label_spiClock = new System.Windows.Forms.Label();
+            this.label_serialPortBaudRate = new System.Windows.Forms.Label();
+            this.label_serialPortName = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -175,16 +173,14 @@
             this.groupBox1.Controls.Add(this.label_readBytes);
             this.groupBox1.Controls.Add(this.label_burstWriteBytes);
             this.groupBox1.Controls.Add(this.label_writeBytes);
-            this.groupBox1.Controls.Add(this.label_ssActiveOutput);
-            this.groupBox1.Controls.Add(this.label_ssPinout);
-            this.groupBox1.Controls.Add(this.label_spiClock);
+            this.groupBox1.Controls.Add(this.label_serialPortBaudRate);
+            this.groupBox1.Controls.Add(this.label_serialPortName);
             this.groupBox1.Controls.Add(this.label10);
             this.groupBox1.Controls.Add(this.label11);
             this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.label13);
             this.groupBox1.Controls.Add(this.label14);
             this.groupBox1.Controls.Add(this.label15);
-            this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label6);
@@ -334,35 +330,25 @@
             this.label_writeBytes.Text = "0";
             this.label_writeBytes.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // label_ssActiveOutput
+            // label_serialPortBaudRate
             // 
-            this.label_ssActiveOutput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label_serialPortBaudRate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_ssActiveOutput.Location = new System.Drawing.Point(109, 54);
-            this.label_ssActiveOutput.Name = "label_ssActiveOutput";
-            this.label_ssActiveOutput.Size = new System.Drawing.Size(113, 13);
-            this.label_ssActiveOutput.TabIndex = 17;
-            this.label_ssActiveOutput.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label_serialPortBaudRate.Location = new System.Drawing.Point(135, 36);
+            this.label_serialPortBaudRate.Name = "label_serialPortBaudRate";
+            this.label_serialPortBaudRate.Size = new System.Drawing.Size(87, 13);
+            this.label_serialPortBaudRate.TabIndex = 16;
+            this.label_serialPortBaudRate.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // label_ssPinout
+            // label_serialPortName
             // 
-            this.label_ssPinout.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label_serialPortName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_ssPinout.Location = new System.Drawing.Point(72, 36);
-            this.label_ssPinout.Name = "label_ssPinout";
-            this.label_ssPinout.Size = new System.Drawing.Size(150, 13);
-            this.label_ssPinout.TabIndex = 16;
-            this.label_ssPinout.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label_spiClock
-            // 
-            this.label_spiClock.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_spiClock.Location = new System.Drawing.Point(97, 18);
-            this.label_spiClock.Name = "label_spiClock";
-            this.label_spiClock.Size = new System.Drawing.Size(125, 13);
-            this.label_spiClock.TabIndex = 15;
-            this.label_spiClock.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label_serialPortName.Location = new System.Drawing.Point(97, 18);
+            this.label_serialPortName.Name = "label_serialPortName";
+            this.label_serialPortName.Size = new System.Drawing.Size(125, 13);
+            this.label_serialPortName.TabIndex = 15;
+            this.label_serialPortName.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label10
             // 
@@ -418,32 +404,23 @@
             this.label15.TabIndex = 11;
             this.label15.Text = "Write error";
             // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 54);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(97, 13);
-            this.label9.TabIndex = 8;
-            this.label9.Text = "/SS Active Output";
-            // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(6, 36);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(60, 13);
+            this.label8.Size = new System.Drawing.Size(126, 13);
             this.label8.TabIndex = 7;
-            this.label8.Text = "/SS Pinout";
+            this.label8.Text = "Baud Rate (per second)";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(6, 18);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(75, 13);
+            this.label7.Size = new System.Drawing.Size(59, 13);
             this.label7.TabIndex = 6;
-            this.label7.Text = "SPI Clock (Hz)";
+            this.label7.Text = "Serial Port";
             // 
             // label6
             // 
@@ -584,16 +561,14 @@
         private System.Windows.Forms.Label label_readBytes;
         private System.Windows.Forms.Label label_burstWriteBytes;
         private System.Windows.Forms.Label label_writeBytes;
-        private System.Windows.Forms.Label label_ssActiveOutput;
-        private System.Windows.Forms.Label label_ssPinout;
-        private System.Windows.Forms.Label label_spiClock;
+        private System.Windows.Forms.Label label_serialPortBaudRate;
+        private System.Windows.Forms.Label label_serialPortName;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
