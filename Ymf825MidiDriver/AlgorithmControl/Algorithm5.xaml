@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="Ymf825MidiDriver.AlgorithmControl.Algorithm5"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="70" d:DesignWidth="180">
+    <Grid>
+        <Polygon Points="0,26 0,44 168,44 168,71 219,35 168,0 168,26" Stretch="Fill" Fill="Black" Margin="155,33,0,0" HorizontalAlignment="Left" Width="16" Height="4" VerticalAlignment="Top"/>
+        <Polyline Points="60,24 60,10 5,10 5,24 60,24 80,24 120,24 148,35" Stroke="Black" />
+        <Polyline Points="60,54 60,40 5,40 5,54 60,54 80,54 120,54 148,35" Stroke="Black" />
+        <Label Content="1" HorizontalAlignment="Left" Margin="10,15,0,0" VerticalAlignment="Top" Height="17" Width="42" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontWeight="Bold" BorderBrush="Black" BorderThickness="1" Background="#FFEEEEEE"/>
+        <Label Content="2" HorizontalAlignment="Left" Margin="70,15,0,0" VerticalAlignment="Top" Height="17" Width="42" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontWeight="Bold" BorderBrush="Black" BorderThickness="1" Background="#FFEEEEEE" RenderTransformOrigin="0.5,0.5"/>
+        <Label Content="3" HorizontalAlignment="Left" Margin="10,46,0,0" VerticalAlignment="Top" Height="17" Width="42" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontWeight="Bold" BorderBrush="Black" BorderThickness="1" Background="#FFEEEEEE" RenderTransformOrigin="0.5,0.5"/>
+        <Label Content="4" HorizontalAlignment="Left" Margin="70,46,0,0" VerticalAlignment="Top" Height="17" Width="42" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontWeight="Bold" BorderBrush="Black" BorderThickness="1" Background="#FFEEEEEE" RenderTransformOrigin="0.5,0.5"/>
+        <Grid Margin="141,28,0,0" HorizontalAlignment="Left" Width="14" Height="14" VerticalAlignment="Top">
+            <Ellipse Stroke="Black" Margin="0" Fill="#FFEEEEEE"/>
+            <Polyline Points="0,7 14,7" Stroke="Black"/>
+            <Polyline Points="7,0 7,14" Stroke="Black"/>
+        </Grid>
+        <Ellipse Margin="57,21,0,0"  Width="6" Height="6" Fill="Black" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Label Content="5" HorizontalAlignment="Left" Margin="160,50,0,0" VerticalAlignment="Top" Height="20" Width="20" Foreground="#AAA" FontWeight="Bold" Padding="0,0,5,0" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" FontSize="16"/>
+        <Ellipse Margin="57,51,0,0"  Width="6" Height="6" Fill="Black" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+    </Grid>
+</UserControl>

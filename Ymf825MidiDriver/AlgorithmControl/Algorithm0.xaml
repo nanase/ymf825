@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="Ymf825MidiDriver.AlgorithmControl.Algorithm0"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="70" d:DesignWidth="180">
+    <Grid>
+        <Polyline Points="90,40.5 90,23 20,23 20,40.5 90,40.5 120,40.5" Stroke="Black" />
+        <Label Content="1" HorizontalAlignment="Left" Margin="34,32,0,0" VerticalAlignment="Top" Height="17" Width="42" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontWeight="Bold" BorderBrush="Black" BorderThickness="1" Background="#FFEEEEEE"/>
+        <Label Content="2" HorizontalAlignment="Left" Margin="105,32,0,0" VerticalAlignment="Top" Height="17" Width="42" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontWeight="Bold" BorderBrush="Black" BorderThickness="1" RenderTransformOrigin="0.5,0.5" Background="#FFEEEEEE"/>
+        <Polygon Points="0,26 0,44 168,44 168,71 219,35 168,0 168,26" Stretch="Fill" Fill="Black" Margin="147,38,0,0" HorizontalAlignment="Left" Width="16" Height="4" VerticalAlignment="Top"/>
+        <Ellipse Margin="87,37,0,0"  Width="6" Height="6" Fill="Black" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Label Content="0" HorizontalAlignment="Left" Margin="160,50,0,0" VerticalAlignment="Top" Height="20" Width="20" Foreground="#AAA" FontWeight="Bold" Padding="0,0,5,0" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" FontSize="16"/>
+    </Grid>
+</UserControl>
