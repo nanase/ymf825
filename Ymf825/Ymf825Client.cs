@@ -27,7 +27,7 @@ namespace Ymf825
         void WriteBuffer(byte[] buffer, int offset, int count);
 
         [OperationContract]
-        void BurstWriteBytes(byte address, params byte[] data);
+        void BurstWriteBytes(byte address, byte[] data, int offset, int count);
 
         [OperationContract]
         byte Read(TargetDevice device, byte address);
@@ -173,32 +173,32 @@ namespace Ymf825
 
             var newBuffer = new byte[count - 1];
             Array.Copy(buffer, offset, newBuffer, 0, count - 1);
-            BurstWriteBytes(buffer[offset], newBuffer);
+            BurstWriteBytes(buffer[offset], newBuffer, 0, newBuffer.Length);
         }
 
-        public void BurstWriteBytes(byte address, params byte[] data)
+        public void BurstWriteBytes(byte address, byte[] data, int offset, int count)
         {
             address &= 0b01111111;
 
-            if (data.Length > 512)
+            if (count > 512)
                 throw new ArgumentOutOfRangeException(nameof(data));
 
-            var size = BitConverter.GetBytes((short)data.Length);
+            var size = BitConverter.GetBytes((short)count);
 
             try
             {
                 port.Write(new byte[] { 0x01 }, 0, 1);
                 port.Write(size, 0, 2);
                 port.Write(new[] { address }, 0, 1);
-                port.Write(data, 0, data.Length);
+                port.Write(data, offset, count);
 
-                BurstWriteBytesTotal += 3 + data.Length;
+                BurstWriteBytesTotal += 3 + count;
                 BurstWriteCommandsTotal++;
-                DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data));
+                DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data, offset, count));
             }
             catch (InvalidOperationException)
             {
-                FailedBurstWriteBytesTotal += 3 + data.Length;
+                FailedBurstWriteBytesTotal += 3 + count;
                 BurstWriteErrorTotal++;
             }
         }
@@ -307,14 +307,20 @@ namespace Ymf825
 
         public IReadOnlyList<byte> Data { get; }
 
+        public int Offset { get; }
+
+        public int Count { get; }
+
         #endregion
 
         #region -- Constructors --
 
-        public SpiServiceBurstWriteEventArgs(byte address, IReadOnlyList<byte> data)
+        public SpiServiceBurstWriteEventArgs(byte address, IReadOnlyList<byte> data, int offset, int count)
         {
             Address = address;
             Data = data;
+            Offset = offset;
+            Count = count;
         }
 
         #endregion

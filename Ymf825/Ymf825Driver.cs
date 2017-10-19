@@ -189,17 +189,9 @@ namespace Ymf825
 
         #region #7 CONTENTS_DATA_REG (0x07)
 
-        public void WriteContentsData(byte header, params byte[] data)
+        public void WriteContentsData(byte[] data, int offset, int count)
         {
-            var newArray = new byte[data.Length + 1];
-            data[0] = header;
-            Array.Copy(data, 1, newArray, 0, data.Length);
-            Client.BurstWriteBytes(0x07, newArray);
-        }
-
-        public void WriteContentsData(byte[] data)
-        {
-            Client.BurstWriteBytes(0x07, data);
+            Client.BurstWriteBytes(0x07, data, offset, count);
         }
 
         #endregion
