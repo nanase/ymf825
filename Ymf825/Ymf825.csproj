@@ -37,9 +37,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalogBlock.cs" />
+    <Compile Include="OperatorParameter.cs" />
     <Compile Include="Gain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequencerSetting.cs" />
+    <Compile Include="ToneParameter.cs" />
+    <Compile Include="ToneParameterCollection.cs" />
     <Compile Include="Ymf825Client.cs" />
     <Compile Include="Ymf825Driver.cs" />
   </ItemGroup>
