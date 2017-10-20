@@ -114,7 +114,7 @@ namespace Ymf825Server
 
         private void ConnectDevice()
         {
-            serialPort = new SerialPort(toolStripComboBox_deviceList.SelectedItem.ToString(), 256000, Parity.None);
+            serialPort = new SerialPort(toolStripComboBox_deviceList.SelectedItem.ToString(), 1000000, Parity.None);
             serialPort.Open();
 
             ymf825Client = new Ymf825Client(serialPort);

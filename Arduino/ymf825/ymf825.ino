@@ -1,6 +1,6 @@
-#define SERIAL_BAUD_RATE 256000
-#define SPI_CLOCK        8000000
-#define READ_NEXT_WAIT   5
+#define SERIAL_BAUD_RATE 1000000
+#define SPI_CLOCK        4000000
+#define READ_NEXT_WAIT   3
 #define BURST_WRITE_BUFFER_SIZE 512
 
 #define SS_N0_PORTD ((byte)0x04)
