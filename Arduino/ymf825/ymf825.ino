@@ -2,8 +2,13 @@
 #define SPI_CLOCK        8000000
 #define READ_NEXT_WAIT   5
 #define BURST_WRITE_BUFFER_SIZE 512
+
+#define SS_N0_PORTD ((byte)0x04)
+#define SS_N1_PORTD ((byte)0x08)
 #define SS_N0_PIN 2
 #define SS_N1_PIN 3
+
+#define RST_N_PORTC ((byte)0x20)
 #define RST_N_PIN 19
 
 #include <SPI.h>
@@ -17,8 +22,9 @@ void setup() {
   pinMode(RST_N_PIN, OUTPUT);
   pinMode(SS_N0_PIN, OUTPUT);
   pinMode(SS_N1_PIN, OUTPUT);
-  digitalWrite(RST_N_PIN, HIGH);
-  unselect_ss();
+  
+  unselect_ss();          // -> HIGH
+  PORTC |= RST_N_PORTC;   // -> HIGH
 
   SPI.begin();
   SPI.beginTransaction(SPISettings(SPI_CLOCK, MSBFIRST, SPI_MODE0));
@@ -78,27 +84,27 @@ word serial_read_next16() {
 }
 
 void select_ss() {
-  digitalWrite(SS_N0_PIN, (device_select & 0x01) ? LOW : HIGH);
-  digitalWrite(SS_N1_PIN, (device_select & 0x02) ? LOW : HIGH);
+  byte selected_port = ((device_select & 0x01) ? SS_N0_PORTD : 0x00) |
+                       ((device_select & 0x02) ? SS_N1_PORTD : 0x00);
+  PORTD &= ~selected_port;
 }
 
 void select_ss_exclusively(byte select) {
   unselect_ss();
   
   if (select & 0x01) {
-    digitalWrite(SS_N0_PIN, LOW);
+    PORTD &= ~SS_N0_PORTD;
     return;
   }
   
   if (select & 0x02) {
-    digitalWrite(SS_N1_PIN, LOW);
+    PORTD &= ~SS_N1_PORTD;
     return;
   }
 }
 
 void unselect_ss() {
-  digitalWrite(SS_N0_PIN, HIGH);
-  digitalWrite(SS_N1_PIN, HIGH);
+  PORTD |= SS_N0_PORTD | SS_N1_PORTD;
 }
 
 // ----- SPI Functions ----- //
@@ -142,9 +148,9 @@ byte spi_read() {
 }
 
 void reset_hardware() {
-  digitalWrite (RST_N_PIN, HIGH);
-  digitalWrite (RST_N_PIN, LOW);
+  PORTC |= RST_N_PORTC;   // LOW -> HIGH
+  PORTC &= ~RST_N_PORTC;  // HIGH -> LOW
   delayMicroseconds(100);
-  digitalWrite (RST_N_PIN, HIGH);
+  PORTC |= RST_N_PORTC;   // LOW -> HIGH
 }
 
