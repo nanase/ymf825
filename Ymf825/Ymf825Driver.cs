@@ -9,6 +9,8 @@ namespace Ymf825
 
         private Action<int> sleepAction = Thread.Sleep;
 
+        private static readonly double[] FnumTable = new double[12];
+
         #endregion
 
         #region -- Public Properties --
@@ -28,6 +30,12 @@ namespace Ymf825
         public Ymf825Driver(IYmf825Client client)
         {
             Client = client;
+        }
+
+        static Ymf825Driver()
+        {
+            for (var i = 0; i < 12; i++)
+                FnumTable[i] = CalcFnum(440.0 * Math.Pow(2.0, (48.0 + i - 69.0) / 12.0), 3);
         }
 
         #endregion
@@ -436,6 +444,12 @@ namespace Ymf825
 
         #region -- Static Methods --
 
+        /// <summary>
+        /// 周波数と BLOCK 値から FNUM 値を求めます。
+        /// </summary>
+        /// <param name="frequency">発音される周波数 (Hz)。</param>
+        /// <param name="block">オクターブを表す BLOCK 値。</param>
+        /// <returns>FNUM 値。</returns>
         public static double CalcFnum(double frequency, int block)
         {
             // Original Formula
@@ -443,11 +457,52 @@ namespace Ymf825
             return Math.Pow(2.0, 13 - block) * frequency / 375.0;
         }
 
+        /// <summary>
+        /// FNUM 値と BLOCK 値から発音される周波数を求めます。
+        /// </summary>
+        /// <param name="fnum">FNUM 値。</param>
+        /// <param name="block">オクターブを表す BLOCK 値。</param>
+        /// <returns>発音される周波数 (Hz)。</returns>
         public static double CalcFrequency(double fnum, double block)
         {
             // Original Formula
             // const freq = (48000 * Math.pow(2, block - 1) * fnum) / Math.pow(2, 19);
             return 375.0 * Math.Pow(2.0, block - 13) * fnum;
+        }
+
+        /// <summary>
+        /// MIDI ノートナンバーから FNUM 値と BLOCK 値を求めます。
+        /// </summary>
+        /// <param name="key">元になる MIDI ノートナンバー。</param>
+        /// <param name="fnum">FNUM 値。</param>
+        /// <param name="block">オクターブを表す BLOCK 値。</param>
+        /// <param name="correction">理想周波数と FNUM および BLOCK 値によって発音される周波数との誤差補正値。</param>
+        public static void GetFnumAndBlock(int key, out double fnum, out int block, out double correction)
+        {
+            if (key < 0 || key > 127)
+                throw new ArgumentOutOfRangeException(nameof(key));
+
+            var blockMod = 1.0;
+            block = key / 12 - 2;
+
+            if (block < 0)
+            {
+                blockMod = Math.Pow(2.0, block);
+                block = 0;
+            }
+            else if (block > 7)
+            {
+                blockMod = Math.Pow(2.0, block - 7);
+                block = 7;
+            }
+
+            fnum = FnumTable[key % 12] * blockMod;
+            var idealFreq = CalcFrequency(fnum, block);
+
+            if (fnum > 1023.0)
+                fnum = 1023.0;
+
+            correction = idealFreq / CalcFrequency(Math.Round(fnum), block);
         }
 
         /// <summary>
