@@ -450,6 +450,31 @@ namespace Ymf825
             return 375.0 * Math.Pow(2.0, block - 13) * fnum;
         }
 
+        /// <summary>
+        /// 周波数倍率をレジスタに書き込める値に変換します。
+        /// </summary>
+        /// <param name="multiplier">周波数倍率。有効範囲は 0.0 から 4.0 未満です。</param>
+        /// <param name="integer">周波数倍率の整数値部分 (INT)。</param>
+        /// <param name="fraction">周波数倍率の小数値部分 (FRAC)。</param>
+        public static void ConvertForFrequencyMultiplier(double multiplier, out int integer, out int fraction)
+        {
+            if (multiplier >= 4.0 || multiplier < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(multiplier));
+
+            multiplier = Math.Round(multiplier * 512.0);
+
+            if (multiplier >= 4.0 * 512.0)
+            {
+                integer = 3;
+                fraction = 511;
+            }
+            else
+            {
+                integer = (int)(multiplier / 512.0);
+                fraction = (int)(multiplier - integer * 512);
+            }
+        }
+
         #endregion
     }
 }
