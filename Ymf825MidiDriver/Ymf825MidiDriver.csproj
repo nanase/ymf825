@@ -93,6 +93,7 @@
     <Compile Include="Extension.cs" />
     <Compile Include="OperatorEnabledConveter.cs" />
     <Compile Include="AlgorithmConverter.cs" />
+    <Compile Include="ToneItem.cs" />
     <Compile Include="ToneNumberToStringConveter.cs" />
     <Compile Include="WaveShape.cs" />
     <Page Include="AlgorithmControl\Algorithm0.xaml">
