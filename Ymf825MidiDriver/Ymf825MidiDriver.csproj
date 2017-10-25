@@ -178,7 +178,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Ymf825\Ymf825.csproj">
+      <Project>{7b92175f-edaf-42bf-88a7-d113c1c40aff}</Project>
+      <Name>Ymf825</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\page_white_add.png" />
   </ItemGroup>
