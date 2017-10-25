@@ -1,4 +1,4 @@
-﻿<Window x:Name="window" x:Class="Ymf825MidiDriver.MainWindow"
+﻿<Window x:Name="Window" x:Class="Ymf825MidiDriver.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,63 +7,328 @@
         xmlns:talex="http://schemas.talex-soft.com/2010/xaml/presentation"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="YMF825 MIDI Driver" Height="714.766" Width="1199" ResizeMode="NoResize">
+        Title="YMF825 MIDI Driver" Height="715" Width="1200" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
+        <local:ToneNumberToStringConveter x:Key="ToneNumberToStringConveter"/>
+        <local:BoolSelectedValueConverter x:Key="BoolSelectedValueConverter"/>
         <system:String x:Key="Algorithms">0, 1, 2, 3, 4, 5, 6, 7</system:String>
         <local:AlgorithmConverter x:Key="AlgorithmConverter" />
         <local:OperatorEnabledConveter x:Key="OperatorEnabledConveter" />
+        <Style x:Key="ImageEnabled" TargetType="{x:Type Image}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.25"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ElementEnabled" TargetType="{x:Type FrameworkElement}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="CheckBox">
+            <EventSetter Event="Checked" Handler="TonePropertyChanged"/>
+        </Style>
+        <Style TargetType="Slider">
+            <EventSetter Event="ValueChanged" Handler="TonePropertyChanged"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <EventSetter Event="SelectionChanged" Handler="TonePropertyChanged"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <EventSetter Event="TextChanged" Handler="TonePropertyChanged"/>
+        </Style>
+        <Style TargetType="talex:NumericUpDown">
+            <EventSetter Event="ValueChanged" Handler="TonePropertyChanged"/>
+        </Style>
+        <Style TargetType="local:OperatorParameter">
+            <EventSetter Event="TonePropertyChanged" Handler="TonePropertyChanged"/>
+        </Style>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" CanExecute="Command_CanAlwaysExecute" Executed="NewCommand_OnExecuted"/>
+        <CommandBinding Command="Open" CanExecute="Command_CanAlwaysExecute" Executed="OpenCommand_OnExecuted"/>
+        <CommandBinding Command="Save" CanExecute="Command_CanAlwaysExecute" Executed="SaveCommand_OnExecuted"/>
+        <CommandBinding Command="SaveAs" CanExecute="Command_CanAlwaysExecute" Executed="SaveAsCommand_OnExecuted"/>
+        <CommandBinding Command="Close" CanExecute="Command_CanAlwaysExecute" Executed="CloseCommand_OnExecuted" />
+        <CommandBinding Command="{x:Static local:MainWindow.NewToneCommand}" Executed="NewToneCommand_Executed" />
+        <CommandBinding Command="{x:Static local:MainWindow.DeleteToneCommand}" Executed="DeleteToneCommand_Executed" />
+        <CommandBinding Command="{x:Static local:MainWindow.DuplicateToneCommand}" Executed="DuplicateToneCommand_Executed" />
+    </Window.CommandBindings>
     <Grid>
         <Menu Height="20" VerticalAlignment="Top">
             <MenuItem Header="ファイル(_F)">
-                <MenuItem Header="新規作成(_N)" />
-                <MenuItem Header="開く(_O)" />
+                <MenuItem Header="新規作成(_N)" Command="New"/>
+                <MenuItem Header="開く(_O)" Command="Open" InputGestureText="Ctrl+O"/>
                 <Separator />
-                <MenuItem Header="保存(_S)" />
-                <MenuItem Header="名前を付けて保存(_S)" />
+                <MenuItem Header="保存(_S)" Command="Save" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="名前を付けて保存(_A)" Command="SaveAs" InputGestureText="Ctrl+Shift+S"/>
                 <Separator />
-                <MenuItem Header="終了(_X)" />
+                <MenuItem Header="終了(_X)" Command="Close" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="ヘルプ(_H)" />
         </Menu>
         <ToolBarTray Margin="0,20,0,0" Height="26" VerticalAlignment="Top">
+            <ToolBar ToolBarTray.IsLocked="True" Loaded="ToolBar_Loaded">
+                <Button Command="New">
+                    <Image Source="Resources/page_white.png" />
+                </Button>
+                <Button Command="Open">
+                    <Image Source="Resources/folder_go.png" />
+                </Button>
+                <Separator/>
+            </ToolBar>
         </ToolBarTray>
-        <ListBox HorizontalAlignment="Left" Margin="0,46,0,0" Width="160"/>
-        <GroupBox Header="トーン" Height="113" Margin="165,51,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="808">
-            <Grid>
-                <Label Content="アルゴリズム" HorizontalAlignment="Left" Margin="265,34,0,0" VerticalAlignment="Top"/>
-                <Label Content="基本オクターブ" HorizontalAlignment="Left" Margin="550,8,0,0" VerticalAlignment="Top"/>
-                <Label Content="LFO周波数" HorizontalAlignment="Left" Margin="550,34,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxAlgorithm" HorizontalAlignment="Left" Margin="330,9,0,0" Width="206" Height="78" VerticalAlignment="Top" ItemsSource="{Binding Converter={StaticResource AlgorithmConverter}, Mode=OneWay, Source={StaticResource Algorithms}}" SelectedIndex="0"/>
-                <ComboBox x:Name="ComboBoxBasicOctave" HorizontalAlignment="Left" Margin="632,9,0,0" Width="140" Height="24" VerticalAlignment="Top" SelectedIndex="{Binding BasicOctave, ElementName=window, FallbackValue=1, Mode=TwoWay, TargetNullValue=1}">
-                    <ComboBoxItem Content="x2"/>
-                    <ComboBoxItem Content="x1"/>
-                    <ComboBoxItem Content="x0.5"/>
-                    <ComboBoxItem Content="x0.25"/>
-                </ComboBox>
-                <ComboBox HorizontalAlignment="Left" Margin="632,36,0,0" Width="140" Height="24" VerticalAlignment="Top" SelectedIndex="0">
-                    <ComboBoxItem Content="1.8 Hz"/>
-                    <ComboBoxItem Content="4.0 Hz"/>
-                    <ComboBoxItem Content="5.9 Hz"/>
-                    <ComboBoxItem Content="7.0 Hz"/>
-                </ComboBox>
-                <Label Content="定位" HorizontalAlignment="Left" Margin="8,61,0,0" VerticalAlignment="Top"/>
-                <Label Content="プログラム #" HorizontalAlignment="Left" Margin="8,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox HorizontalAlignment="Left" Margin="109,36,0,0" Width="140" Height="24" VerticalAlignment="Top" IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsPercussion}"/>
-                <talex:NumericUpDown VerticalAlignment="Top" Height="24" Margin="109,9,0,0" HorizontalAlignment="Left" Width="140" Maximum="127"/>
-                <ComboBox HorizontalAlignment="Left" Margin="109,63,0,0" Width="140" Height="24" VerticalAlignment="Top" SelectedIndex="1">
-                    <ComboBoxItem Content="左 (Lch)"/>
-                    <ComboBoxItem Content="中央 (Lch, Rch)"/>
-                    <ComboBoxItem Content="右 (Rch)"/>
-                </ComboBox>
-                <CheckBox x:Name="CheckBoxIsPercussion" Content="パーカッション #" HorizontalAlignment="Left" Margin="12,41,0,0" VerticalAlignment="Top"/>
-            </Grid>
+        <Grid HorizontalAlignment="Left" Margin="0,46,0,0" Width="160">
+            <ListBox x:Name="ToneListBox" Margin="0,0,0,26"
+                     ItemsSource="{Binding}"
+                     SelectedItem="{Binding SelectedToneItem, ElementName=Window, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <Label Padding="4,0,0,0" VerticalContentAlignment="Top"
+                                   Content="{Binding Name, TargetNullValue=(Unnamed)}"
+                                   d:DataContext="{local:ToneItem}" />
+                            <WrapPanel>
+                                <Label Padding="4,0,0,2" VerticalContentAlignment="Top" FontSize="10"
+                                       d:DataContext="{local:ToneItem}">
+                                    <Label.Content>
+                                        <MultiBinding Converter="{StaticResource ToneNumberToStringConveter}">
+                                            <Binding Path="ProgramNumberAssigned"/>
+                                            <Binding Path="ProgramNumber"/>
+                                            <Binding Path="PercussionNumberAssigned"/>
+                                            <Binding Path="PercussionNumber"/>
+                                        </MultiBinding>
+                                    </Label.Content>
+                                </Label>
+                            </WrapPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <ToolBarTray Height="26" VerticalAlignment="Bottom">
+                <ToolBar ToolBarTray.IsLocked="True" Loaded="ToolBar_Loaded">
+                    <Button ToolTip="新しいトーンを作成"
+                            Command="{x:Static local:MainWindow.NewToneCommand}">
+                        <Image Source="Resources/page_white_add.png" />
+                    </Button>
+                    <Separator/>
+                    <Button IsEnabled="{Binding SelectedValue, Converter={StaticResource BoolSelectedValueConverter}, ElementName=ToneListBox}"
+                            Command="{x:Static local:MainWindow.DeleteToneCommand}"
+                            ToolTip="削除">
+                        <Image Source="Resources/cross.png" Style="{StaticResource ImageEnabled}"/>
+                    </Button>
+                    <Button IsEnabled="{Binding SelectedValue, Converter={StaticResource BoolSelectedValueConverter}, ElementName=ToneListBox}"
+                            Command="{x:Static local:MainWindow.DuplicateToneCommand}"
+                            ToolTip="複製">
+                        <Image Source="Resources/page_white_copy.png" />
+                    </Button>
+                    <Separator/>
+                    <Button IsEnabled="{Binding SelectedValue, Converter={StaticResource BoolSelectedValueConverter}, ElementName=ToneListBox}"
+                            ToolTip="エクスポート">
+                        <Image Source="Resources/page_white_go.png" Style="{StaticResource ImageEnabled}"/>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+        </Grid>
+        <Grid Margin="165,51,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"
+              IsEnabled="{Binding SelectedValue, Converter={StaticResource BoolSelectedValueConverter}, ElementName=ToneListBox}"
+              Style="{StaticResource ElementEnabled}">
+            <GroupBox Header="トーン" Height="113" Width="1015" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <Grid>
+                    <Label Content="名前" HorizontalAlignment="Left" Margin="12,8,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Height="24" Margin="109,9,0,0"
+                             Text="{Binding SelectedToneItem.Name, ElementName=Window, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" />
 
-        </GroupBox>
-        <local:OperatorParameter HorizontalAlignment="Left" Margin="165,170,0,0" Width="250" OperatorNumber="1" HasFeedback="True" Height="501" VerticalAlignment="Top"/>
-        <local:OperatorParameter HorizontalAlignment="Left" Margin="420,170,0,0" Width="250" OperatorNumber="2" VerticalAlignment="Top" Height="501"/>
-        <local:OperatorParameter HorizontalAlignment="Left" Margin="675,170,0,0" Width="250" OperatorNumber="3" HasFeedback="True" IsEnabled="{Binding SelectedIndex, Converter={StaticResource OperatorEnabledConveter}, ElementName=ComboBoxAlgorithm}" VerticalAlignment="Top" Height="501"/>
-        <local:OperatorParameter HorizontalAlignment="Left" Margin="930,170,0,0" Width="250" OperatorNumber="4" IsEnabled="{Binding SelectedIndex, Converter={StaticResource OperatorEnabledConveter}, ElementName=ComboBoxAlgorithm}" VerticalAlignment="Top" Height="501"/>
+                    <CheckBox x:Name="CheckBoxIsProgram" Content="プログラム #" HorizontalAlignment="Left" Margin="12,39,0,0" VerticalAlignment="Top"
+                              IsChecked="{Binding SelectedToneItem.ProgramNumberAssigned, ElementName=Window, Mode=TwoWay}"/>
+                    <talex:NumericUpDown x:Name="NumericUpDownProgram" VerticalAlignment="Top" Height="24" Margin="109,35,0,0" HorizontalAlignment="Left" Width="140" Maximum="127"
+                                         IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsProgram}"
+                                         Value="{Binding SelectedToneItem.ProgramNumber, ElementName=Window, Mode=TwoWay}"/>
 
+                    <CheckBox x:Name="CheckBoxIsPercussion" Content="パーカッション #" HorizontalAlignment="Left" Margin="12,67,0,0" VerticalAlignment="Top"
+                              IsChecked="{Binding SelectedToneItem.PercussionNumberAssigned, ElementName=Window, Mode=TwoWay}"/>
+                    <ComboBox HorizontalAlignment="Left" Margin="109,62,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                              IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsPercussion}"
+                              SelectedIndex="{Binding SelectedToneItem.PercussionNumber, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
+                        <ComboBoxItem Content="0" />
+                        <ComboBoxItem Content="1" />
+                        <ComboBoxItem Content="2" />
+                        <ComboBoxItem Content="3" />
+                        <ComboBoxItem Content="4" />
+                        <ComboBoxItem Content="5" />
+                        <ComboBoxItem Content="6" />
+                        <ComboBoxItem Content="7" />
+                        <ComboBoxItem Content="8" />
+                        <ComboBoxItem Content="9" />
+                        <ComboBoxItem Content="10" />
+                        <ComboBoxItem Content="11" />
+                        <ComboBoxItem Content="12" />
+                        <ComboBoxItem Content="13" />
+                        <ComboBoxItem Content="14" />
+                        <ComboBoxItem Content="15" />
+                        <ComboBoxItem Content="16" />
+                        <ComboBoxItem Content="17" />
+                        <ComboBoxItem Content="18" />
+                        <ComboBoxItem Content="19" />
+                        <ComboBoxItem Content="20" />
+                        <ComboBoxItem Content="21" />
+                        <ComboBoxItem Content="22" />
+                        <ComboBoxItem Content="23" />
+                        <ComboBoxItem Content="24" />
+                        <ComboBoxItem Content="25" />
+                        <ComboBoxItem Content="26" />
+                        <ComboBoxItem Content="27" />
+                        <ComboBoxItem Content="28" />
+                        <ComboBoxItem Content="29" />
+                        <ComboBoxItem Content="30" />
+                        <ComboBoxItem Content="31" />
+                        <ComboBoxItem Content="32" />
+                        <ComboBoxItem Content="33" />
+                        <ComboBoxItem Content="34" />
+                        <ComboBoxItem Content="35 (Bass Drum 2)" />
+                        <ComboBoxItem Content="36 (Bass Drum 1)" />
+                        <ComboBoxItem Content="37 (Side Stick)" />
+                        <ComboBoxItem Content="38 (Snare Drum 1)" />
+                        <ComboBoxItem Content="39 (Hand Clap)" />
+                        <ComboBoxItem Content="40 (Snare Drum 2)" />
+                        <ComboBoxItem Content="41 (Low Tom 2)" />
+                        <ComboBoxItem Content="42 (Closed Hi-hat)" />
+                        <ComboBoxItem Content="43 (Low Tom 1)" />
+                        <ComboBoxItem Content="44 (Pedal Hi-hat)" />
+                        <ComboBoxItem Content="45 (Mid Tom 2)" />
+                        <ComboBoxItem Content="46 (Open Hi-hat)" />
+                        <ComboBoxItem Content="47 (Mid Tom 1)" />
+                        <ComboBoxItem Content="48 (High Tom 2)" />
+                        <ComboBoxItem Content="49 (Crash Cymbal 1)" />
+                        <ComboBoxItem Content="50 (High Tom 1)" />
+                        <ComboBoxItem Content="51 (Ride Cymbal 1)" />
+                        <ComboBoxItem Content="52 (Chinese Cymbal)" />
+                        <ComboBoxItem Content="53 (Ride Bell)" />
+                        <ComboBoxItem Content="54 (Tambourine)" />
+                        <ComboBoxItem Content="55 (Splash Cymbal)" />
+                        <ComboBoxItem Content="56 (Cowbell)" />
+                        <ComboBoxItem Content="57 (Crash Cymbal 2)" />
+                        <ComboBoxItem Content="58 (Vibra Slap)" />
+                        <ComboBoxItem Content="59 (Ride Cymbal 2)" />
+                        <ComboBoxItem Content="60 (High Bongo)" />
+                        <ComboBoxItem Content="61 (Low Bongo)" />
+                        <ComboBoxItem Content="62 (Mute High Conga)" />
+                        <ComboBoxItem Content="63 (Open High Conga)" />
+                        <ComboBoxItem Content="64 (Low Conga)" />
+                        <ComboBoxItem Content="65 (High Timbale)" />
+                        <ComboBoxItem Content="66 (Low Timbale)" />
+                        <ComboBoxItem Content="67 (High Agogo)" />
+                        <ComboBoxItem Content="68 (Low Agogo)" />
+                        <ComboBoxItem Content="69 (Cabasa)" />
+                        <ComboBoxItem Content="70 (Maracas)" />
+                        <ComboBoxItem Content="71 (Short Whistle)" />
+                        <ComboBoxItem Content="72 (Long Whistle)" />
+                        <ComboBoxItem Content="73 (Short Guiro)" />
+                        <ComboBoxItem Content="74 (Long Guiro)" />
+                        <ComboBoxItem Content="75 (Claves)" />
+                        <ComboBoxItem Content="76 (High Wood Block)" />
+                        <ComboBoxItem Content="77 (Low Wood Block)" />
+                        <ComboBoxItem Content="78 (Mute Cuica)" />
+                        <ComboBoxItem Content="79 (Open Cuica)" />
+                        <ComboBoxItem Content="80 (Mute Triangle)" />
+                        <ComboBoxItem Content="81 (Open Triangle)" />
+                        <ComboBoxItem Content="82" />
+                        <ComboBoxItem Content="83" />
+                        <ComboBoxItem Content="84" />
+                        <ComboBoxItem Content="85" />
+                        <ComboBoxItem Content="86" />
+                        <ComboBoxItem Content="87" />
+                        <ComboBoxItem Content="88" />
+                        <ComboBoxItem Content="89" />
+                        <ComboBoxItem Content="90" />
+                        <ComboBoxItem Content="91" />
+                        <ComboBoxItem Content="92" />
+                        <ComboBoxItem Content="93" />
+                        <ComboBoxItem Content="94" />
+                        <ComboBoxItem Content="95" />
+                        <ComboBoxItem Content="96" />
+                        <ComboBoxItem Content="97" />
+                        <ComboBoxItem Content="98" />
+                        <ComboBoxItem Content="99" />
+                        <ComboBoxItem Content="100" />
+                        <ComboBoxItem Content="101" />
+                        <ComboBoxItem Content="102" />
+                        <ComboBoxItem Content="103" />
+                        <ComboBoxItem Content="104" />
+                        <ComboBoxItem Content="105" />
+                        <ComboBoxItem Content="106" />
+                        <ComboBoxItem Content="107" />
+                        <ComboBoxItem Content="108" />
+                        <ComboBoxItem Content="109" />
+                        <ComboBoxItem Content="110" />
+                        <ComboBoxItem Content="111" />
+                        <ComboBoxItem Content="112" />
+                        <ComboBoxItem Content="113" />
+                        <ComboBoxItem Content="114" />
+                        <ComboBoxItem Content="115" />
+                        <ComboBoxItem Content="116" />
+                        <ComboBoxItem Content="117" />
+                        <ComboBoxItem Content="118" />
+                        <ComboBoxItem Content="119" />
+                        <ComboBoxItem Content="120" />
+                        <ComboBoxItem Content="121" />
+                        <ComboBoxItem Content="122" />
+                        <ComboBoxItem Content="123" />
+                        <ComboBoxItem Content="124" />
+                        <ComboBoxItem Content="125" />
+                        <ComboBoxItem Content="126" />
+                        <ComboBoxItem Content="127" />
+                    </ComboBox>
+
+                    <Label Content="アルゴリズム" HorizontalAlignment="Left" Margin="261,34,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="ComboBoxAlgorithm" HorizontalAlignment="Left" Margin="326,9,0,0" Width="206" Height="78" VerticalAlignment="Top"
+                              ItemsSource="{Binding Converter={StaticResource AlgorithmConverter}, Mode=OneWay, Source={StaticResource Algorithms}}"
+                              SelectedIndex="{Binding SelectedToneItem.ToneParameter.Algorithm, ElementName=Window, Mode=TwoWay, FallbackValue=0}"/>
+
+                    <Label Content="基本オクターブ" HorizontalAlignment="Left" Margin="546,8,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="ComboBoxBasicOctave" HorizontalAlignment="Left" Margin="628,9,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                              SelectedIndex="{Binding SelectedToneItem.ToneParameter.BasicOctave, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
+                        <ComboBoxItem Content="x2"/>
+                        <ComboBoxItem Content="x1"/>
+                        <ComboBoxItem Content="x0.5"/>
+                        <ComboBoxItem Content="x0.25"/>
+                    </ComboBox>
+
+                    <Label Content="LFO周波数" HorizontalAlignment="Left" Margin="546,34,0,0" VerticalAlignment="Top"/>
+                    <ComboBox HorizontalAlignment="Left" Margin="628,36,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                              SelectedIndex="{Binding SelectedToneItem.ToneParameter.LfoFrequency, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
+                        <ComboBoxItem Content="1.8 Hz"/>
+                        <ComboBoxItem Content="4.0 Hz"/>
+                        <ComboBoxItem Content="5.9 Hz"/>
+                        <ComboBoxItem Content="7.0 Hz"/>
+                    </ComboBox>
+
+                    <Label Content="定位 (LR)" HorizontalAlignment="Left" Margin="785,35,0,0" VerticalAlignment="Top"/>
+                    <Slider Margin="853,37,0,0" Maximum="1" Minimum="-1" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.1" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
+                            Value="{Binding SelectedToneItem.Panpot, ElementName=Window, Mode=TwoWay}"/>
+                    
+                    <Label Content="ボリューム" HorizontalAlignment="Left" Margin="785,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.321,-1.385"/>
+                    <Slider Margin="853,9,0,0" Maximum="4" Minimum="0" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.5" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
+                            Value="{Binding SelectedToneItem.Volume, ElementName=Window, Mode=TwoWay}"/>
+
+                    <Button Content="シーケンサ編集" HorizontalAlignment="Left" Margin="546,65,0,0" VerticalAlignment="Top" Width="110"/>
+                </Grid>
+            </GroupBox>
+            <local:OperatorParameter HorizontalAlignment="Left" Margin="0,118,0,0" Width="250" OperatorNumber="1" HasFeedback="True" Height="501" VerticalAlignment="Top"
+                                     SelectedOperator="{Binding SelectedToneItem.ToneParameter.Operator1, ElementName=Window}"/>
+            <local:OperatorParameter HorizontalAlignment="Left" Margin="255,118,0,0" Width="250" OperatorNumber="2" VerticalAlignment="Top" Height="501"
+                                     SelectedOperator="{Binding SelectedToneItem.ToneParameter.Operator2, ElementName=Window}"/>
+            <local:OperatorParameter HorizontalAlignment="Left" Margin="510,118,0,0" Width="250" OperatorNumber="3" HasFeedback="True" VerticalAlignment="Top" Height="501"
+                                     IsEnabled="{Binding SelectedIndex, Converter={StaticResource OperatorEnabledConveter}, ElementName=ComboBoxAlgorithm}"
+                                     Style="{StaticResource ElementEnabled}"
+                                     SelectedOperator="{Binding SelectedToneItem.ToneParameter.Operator3, ElementName=Window}"/>
+            <local:OperatorParameter HorizontalAlignment="Left" Margin="765,118,0,0" Width="250" OperatorNumber="4" VerticalAlignment="Top" Height="501"
+                                     IsEnabled="{Binding SelectedIndex, Converter={StaticResource OperatorEnabledConveter}, ElementName=ComboBoxAlgorithm}"
+                                     Style="{StaticResource ElementEnabled}"
+                                     SelectedOperator="{Binding SelectedToneItem.ToneParameter.Operator4, ElementName=Window}"/>
+        </Grid>
     </Grid>
 </Window>
