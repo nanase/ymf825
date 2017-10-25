@@ -177,5 +177,23 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\page_white_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\page_white_copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cross.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\page_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\folder_go.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\page_white_go.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
