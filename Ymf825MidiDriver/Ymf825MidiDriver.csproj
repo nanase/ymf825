@@ -85,6 +85,7 @@
     <Compile Include="AlgorithmControl\Algorithm7.xaml.cs">
       <DependentUpon>Algorithm7.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BoolSelectedIndexConverter.cs" />
     <Compile Include="DoubleToInt32Conveter.cs" />
     <Compile Include="EnvelopeGraph.xaml.cs">
       <DependentUpon>EnvelopeGraph.xaml</DependentUpon>
@@ -92,6 +93,7 @@
     <Compile Include="Extension.cs" />
     <Compile Include="OperatorEnabledConveter.cs" />
     <Compile Include="AlgorithmConverter.cs" />
+    <Compile Include="ToneNumberToStringConveter.cs" />
     <Compile Include="WaveShape.cs" />
     <Page Include="AlgorithmControl\Algorithm0.xaml">
       <SubType>Designer</SubType>
