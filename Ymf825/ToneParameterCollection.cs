@@ -2,6 +2,7 @@
 
 namespace Ymf825
 {
+    [Serializable]
     public class ToneParameterCollection
     {
         #region -- Private Fields --
