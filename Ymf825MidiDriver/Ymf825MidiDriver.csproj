@@ -85,6 +85,7 @@
     <Compile Include="EnvelopeGraph.xaml.cs">
       <DependentUpon>EnvelopeGraph.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extension.cs" />
     <Compile Include="OperatorEnabledConveter.cs" />
     <Compile Include="AlgorithmConverter.cs" />
     <Compile Include="WaveShape.cs" />
