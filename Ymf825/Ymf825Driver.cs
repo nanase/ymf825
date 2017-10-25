@@ -11,6 +11,154 @@ namespace Ymf825
 
         private static readonly double[] FnumTable = new double[12];
 
+        private static readonly double[] AttackRateTimeTable = {
+            double.PositiveInfinity,
+            double.PositiveInfinity,
+            double.PositiveInfinity,
+            double.PositiveInfinity,
+            2942.78e-3,
+            2354.23e-3,
+            1961.86e-3,
+            1681.59e-3,
+            1471.39e-3,
+            1177.11e-3,
+
+            980.92e-3,  // 10
+            840.80e-3,
+            735.69e-3,
+            588.55e-3,
+            490.47e-3,
+            420.40e-3,
+            367.85e-3,
+            294.28e-3,
+            245.23e-3,
+            210.20e-3,
+
+            183.92e-3,  // 20
+            147.14e-3,
+            122.61e-3,
+            105.09e-3,
+            91.97e-3,
+            73.57e-3,
+            61.31e-3,
+            52.55e-3,
+            45.98e-3,
+            36.79e-3,
+
+            30.66e-3,   // 30
+            26.28e-3,
+            22.99e-3,
+            18.39e-3,
+            15.32e-3,
+            13.14e-3,
+            11.49e-3,
+            9.19e-3,
+            7.66e-3,
+            6.56e-3,
+
+            5.75e-3,    // 40
+            4.60e-3,
+            3.83e-3,
+            3.28e-3,
+            2.88e-3,
+            2.23e-3,
+            1.91e-3,
+            1.65e-3,
+            1.44e-3,
+            1.15e-3,
+
+            0.96e-3,    // 50
+            0.82e-3,
+            0.71e-3,
+            0.62e-3,
+            0.53e-3,
+            0.43e-3,
+            0.38e-3,
+            0.34e-3,
+            0.30e-3,
+            0.26e-3,
+
+            0.0,    // 60
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        };
+
+        private static readonly double[] EnvelopeRateTimeTable = {
+            double.PositiveInfinity,
+            double.PositiveInfinity,
+            double.PositiveInfinity,
+            double.PositiveInfinity,
+            43008.00e-3,
+            34406.40e-3,
+            28672.00e-3,
+            24576.00e-3,
+            21504.00e-3,
+            17203.20e-3,
+
+            14336.00e-3,    // 10
+            12288.00e-3,
+            10752.01e-3,
+            8601.60e-3,
+            7168.00e-3,
+            6144.00e-3,
+            5376.00e-3,
+            4300.80e-3,
+            3584.00e-3,
+            3072.00e-3,
+
+            2688.00e-3,     // 20
+            2150.41e-3,
+            1792.00e-3,
+            1536.00e-3,
+            1344.00e-3,
+            1075.20e-3,
+            896.00e-3,
+            768.00e-3,
+            672.00e-3,
+            537.60e-3,
+
+            448.00e-3,  // 30
+            384.00e-3,
+            336.00e-3,
+            268.80e-3,
+            224.00e-3,
+            192.00e-3,
+            168.00e-3,
+            134.00e-3,
+            112.00e-3,
+            96.00e-3,
+
+            84.00e-3,   // 40
+            67.20e-3,
+            56.00e-3,
+            48.00e-3,
+            42.00e-3,
+            33.60e-3,
+            28.00e-3,
+            24.00e-3,
+            21.00e-3,
+            16.80e-3,
+
+            14.00e-3,   // 50
+            12.00e-3,
+            10.50e-3,
+            8.40e-3,
+            7.00e-3,
+            6.01e-3,
+            5.25e-3,
+            4.20e-3,
+            3.50e-3,
+            3.00e-3,
+
+            2.63e-3,    // 60
+            2.63e-3,
+            2.63e-3,
+            2.63e-3,
+            2.63e-3
+        };
+
         #endregion
 
         #region -- Public Properties --
@@ -528,6 +676,54 @@ namespace Ymf825
                 integer = (int)(multiplier / 512.0);
                 fraction = (int)(multiplier - integer * 512);
             }
+        }
+
+        /// <summary>
+        /// エンベロープジェネレータの各値を求めるための Rof 値を計算します。
+        /// </summary>
+        /// <param name="ksr">キースケールセンシティビティ (KSR)。</param>
+        /// <param name="block">BLOCK 値。</param>
+        /// <param name="basicOctave">基本オクターブの値。</param>
+        /// <param name="fnum">FNUM 値。</param>
+        /// <returns>時間値のオフセットを表す Rof の値。</returns>
+        public static int CalcRof(bool ksr, int block, int basicOctave, int fnum)
+        {
+            if (ksr)
+                return (block + basicOctave) * 2 + (fnum >= 512 ? 1 : 0);
+
+            return (block + basicOctave) / 2;
+        }
+
+        public static double CalcAttackRateTime(int attackRate, int rof)
+        {
+            if (attackRate < 0 || attackRate > 15)
+                throw new ArgumentOutOfRangeException(nameof(attackRate));
+
+            if (rof < 0 || rof > 15)
+                throw new ArgumentOutOfRangeException(nameof(rof));
+
+            var index = attackRate * 4 + rof;
+
+            if (index > 64)
+                index = 64;
+
+            return AttackRateTimeTable[index];
+        }
+
+        public static double CalcEnvelopeRateTime(int rate, int rof)
+        {
+            if (rate < 0 || rate > 15)
+                throw new ArgumentOutOfRangeException(nameof(rate));
+
+            if (rof < 0 || rof > 15)
+                throw new ArgumentOutOfRangeException(nameof(rof));
+
+            var index = rate * 4 + rof;
+
+            if (index > 64)
+                index = 64;
+
+            return EnvelopeRateTimeTable[index];
         }
 
         #endregion
