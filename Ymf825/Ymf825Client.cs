@@ -238,15 +238,13 @@ namespace Ymf825
 
         public static bool IsAvailable()
         {
-            var spiServiceChannel = new ChannelFactory<IYmf825Client>(
-                new NetNamedPipeBinding(),
-                new EndpointAddress(ServiceAddress));
-            var spiService = spiServiceChannel.CreateChannel();
+            var serviceChannel = new ChannelFactory<IYmf825Client>(new NetNamedPipeBinding(), new EndpointAddress(ServiceAddress));
+            var service = serviceChannel.CreateChannel();
 
             try
             {
-                spiService.WriteBuffer(new byte[0], 0, 0);
-                spiServiceChannel.Close();
+                service.WriteBuffer(new byte[0], 0, 0);
+                serviceChannel.Close();
                 return true;
             }
             catch
@@ -257,22 +255,19 @@ namespace Ymf825
 
         public static IYmf825Client GetClient()
         {
-            var spiServiceChannel = new ChannelFactory<IYmf825Client>(
-                new NetNamedPipeBinding(),
-                new EndpointAddress(ServiceAddress));
-            var spiService = spiServiceChannel.CreateChannel();
+            var serviceChannel = new ChannelFactory<IYmf825Client>(new NetNamedPipeBinding(), new EndpointAddress(ServiceAddress));
+            var service = serviceChannel.CreateChannel();
 
             try
             {
-                // spiService.SendReset();
-                spiService.WriteBuffer(new byte[0], 0, 0);
+                service.WriteBuffer(new byte[0], 0, 0);
             }
             catch (EndpointNotFoundException e)
             {
                 throw new InvalidOperationException("Ymf825Server が起動していません。クライアントを実行する前に、サーバを起動してください。", e);
             }
 
-            return spiService;
+            return service;
         }
 
         #endregion
