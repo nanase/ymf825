@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegisterMap", "submodule\Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ymf825MidiDriver", "Ymf825MidiDriver\Ymf825MidiDriver.csproj", "{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MidiUtils", "submodule\MidiUtils\src\MidiUtils.csproj", "{76C90E84-9450-4635-897D-2C065F8DFC17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76C90E84-9450-4635-897D-2C065F8DFC17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76C90E84-9450-4635-897D-2C065F8DFC17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76C90E84-9450-4635-897D-2C065F8DFC17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76C90E84-9450-4635-897D-2C065F8DFC17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

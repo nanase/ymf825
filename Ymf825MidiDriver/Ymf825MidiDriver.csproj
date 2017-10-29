@@ -85,14 +85,18 @@
     <Compile Include="AlgorithmControl\Algorithm7.xaml.cs">
       <DependentUpon>Algorithm7.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BoolInvertConverter.cs" />
     <Compile Include="BoolSelectedIndexConverter.cs" />
     <Compile Include="DoubleToInt32Conveter.cs" />
     <Compile Include="EnvelopeGraph.xaml.cs">
       <DependentUpon>EnvelopeGraph.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extension.cs" />
+    <Compile Include="MidiDriver.cs" />
     <Compile Include="OperatorEnabledConveter.cs" />
     <Compile Include="AlgorithmConverter.cs" />
+    <Compile Include="MidiConnectionConverter.cs" />
+    <Compile Include="ServerConnectionConverter.cs" />
     <Compile Include="ToneItem.cs" />
     <Compile Include="ToneNumberToStringConveter.cs" />
     <Compile Include="WaveShape.cs" />
@@ -180,6 +184,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\submodule\MidiUtils\src\MidiUtils.csproj">
+      <Project>{76c90e84-9450-4635-897d-2c065f8dfc17}</Project>
+      <Name>MidiUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Ymf825\Ymf825.csproj">
       <Project>{7b92175f-edaf-42bf-88a7-d113c1c40aff}</Project>
       <Name>Ymf825</Name>
@@ -202,6 +210,21 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\page_white_go.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\disk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\connect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\disconnect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\server_green.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

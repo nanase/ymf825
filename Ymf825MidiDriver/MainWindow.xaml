@@ -9,9 +9,13 @@
         mc:Ignorable="d"
         Title="YMF825 MIDI Driver" Height="715" Width="1200" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
+        <local:BoolInvertConverter x:Key="BoolInvertConverter"/>
+        <system:String x:Key="Algorithms">0, 1, 2, 3, 4, 5, 6, 7</system:String>
         <local:ToneNumberToStringConveter x:Key="ToneNumberToStringConveter"/>
         <local:BoolSelectedValueConverter x:Key="BoolSelectedValueConverter"/>
-        <system:String x:Key="Algorithms">0, 1, 2, 3, 4, 5, 6, 7</system:String>
+        <local:ServerConnectionConverter x:Key="ServerConnectionConverter"/>
+        <local:ServerConnectionImageConverter x:Key="ServerConnectionImageConverter"/>
+        <local:MidiConnectionImageConverter x:Key="MidiConnectionImageConverter"/>
         <local:AlgorithmConverter x:Key="AlgorithmConverter" />
         <local:OperatorEnabledConveter x:Key="OperatorEnabledConveter" />
         <Style x:Key="ImageEnabled" TargetType="{x:Type Image}">
@@ -28,23 +32,23 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <Style TargetType="CheckBox">
-            <EventSetter Event="Checked" Handler="TonePropertyChanged"/>
+        <Style TargetType="{x:Type CheckBox}">
+            <EventSetter Event="ToggleButton.Checked" Handler="TonePropertyChanged"/>
         </Style>
-        <Style TargetType="Slider">
-            <EventSetter Event="ValueChanged" Handler="TonePropertyChanged"/>
+        <Style TargetType="{x:Type Slider}">
+            <EventSetter Event="RangeBase.ValueChanged" Handler="TonePropertyChanged"/>
         </Style>
-        <Style TargetType="ComboBox">
-            <EventSetter Event="SelectionChanged" Handler="TonePropertyChanged"/>
+        <Style TargetType="{x:Type ComboBox}">
+            <EventSetter Event="Selector.SelectionChanged" Handler="TonePropertyChanged"/>
         </Style>
-        <Style TargetType="TextBox">
-            <EventSetter Event="TextChanged" Handler="TonePropertyChanged"/>
+        <Style TargetType="{x:Type TextBox}">
+            <EventSetter Event="TextBoxBase.TextChanged" Handler="TonePropertyChanged"/>
         </Style>
-        <Style TargetType="talex:NumericUpDown">
-            <EventSetter Event="ValueChanged" Handler="TonePropertyChanged"/>
+        <Style TargetType="{x:Type talex:NumericUpDown}">
+            <EventSetter Event="talex:NumericUpDown.ValueChanged" Handler="TonePropertyChanged"/>
         </Style>
-        <Style TargetType="local:OperatorParameter">
-            <EventSetter Event="TonePropertyChanged" Handler="TonePropertyChanged"/>
+        <Style TargetType="{x:Type local:OperatorParameter}">
+            <EventSetter Event="local:OperatorParameter.TonePropertyChanged" Handler="TonePropertyChanged"/>
         </Style>
     </Window.Resources>
     <Window.CommandBindings>
@@ -56,6 +60,8 @@
         <CommandBinding Command="{x:Static local:MainWindow.NewToneCommand}" Executed="NewToneCommand_Executed" />
         <CommandBinding Command="{x:Static local:MainWindow.DeleteToneCommand}" Executed="DeleteToneCommand_Executed" />
         <CommandBinding Command="{x:Static local:MainWindow.DuplicateToneCommand}" Executed="DuplicateToneCommand_Executed" />
+        <CommandBinding Command="{x:Static local:MainWindow.ServerConnectionToggleCommand}" Executed="ServerConnectionToggleCommand_Executed" />
+        <CommandBinding Command="{x:Static local:MainWindow.MidiConnectionToggleCommand}" Executed="MidiConnectionToggleCommand_Executed" />
     </Window.CommandBindings>
     <Grid>
         <Menu Height="20" VerticalAlignment="Top">
@@ -72,13 +78,39 @@
         </Menu>
         <ToolBarTray Margin="0,20,0,0" Height="26" VerticalAlignment="Top">
             <ToolBar ToolBarTray.IsLocked="True" Loaded="ToolBar_Loaded">
-                <Button Command="New">
+                <Button Command="New" ToolTip="新規作成 (Ctrl+N)">
                     <Image Source="Resources/page_white.png" />
                 </Button>
-                <Button Command="Open">
+                <Button Command="Open" ToolTip="開く (Ctrl+O)">
                     <Image Source="Resources/folder_go.png" />
                 </Button>
+                <Button Command="Save" ToolTip="保存 (Ctrl+S)">
+                    <Image Source="Resources/disk.png" />
+                </Button>
                 <Separator/>
+                <Button Command="{x:Static local:MainWindow.ServerConnectionToggleCommand}" ToolTip="Ymf825Server">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding ServerConnecting, Converter={StaticResource ServerConnectionImageConverter}, ElementName=Window}" />
+                        <Label Padding="0" Margin="3,0,0,0">
+                            <Label.Content>
+                                <MultiBinding Converter="{StaticResource ServerConnectionConverter}" Mode="OneWay">
+                                    <Binding Path="ServerConnecting" ElementName="Window" />
+                                    <Binding Path="ServerConnected" ElementName="Window" />
+                                </MultiBinding>
+                            </Label.Content>
+                        </Label>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <ComboBox x:Name="ComboBoxMidiDevice" Width="120"
+                          IsEnabled="{Binding MidiConnected, Converter={StaticResource BoolInvertConverter}, ElementName=Window}"
+                          ItemsSource="{Binding Mode=OneWay}" DropDownOpened="ComboBoxMidiDevice_DropDownOpened"  />
+                <Button ToolTip="MIDI-IN"
+                        Command="{x:Static local:MainWindow.MidiConnectionToggleCommand}"
+                        IsEnabled="{Binding ServerConnected, ElementName=Window}"
+                        Style="{StaticResource ElementEnabled}">
+                    <Image Source="{Binding MidiConnected, Converter={StaticResource MidiConnectionImageConverter}, ElementName=Window}" />
+                </Button>
             </ToolBar>
         </ToolBarTray>
         <Grid HorizontalAlignment="Left" Margin="0,46,0,0" Width="160">
@@ -309,7 +341,7 @@
                     <Label Content="定位 (LR)" HorizontalAlignment="Left" Margin="785,35,0,0" VerticalAlignment="Top"/>
                     <Slider Margin="853,37,0,0" Maximum="1" Minimum="-1" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.1" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
                             Value="{Binding SelectedToneItem.Panpot, ElementName=Window, Mode=TwoWay}"/>
-                    
+
                     <Label Content="ボリューム" HorizontalAlignment="Left" Margin="785,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.321,-1.385"/>
                     <Slider Margin="853,9,0,0" Maximum="4" Minimum="0" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.5" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
                             Value="{Binding SelectedToneItem.Volume, ElementName=Window, Mode=TwoWay}"/>

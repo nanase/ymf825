@@ -7,8 +7,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+using MidiUtils.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Ymf825;
 
 namespace Ymf825MidiDriver
 {
@@ -23,6 +25,11 @@ namespace Ymf825MidiDriver
         public static readonly RoutedCommand NewToneCommand = new RoutedCommand();
         public static readonly RoutedCommand DeleteToneCommand = new RoutedCommand();
         public static readonly RoutedCommand DuplicateToneCommand = new RoutedCommand();
+        public static readonly RoutedCommand ServerConnectionToggleCommand = new RoutedCommand();
+        public static readonly RoutedCommand MidiConnectionToggleCommand = new RoutedCommand();
+        public static readonly DependencyProperty ServerConnectingProperty = DependencyProperty.Register("ServerConnecting", typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty ServerConnectedProperty = DependencyProperty.Register("ServerConnected", typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty MidiConnectedProperty = DependencyProperty.Register("MidiConnected", typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty SelectedToneItemProperty = DependencyProperty.Register("SelectedToneItem", typeof(ToneItem), typeof(MainWindow), new PropertyMetadata(default(ToneItem)));
 
         #endregion
@@ -30,6 +37,10 @@ namespace Ymf825MidiDriver
         #region -- Private Fields --
 
         private readonly ObservableCollection<ToneItem> toneItems;
+        private readonly ObservableCollection<string> midiDevices;
+        private IYmf825Client ymf825Client;
+        private MidiIn midiIn;
+        private MidiDriver midiDriver;
 
         private string filePath;
         private string fileName;
@@ -47,6 +58,27 @@ namespace Ymf825MidiDriver
             set => SetValue(SelectedToneItemProperty, value);
         }
 
+        public bool ServerConnecting
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            get => (bool)GetValue(ServerConnectingProperty);
+            set => SetValue(ServerConnectingProperty, value);
+        }
+
+        public bool ServerConnected
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            get => (bool)GetValue(ServerConnectedProperty);
+            set => SetValue(ServerConnectedProperty, value);
+        }
+
+        public bool MidiConnected
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            get => (bool)GetValue(MidiConnectedProperty);
+            set => SetValue(MidiConnectedProperty, value);
+        }
+
         #endregion
 
         #region -- Constructors --
@@ -55,10 +87,13 @@ namespace Ymf825MidiDriver
         {
             InitializeComponent();
             toneItems = new ObservableCollection<ToneItem>();
+            midiDevices = new ObservableCollection<string>();
             DataContext = toneItems;
-
+            ComboBoxMidiDevice.DataContext = midiDevices;
+            
             toneItems.CollectionChanged += ToneItemsOnCollectionChanged;
             UpdateWindowTitle();
+            UpdateComboBoxMidiDevice();
         }
 
         #endregion
@@ -81,6 +116,9 @@ namespace Ymf825MidiDriver
 
         private void TonePropertyChanged(object sender, RoutedEventArgs e)
         {
+            if (isMonitoringChanging)
+                midiDriver?.NotifyChangeTone(SelectedToneItem);
+
             if (isMonitoringChanging && !fileChanged)
             {
                 fileChanged = true;
@@ -338,8 +376,75 @@ namespace Ymf825MidiDriver
             }
         }
 
+        private void ServerConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (ServerConnecting)
+            {
+                ServerConnected = false;
+            }
+            else
+            {
+                ServerConnected = Ymf825Client.IsAvailable();
+
+                if (ServerConnected)
+                    ymf825Client = Ymf825Client.GetClient();
+            }
+
+            ServerConnecting = !ServerConnecting;
+        }
+
+        private void MidiConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (ComboBoxMidiDevice.SelectedIndex == -1)
+                return;
+            
+            if (MidiConnected)
+            {
+                midiDriver.Stop();
+                midiDriver = null;
+                midiIn.Dispose();
+                midiIn = null;
+
+                UpdateComboBoxMidiDevice();
+            }
+            else
+            {
+                try
+                {
+                    midiIn = new MidiIn(ComboBoxMidiDevice.SelectedIndex);
+                    midiDriver = new MidiDriver(toneItems, midiIn, ymf825Client);
+                    midiDriver.Start();
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(
+                        $"MIDIデバイス {midiDevices[ComboBoxMidiDevice.SelectedIndex]} に接続できませんでした。\n{ex.Message}",
+                        "YMF825 MIDI Driver", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    return;
+                }
+            }
+
+            MidiConnected = !MidiConnected;
+        }
+
+        private void UpdateComboBoxMidiDevice()
+        {
+            midiDevices.Clear();
+
+            foreach (var midiDevice in MidiIn.InputDeviceNames)
+                midiDevices.Add(midiDevice);
+
+            if (midiDevices.Count > 0)
+                ComboBoxMidiDevice.SelectedIndex = 0;
+        }
+
+
         #endregion
 
-
+        private void ComboBoxMidiDevice_DropDownOpened(object sender, EventArgs e)
+        {
+            UpdateComboBoxMidiDevice();
+        }
     }
 }
