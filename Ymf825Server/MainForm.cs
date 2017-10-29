@@ -114,7 +114,8 @@ namespace Ymf825Server
 
         private void ConnectDevice()
         {
-            serialPort = new SerialPort(toolStripComboBox_deviceList.SelectedItem.ToString(), 1000000, Parity.None);
+            var baudRate = int.Parse(toolStripComboBox_baudRate.SelectedItem.ToString());
+            serialPort = new SerialPort(toolStripComboBox_deviceList.SelectedItem.ToString(), baudRate, Parity.None);
             serialPort.Open();
 
             ymf825Client = new Ymf825Client(serialPort);
@@ -168,6 +169,7 @@ namespace Ymf825Server
         {
             toolStripButton_refresh.Enabled = !connected;
             toolStripComboBox_deviceList.Enabled = !connected;
+            toolStripComboBox_baudRate.Enabled = !connected;
             toolStripButton_connect.Enabled = !connected;
             toolStripButton_disconnect.Enabled = connected;
             toolStripButton_reset.Enabled = connected;
@@ -211,6 +213,7 @@ namespace Ymf825Server
             }
 
             toolStripComboBox_deviceList.SelectedIndex = 0;
+            toolStripComboBox_baudRate.SelectedItem = "115200";
         }
 
         #endregion

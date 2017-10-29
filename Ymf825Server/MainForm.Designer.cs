@@ -70,6 +70,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.timer_registerMap = new System.Windows.Forms.Timer(this.components);
             this.timer_stat = new System.Windows.Forms.Timer(this.components);
+            this.toolStripComboBox_baudRate = new System.Windows.Forms.ToolStripComboBox();
             this.toolStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -83,6 +84,7 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton_refresh,
             this.toolStripComboBox_deviceList,
+            this.toolStripComboBox_baudRate,
             this.toolStripButton_connect,
             this.toolStripButton_disconnect,
             this.toolStripSeparator1,
@@ -510,6 +512,31 @@
             this.timer_stat.Interval = 500;
             this.timer_stat.Tick += new System.EventHandler(this.timer_stat_Tick);
             // 
+            // toolStripComboBox_baudRate
+            // 
+            this.toolStripComboBox_baudRate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.toolStripComboBox_baudRate.Items.AddRange(new object[] {
+            "300",
+            "600",
+            "1200",
+            "2400",
+            "4800",
+            "9600",
+            "14400",
+            "19200",
+            "28800",
+            "38400",
+            "57600",
+            "115200",
+            "256000",
+            "460000",
+            "512000",
+            "1000000",
+            "2000000",
+            "3000000"});
+            this.toolStripComboBox_baudRate.Name = "toolStripComboBox_baudRate";
+            this.toolStripComboBox_baudRate.Size = new System.Drawing.Size(121, 25);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -580,6 +607,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer timer_stat;
+        private System.Windows.Forms.ToolStripComboBox toolStripComboBox_baudRate;
     }
 }
 
