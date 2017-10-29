@@ -22,6 +22,13 @@ namespace Ymf825
 
                 return parameters[index];
             }
+            set
+            {
+                if (index < 0 || index > 15)
+                    throw new IndexOutOfRangeException();
+
+                parameters[index] = value ?? throw new ArgumentNullException(nameof(value));
+            }
         }
 
         #endregion
