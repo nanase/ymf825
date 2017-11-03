@@ -68,6 +68,9 @@ namespace Ymf825
         private static readonly byte[] DataHardwareReset = { 0xfe };
         private static readonly byte[] DataVersion = { 0xff };
         private const string VersionString = "V1YMF825";
+
+        private TargetDevice targetDevice;
+
         #endregion
 
         #region -- Public Properties --
@@ -100,11 +103,11 @@ namespace Ymf825
 
         #region -- Public Events --
 
-        public event EventHandler<SpiServiceTransferedEventArgs> DataWrote;
+        public event EventHandler<DataTransferedEventArgs> DataWrote;
 
-        public event EventHandler<SpiServiceBurstWriteEventArgs> DataBurstWrote;
+        public event EventHandler<DataBurstWriteEventArgs> DataBurstWrote;
 
-        public event EventHandler<SpiServiceTransferedEventArgs> DataRead;
+        public event EventHandler<DataTransferedEventArgs> DataRead;
 
         #endregion
 
@@ -148,7 +151,7 @@ namespace Ymf825
                 WriteBytesTotal += 2;
                 WriteCommandsTotal++;
 
-                DataWrote?.Invoke(this, new SpiServiceTransferedEventArgs(address, data));
+                DataWrote?.Invoke(this, new DataTransferedEventArgs(targetDevice, address, data));
             }
             catch (InvalidOperationException)
             {
@@ -194,7 +197,7 @@ namespace Ymf825
 
                 BurstWriteBytesTotal += 3 + count;
                 BurstWriteCommandsTotal++;
-                DataBurstWrote?.Invoke(this, new SpiServiceBurstWriteEventArgs(address, data, offset, count));
+                DataBurstWrote?.Invoke(this, new DataBurstWriteEventArgs(targetDevice, address, data, offset, count));
             }
             catch (InvalidOperationException)
             {
@@ -216,7 +219,7 @@ namespace Ymf825
                 WriteBytesTotal++;
                 ReadCommandsTotal++;
                 WriteCommandsTotal++;
-                DataRead?.Invoke(this, new SpiServiceTransferedEventArgs(address, readBuffer[0]));
+                DataRead?.Invoke(this, new DataTransferedEventArgs(device, address, readBuffer[0]));
 
                 return readBuffer[0];
             }
@@ -233,6 +236,7 @@ namespace Ymf825
 
         public void SetTarget(TargetDevice device)
         {
+            targetDevice = device;
             port.Write(new byte[] { 0x40, (byte)device }, 0, 2);
         }
 
@@ -273,9 +277,11 @@ namespace Ymf825
         #endregion
     }
 
-    public class SpiServiceTransferedEventArgs : EventArgs
+    public class DataTransferedEventArgs : EventArgs
     {
         #region -- Public Properties --
+
+        public TargetDevice TargetDevice { get; }
 
         public byte Address { get; }
 
@@ -285,8 +291,9 @@ namespace Ymf825
 
         #region -- Constructors --
 
-        public SpiServiceTransferedEventArgs(byte address, byte data)
+        public DataTransferedEventArgs(TargetDevice targetDevice, byte address, byte data)
         {
+            TargetDevice = targetDevice;
             Address = address;
             Data = data;
         }
@@ -294,9 +301,11 @@ namespace Ymf825
         #endregion
     }
 
-    public class SpiServiceBurstWriteEventArgs : EventArgs
+    public class DataBurstWriteEventArgs : EventArgs
     {
         #region -- Public Properties --
+
+        public TargetDevice TargetDevice { get; }
 
         public byte Address { get; }
 
@@ -310,8 +319,9 @@ namespace Ymf825
 
         #region -- Constructors --
 
-        public SpiServiceBurstWriteEventArgs(byte address, IReadOnlyList<byte> data, int offset, int count)
+        public DataBurstWriteEventArgs(TargetDevice targetDevice, byte address, IReadOnlyList<byte> data, int offset, int count)
         {
+            TargetDevice = targetDevice;
             Address = address;
             Data = data;
             Offset = offset;
