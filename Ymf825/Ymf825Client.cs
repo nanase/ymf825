@@ -1,62 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
 using System.ServiceModel;
 using System.Text;
 
 namespace Ymf825
 {
-    [ServiceContract]
-    public interface IYmf825Client
-    {
-        #region -- Methods --
-
-        [OperationContract]
-        bool CheckAvailable();
-
-        [OperationContract]
-        void ResetHardware();
-
-        [OperationContract]
-        void ResetSoftware();
-
-        [OperationContract]
-        void Write(byte address, byte data);
-
-        [OperationContract]
-        void WriteBuffer(byte[] buffer, int offset, int count);
-
-        [OperationContract]
-        void BurstWriteBytes(byte address, byte[] data, int offset, int count);
-
-        [OperationContract]
-        byte Read(TargetDevice device, byte address);
-
-        [OperationContract]
-        void SetTarget(TargetDevice device);
-
-        #endregion
-
-        #region -- Events --
-
-        event EventHandler<DataTransferedEventArgs> DataWrote;
-
-        event EventHandler<DataBurstWriteEventArgs> DataBurstWrote;
-
-        event EventHandler<DataTransferedEventArgs> DataRead;
-
-        #endregion
-    }
-
-    [Flags]
-    public enum TargetDevice : byte
-    {
-        None = 0x00,
-
-        Ymf825Board0 = 0x01,
-        Ymf825Board1 = 0x02
-    }
-
     [ServiceBehavior(
         InstanceContextMode = InstanceContextMode.Single,
         ConcurrencyMode = ConcurrencyMode.Single,
@@ -282,60 +230,6 @@ namespace Ymf825
             }
 
             return service;
-        }
-
-        #endregion
-    }
-
-    public class DataTransferedEventArgs : EventArgs
-    {
-        #region -- Public Properties --
-
-        public TargetDevice TargetDevice { get; }
-
-        public byte Address { get; }
-
-        public byte Data { get; }
-
-        #endregion
-
-        #region -- Constructors --
-
-        public DataTransferedEventArgs(TargetDevice targetDevice, byte address, byte data)
-        {
-            TargetDevice = targetDevice;
-            Address = address;
-            Data = data;
-        }
-
-        #endregion
-    }
-
-    public class DataBurstWriteEventArgs : EventArgs
-    {
-        #region -- Public Properties --
-
-        public TargetDevice TargetDevice { get; }
-
-        public byte Address { get; }
-
-        public IReadOnlyList<byte> Data { get; }
-
-        public int Offset { get; }
-
-        public int Count { get; }
-
-        #endregion
-
-        #region -- Constructors --
-
-        public DataBurstWriteEventArgs(TargetDevice targetDevice, byte address, IReadOnlyList<byte> data, int offset, int count)
-        {
-            TargetDevice = targetDevice;
-            Address = address;
-            Data = data;
-            Offset = offset;
-            Count = count;
         }
 
         #endregion
