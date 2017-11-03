@@ -36,6 +36,16 @@ namespace Ymf825
         void SetTarget(TargetDevice device);
 
         #endregion
+
+        #region -- Events --
+
+        event EventHandler<DataTransferedEventArgs> DataWrote;
+
+        event EventHandler<DataBurstWriteEventArgs> DataBurstWrote;
+
+        event EventHandler<DataTransferedEventArgs> DataRead;
+
+        #endregion
     }
 
     [Flags]
