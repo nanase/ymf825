@@ -138,7 +138,6 @@ namespace Ymf825MidiDriver
 
         private void NoteOff(int channel, int key, int velocity)
         {
-            Console.WriteLine($"NoteOff - {channel}, {key}, {velocity}");
             if (noteOnKeys[channel] != key)
                 return;
 
@@ -148,7 +147,6 @@ namespace Ymf825MidiDriver
 
         private void NoteOn(int channel, int key, int velocity)
         {
-            Console.WriteLine($"NoteOn - {channel}, {key}, {velocity}");
             if (noteOnKeys[channel] != -1)
                 Driver.SetToneFlag(channel, false, false, false);
 
