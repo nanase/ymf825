@@ -27,10 +27,10 @@ namespace Ymf825MidiDriver
         public static readonly RoutedCommand DuplicateToneCommand = new RoutedCommand();
         public static readonly RoutedCommand ServerConnectionToggleCommand = new RoutedCommand();
         public static readonly RoutedCommand MidiConnectionToggleCommand = new RoutedCommand();
-        public static readonly DependencyProperty ServerConnectingProperty = DependencyProperty.Register("ServerConnecting", typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
-        public static readonly DependencyProperty ServerConnectedProperty = DependencyProperty.Register("ServerConnected", typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
-        public static readonly DependencyProperty MidiConnectedProperty = DependencyProperty.Register("MidiConnected", typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
-        public static readonly DependencyProperty SelectedToneItemProperty = DependencyProperty.Register("SelectedToneItem", typeof(ToneItem), typeof(MainWindow), new PropertyMetadata(default(ToneItem)));
+        public static readonly DependencyProperty ServerConnectingProperty = DependencyProperty.Register(nameof(ServerConnecting), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty ServerConnectedProperty = DependencyProperty.Register(nameof(ServerConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty MidiConnectedProperty = DependencyProperty.Register(nameof(MidiConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty SelectedToneItemProperty = DependencyProperty.Register(nameof(SelectedToneItem), typeof(ToneItem), typeof(MainWindow), new PropertyMetadata(default(ToneItem)));
 
         #endregion
 
@@ -98,11 +98,38 @@ namespace Ymf825MidiDriver
 
         #endregion
 
-        #region -- Private Methods --
+        #region -- Event Handlers --
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             isMonitoringChanging = true;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!fileChanged)
+                return;
+
+            var confirm = ConfirmDiscordChanging();
+
+            switch (confirm)
+            {
+                case true:
+                    if (filePath == null)
+                    {
+                        if (ShowSaveDialog())
+                            SaveProject();
+                        else
+                            e.Cancel = true;
+                    }
+                    else
+                        SaveProject();
+                    break;
+
+                case null:
+                    e.Cancel = true;
+                    return;
+            }
         }
 
         private void ToneItemsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -127,17 +154,7 @@ namespace Ymf825MidiDriver
 
             e.Handled = true;
         }
-
-        private void UpdateWindowTitle()
-        {
-            Title = $"{(fileChanged ? "*" : "")}{fileName ?? "untitled"} ― YMF825 MIDI Driver";
-        }
-
-        private void Command_CanAlwaysExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
-
+        
         private void ToolBar_Loaded(object sender, RoutedEventArgs e)
         {
             var toolBar = sender as ToolBar;
@@ -148,7 +165,19 @@ namespace Ymf825MidiDriver
             if (toolBar?.Template.FindName("MainPanelBorder", toolBar) is FrameworkElement mainPanelBorder)
                 mainPanelBorder.Margin = new Thickness(0);
         }
+        
+        private void ComboBoxMidiDevice_DropDownOpened(object sender, EventArgs e)
+        {
+            UpdateComboBoxMidiDevice();
+        }
 
+        #region Commands
+
+        private void Command_CanAlwaysExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+        
         private void NewToneCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             toneItems.Add(new ToneItem());
@@ -222,6 +251,109 @@ namespace Ymf825MidiDriver
 
             if (ShowOpenDialog())
                 LoadProject();
+        }
+
+        private void NewCommand_OnExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (fileChanged)
+            {
+                var confirm = ConfirmDiscordChanging();
+
+                switch (confirm)
+                {
+                    case true:
+                        if (filePath == null)
+                        {
+                            if (ShowSaveDialog())
+                                SaveProject();
+                            else
+                                return;
+                        }
+                        else
+                            SaveProject();
+                        break;
+
+                    case null:
+                        return;
+                }
+            }
+
+            // reset tones
+            isMonitoringChanging = false;
+            toneItems.Clear();
+            filePath = null;
+            fileName = null;
+            fileChanged = false;
+            UpdateWindowTitle();
+            isMonitoringChanging = true;
+        }
+
+        private void CloseCommand_OnExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void ServerConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (ServerConnecting)
+            {
+                ServerConnected = false;
+            }
+            else
+            {
+                ServerConnected = Ymf825Client.IsAvailable();
+
+                if (ServerConnected)
+                    ymf825Client = Ymf825Client.GetClient();
+            }
+
+            ServerConnecting = !ServerConnecting;
+        }
+
+        private void MidiConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (ComboBoxMidiDevice.SelectedIndex == -1)
+                return;
+
+            if (MidiConnected)
+            {
+                midiDriver.Stop();
+                midiDriver = null;
+                midiIn.Dispose();
+                midiIn = null;
+
+                UpdateComboBoxMidiDevice();
+            }
+            else
+            {
+                try
+                {
+                    midiIn = new MidiIn(ComboBoxMidiDevice.SelectedIndex);
+                    midiDriver = new MidiDriver(toneItems, midiIn, ymf825Client);
+                    midiDriver.Start();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"MIDIデバイス {midiDevices[ComboBoxMidiDevice.SelectedIndex]} に接続できませんでした。\n{ex.Message}",
+                        "YMF825 MIDI Driver", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    return;
+                }
+            }
+
+            MidiConnected = !MidiConnected;
+        }
+        
+        #endregion
+
+        #endregion
+
+        #region -- Private Methods --
+
+        private void UpdateWindowTitle()
+        {
+            Title = $"{(fileChanged ? "*" : "")}{fileName ?? "untitled"} ― YMF825 MIDI Driver";
         }
 
         private bool ShowSaveDialog()
@@ -306,125 +438,6 @@ namespace Ymf825MidiDriver
             }
         }
 
-        private void NewCommand_OnExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (fileChanged)
-            {
-                var confirm = ConfirmDiscordChanging();
-
-                switch (confirm)
-                {
-                    case true:
-                        if (filePath == null)
-                        {
-                            if (ShowSaveDialog())
-                                SaveProject();
-                            else
-                                return;
-                        }
-                        else
-                            SaveProject();
-                        break;
-
-                    case null:
-                        return;
-                }
-            }
-
-            // reset tones
-            isMonitoringChanging = false;
-            toneItems.Clear();
-            filePath = null;
-            fileName = null;
-            fileChanged = false;
-            UpdateWindowTitle();
-            isMonitoringChanging = true;
-        }
-
-        private void CloseCommand_OnExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!fileChanged)
-                return;
-
-            var confirm = ConfirmDiscordChanging();
-
-            switch (confirm)
-            {
-                case true:
-                    if (filePath == null)
-                    {
-                        if (ShowSaveDialog())
-                            SaveProject();
-                        else
-                            e.Cancel = true;
-                    }
-                    else
-                        SaveProject();
-                    break;
-
-                case null:
-                    e.Cancel = true;
-                    return;
-            }
-        }
-
-        private void ServerConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (ServerConnecting)
-            {
-                ServerConnected = false;
-            }
-            else
-            {
-                ServerConnected = Ymf825Client.IsAvailable();
-
-                if (ServerConnected)
-                    ymf825Client = Ymf825Client.GetClient();
-            }
-
-            ServerConnecting = !ServerConnecting;
-        }
-
-        private void MidiConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (ComboBoxMidiDevice.SelectedIndex == -1)
-                return;
-
-            if (MidiConnected)
-            {
-                midiDriver.Stop();
-                midiDriver = null;
-                midiIn.Dispose();
-                midiIn = null;
-
-                UpdateComboBoxMidiDevice();
-            }
-            else
-            {
-                try
-                {
-                    midiIn = new MidiIn(ComboBoxMidiDevice.SelectedIndex);
-                    midiDriver = new MidiDriver(toneItems, midiIn, ymf825Client);
-                    midiDriver.Start();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(
-                        $"MIDIデバイス {midiDevices[ComboBoxMidiDevice.SelectedIndex]} に接続できませんでした。\n{ex.Message}",
-                        "YMF825 MIDI Driver", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                    return;
-                }
-            }
-
-            MidiConnected = !MidiConnected;
-        }
-
         private void UpdateComboBoxMidiDevice()
         {
             midiDevices.Clear();
@@ -435,13 +448,7 @@ namespace Ymf825MidiDriver
             if (midiDevices.Count > 0)
                 ComboBoxMidiDevice.SelectedIndex = 0;
         }
-
-
+        
         #endregion
-
-        private void ComboBoxMidiDevice_DropDownOpened(object sender, EventArgs e)
-        {
-            UpdateComboBoxMidiDevice();
-        }
     }
 }
