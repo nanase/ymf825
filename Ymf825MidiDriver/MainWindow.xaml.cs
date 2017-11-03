@@ -90,7 +90,7 @@ namespace Ymf825MidiDriver
             midiDevices = new ObservableCollection<string>();
             DataContext = toneItems;
             ComboBoxMidiDevice.DataContext = midiDevices;
-            
+
             toneItems.CollectionChanged += ToneItemsOnCollectionChanged;
             UpdateWindowTitle();
             UpdateComboBoxMidiDevice();
@@ -348,31 +348,28 @@ namespace Ymf825MidiDriver
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (fileChanged)
+            if (!fileChanged)
+                return;
+
+            var confirm = ConfirmDiscordChanging();
+
+            switch (confirm)
             {
-                var confirm = ConfirmDiscordChanging();
-
-                switch (confirm)
-                {
-                    case true:
-                        if (filePath == null)
-                        {
-                            if (ShowSaveDialog())
-                                SaveProject();
-                            else
-                            {
-                                e.Cancel = true;
-                                return;
-                            }
-                        }
-                        else
+                case true:
+                    if (filePath == null)
+                    {
+                        if (ShowSaveDialog())
                             SaveProject();
-                        break;
+                        else
+                            e.Cancel = true;
+                    }
+                    else
+                        SaveProject();
+                    break;
 
-                    case null:
-                        e.Cancel = true;
-                        return;
-                }
+                case null:
+                    e.Cancel = true;
+                    return;
             }
         }
 
@@ -397,7 +394,7 @@ namespace Ymf825MidiDriver
         {
             if (ComboBoxMidiDevice.SelectedIndex == -1)
                 return;
-            
+
             if (MidiConnected)
             {
                 midiDriver.Stop();
@@ -415,7 +412,7 @@ namespace Ymf825MidiDriver
                     midiDriver = new MidiDriver(toneItems, midiIn, ymf825Client);
                     midiDriver.Start();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(
                         $"MIDIデバイス {midiDevices[ComboBoxMidiDevice.SelectedIndex]} に接続できませんでした。\n{ex.Message}",
