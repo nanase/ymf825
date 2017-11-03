@@ -33,22 +33,22 @@
             </Style.Triggers>
         </Style>
         <Style TargetType="{x:Type CheckBox}">
-            <EventSetter Event="ToggleButton.Checked" Handler="TonePropertyChanged"/>
+            <EventSetter Event="Checked" Handler="TonePropertyChanged"/>
         </Style>
         <Style TargetType="{x:Type Slider}">
-            <EventSetter Event="RangeBase.ValueChanged" Handler="TonePropertyChanged"/>
+            <EventSetter Event="ValueChanged" Handler="TonePropertyChanged"/>
         </Style>
         <Style TargetType="{x:Type ComboBox}">
-            <EventSetter Event="Selector.SelectionChanged" Handler="TonePropertyChanged"/>
+            <EventSetter Event="SelectionChanged" Handler="TonePropertyChanged"/>
         </Style>
         <Style TargetType="{x:Type TextBox}">
-            <EventSetter Event="TextBoxBase.TextChanged" Handler="TonePropertyChanged"/>
+            <EventSetter Event="TextChanged" Handler="TonePropertyChanged"/>
         </Style>
         <Style TargetType="{x:Type talex:NumericUpDown}">
-            <EventSetter Event="talex:NumericUpDown.ValueChanged" Handler="TonePropertyChanged"/>
+            <EventSetter Event="ValueChanged" Handler="TonePropertyChanged"/>
         </Style>
         <Style TargetType="{x:Type local:OperatorParameter}">
-            <EventSetter Event="local:OperatorParameter.TonePropertyChanged" Handler="TonePropertyChanged"/>
+            <EventSetter Event="TonePropertyChanged" Handler="TonePropertyChanged"/>
         </Style>
     </Window.Resources>
     <Window.CommandBindings>
