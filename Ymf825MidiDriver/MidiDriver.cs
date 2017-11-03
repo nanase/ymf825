@@ -14,6 +14,8 @@ namespace Ymf825MidiDriver
         #region -- Private Fields --
 
         private readonly int[] noteOnKeys = new int[16];
+        private readonly double[] corrections = new double[16];
+        private readonly double[] pitchBends = new double[16];
         private readonly ToneParameterCollection toneParameterList = new ToneParameterCollection();
 
         #endregion
@@ -42,6 +44,8 @@ namespace Ymf825MidiDriver
             for (var i = 0; i < 16; i++)
             {
                 noteOnKeys[i] = -1;
+                pitchBends[i] = 1.0;
+                corrections[i] = 1.0;
             }
         }
 
@@ -73,7 +77,7 @@ namespace Ymf825MidiDriver
 
         public void NotifyChangeTone(ToneItem toneItem)
         {
-            if (!toneItem.ProgramNumberAssigned)
+            if (toneItem == null || !toneItem.ProgramNumberAssigned)
                 return;
 
             var i = 0;
@@ -117,7 +121,9 @@ namespace Ymf825MidiDriver
                 case EventType.ChannelPressure:
                     break;
                 case EventType.Pitchbend:
+                    PitchBend(midiEvent.Channel, midiEvent.Data1, midiEvent.Data2);
                     break;
+
                 case EventType.SystemExclusiveF0:
                     break;
                 case EventType.SystemExclusiveF7:
@@ -141,6 +147,7 @@ namespace Ymf825MidiDriver
             if (noteOnKeys[channel] != key)
                 return;
 
+            Driver.SetVoiceNumber(channel);
             Driver.SetToneFlag(channel, false, false, false);
             noteOnKeys[channel] = -1;
         }
@@ -149,12 +156,14 @@ namespace Ymf825MidiDriver
         {
             if (noteOnKeys[channel] != -1)
                 Driver.SetToneFlag(channel, false, false, false);
-
-            Ymf825Driver.GetFnumAndBlock(key, out var fnum, out var block, out var correction);
-            Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
-
+            
             var volume = velocity / 127.0;
 
+            Ymf825Driver.GetFnumAndBlock(key, out var fnum, out var block, out var correction);
+            corrections[channel] = correction;
+            correction *= pitchBends[channel];
+            Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
+            
             Driver.SetVoiceNumber(channel);
             Driver.SetChannelVolume((int)Math.Round(volume * 31.0), false);
             Driver.SetFrequencyMultiplier(integer, fraction);
@@ -191,6 +200,17 @@ namespace Ymf825MidiDriver
             Ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
 
             Driver.WriteContentsData(toneBuffer, 0, toneBufferSize);
+        }
+
+        private void PitchBend(int channel, int data1, int data2)
+        {
+            var bendData = ((data2 << 7) | data1) - 8192;
+            pitchBends[channel] = Math.Pow(Math.Pow(2.0, 2.0 / 12.0), bendData / 8192.0);
+            var correction = corrections[channel] * pitchBends[channel];
+            
+            Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
+            Driver.SetVoiceNumber(channel);
+            Driver.SetFrequencyMultiplier(integer, fraction);
         }
 
         #endregion
