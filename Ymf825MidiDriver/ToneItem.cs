@@ -10,6 +10,7 @@ namespace Ymf825MidiDriver
 
         private int programNumber;
         private int percussionNumber;
+        private int percussionNoteNumber;
         private double panpot;
         private double volume = 1.0;
 
@@ -44,6 +45,18 @@ namespace Ymf825MidiDriver
                     throw new ArgumentOutOfRangeException(nameof(value));
 
                 percussionNumber = value;
+            }
+        }
+
+        public int PercussionNoteNumber
+        {
+            get => percussionNoteNumber;
+            set
+            {
+                if (value < 0 || value > 127)
+                    throw new ArgumentOutOfRangeException(nameof(value));
+
+                percussionNoteNumber = value;
             }
         }
 

@@ -173,18 +173,18 @@
             <GroupBox Header="トーン" Height="113" Width="1015" VerticalAlignment="Top" HorizontalAlignment="Left">
                 <Grid>
                     <Label Content="名前" HorizontalAlignment="Left" Margin="12,8,0,0" VerticalAlignment="Top"/>
-                    <TextBox HorizontalAlignment="Left" Height="24" Margin="109,9,0,0"
+                    <TextBox HorizontalAlignment="Left" Height="24" Margin="85,9,0,0"
                              Text="{Binding SelectedToneItem.Name, ElementName=Window, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" />
 
-                    <CheckBox x:Name="CheckBoxIsProgram" Content="プログラム #" HorizontalAlignment="Left" Margin="12,39,0,0" VerticalAlignment="Top"
+                    <CheckBox x:Name="CheckBoxIsProgram" Content="プログラム #" HorizontalAlignment="Left" Margin="241,15,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding SelectedToneItem.ProgramNumberAssigned, ElementName=Window, Mode=TwoWay}"/>
-                    <talex:NumericUpDown x:Name="NumericUpDownProgram" VerticalAlignment="Top" Height="24" Margin="109,35,0,0" HorizontalAlignment="Left" Width="140" Maximum="127"
+                    <talex:NumericUpDown x:Name="NumericUpDownProgram" VerticalAlignment="Top" Height="24" Margin="338,11,0,0" HorizontalAlignment="Left" Width="140" Maximum="127"
                                          IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsProgram}"
                                          Value="{Binding SelectedToneItem.ProgramNumber, ElementName=Window, Mode=TwoWay}"/>
 
-                    <CheckBox x:Name="CheckBoxIsPercussion" Content="パーカッション #" HorizontalAlignment="Left" Margin="12,67,0,0" VerticalAlignment="Top"
+                    <CheckBox x:Name="CheckBoxIsPercussion" Content="パーカッション #" HorizontalAlignment="Left" Margin="241,43,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding SelectedToneItem.PercussionNumberAssigned, ElementName=Window, Mode=TwoWay}"/>
-                    <ComboBox HorizontalAlignment="Left" Margin="109,62,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                    <ComboBox HorizontalAlignment="Left" Margin="338,38,0,0" Width="140" Height="24" VerticalAlignment="Top"
                               IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsPercussion}"
                               SelectedIndex="{Binding SelectedToneItem.PercussionNumber, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
                         <ComboBoxItem Content="0" />
@@ -317,13 +317,13 @@
                         <ComboBoxItem Content="127" />
                     </ComboBox>
 
-                    <Label Content="アルゴリズム" HorizontalAlignment="Left" Margin="261,34,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="ComboBoxAlgorithm" HorizontalAlignment="Left" Margin="326,9,0,0" Width="206" Height="78" VerticalAlignment="Top"
+                    <Label Content="アルゴリズム" HorizontalAlignment="Left" Margin="484,34,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="ComboBoxAlgorithm" HorizontalAlignment="Left" Margin="549,9,0,0" Width="206" Height="78" VerticalAlignment="Top"
                               ItemsSource="{Binding Converter={StaticResource AlgorithmConverter}, Mode=OneWay, Source={StaticResource Algorithms}}"
                               SelectedIndex="{Binding SelectedToneItem.ToneParameter.Algorithm, ElementName=Window, Mode=TwoWay, FallbackValue=0}"/>
 
-                    <Label Content="基本オクターブ" HorizontalAlignment="Left" Margin="546,8,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="ComboBoxBasicOctave" HorizontalAlignment="Left" Margin="628,9,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                    <Label Content="基本オクターブ" HorizontalAlignment="Left" Margin="776,8,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="ComboBoxBasicOctave" HorizontalAlignment="Left" Margin="858,9,0,0" Width="140" Height="24" VerticalAlignment="Top"
                               SelectedIndex="{Binding SelectedToneItem.ToneParameter.BasicOctave, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
                         <ComboBoxItem Content="x2"/>
                         <ComboBoxItem Content="x1"/>
@@ -331,8 +331,8 @@
                         <ComboBoxItem Content="x0.25"/>
                     </ComboBox>
 
-                    <Label Content="LFO周波数" HorizontalAlignment="Left" Margin="546,34,0,0" VerticalAlignment="Top"/>
-                    <ComboBox HorizontalAlignment="Left" Margin="628,36,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                    <Label Content="LFO周波数" HorizontalAlignment="Left" Margin="776,34,0,0" VerticalAlignment="Top"/>
+                    <ComboBox HorizontalAlignment="Left" Margin="858,36,0,0" Width="140" Height="24" VerticalAlignment="Top"
                               SelectedIndex="{Binding SelectedToneItem.ToneParameter.LfoFrequency, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
                         <ComboBoxItem Content="1.8 Hz"/>
                         <ComboBoxItem Content="4.0 Hz"/>
@@ -340,15 +340,150 @@
                         <ComboBoxItem Content="7.0 Hz"/>
                     </ComboBox>
 
-                    <Label Content="定位 (LR)" HorizontalAlignment="Left" Margin="785,35,0,0" VerticalAlignment="Top"/>
-                    <Slider Margin="853,37,0,0" Maximum="1" Minimum="-1" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.1" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
+                    <Label Content="定位 (LR)" HorizontalAlignment="Left" Margin="12,63,0,0" VerticalAlignment="Top"/>
+                    <Slider Margin="84,65,0,0" Maximum="1" Minimum="-1" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.1" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
                             Value="{Binding SelectedToneItem.Panpot, ElementName=Window, Mode=TwoWay}"/>
 
-                    <Label Content="ボリューム" HorizontalAlignment="Left" Margin="785,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.321,-1.385"/>
-                    <Slider Margin="853,9,0,0" Maximum="4" Minimum="0" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.5" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
+                    <Label Content="ボリューム" HorizontalAlignment="Left" Margin="12,36,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.321,-1.385"/>
+                    <Slider Margin="85,36,0,0" Maximum="4" Minimum="0" LargeChange="0.1" TickPlacement="BottomRight" AutoToolTipPrecision="2" TickFrequency="0.5" AutoToolTipPlacement="TopLeft" HorizontalAlignment="Left" Width="140" Height="24" VerticalAlignment="Top" SmallChange="0.01"
                             Value="{Binding SelectedToneItem.Volume, ElementName=Window, Mode=TwoWay}"/>
 
-                    <Button Content="シーケンサ編集" HorizontalAlignment="Left" Margin="546,65,0,0" VerticalAlignment="Top" Width="110"/>
+                    <Button Content="シーケンサ編集" HorizontalAlignment="Left" Margin="776,65,0,0" VerticalAlignment="Top" Width="110"/>
+                    
+                    <Label Content="発音ノート #" HorizontalAlignment="Left" Margin="258,62,0,0" VerticalAlignment="Top"
+                           IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsPercussion}"/>
+                    <ComboBox HorizontalAlignment="Left" Margin="338,65,0,0" Width="140" Height="24" VerticalAlignment="Top"
+                              IsEnabled="{Binding IsChecked, ElementName=CheckBoxIsPercussion}"
+                              SelectedIndex="{Binding SelectedToneItem.PercussionNoteNumber, ElementName=Window, Mode=TwoWay, FallbackValue=0}">
+                        <ComboBoxItem Content="0 (C-1)" />
+                        <ComboBoxItem Content="1 (C#-1)" />
+                        <ComboBoxItem Content="2 (D-1)" />
+                        <ComboBoxItem Content="3 (D#-1)" />
+                        <ComboBoxItem Content="4 (E-1)" />
+                        <ComboBoxItem Content="5 (F-1)" />
+                        <ComboBoxItem Content="6 (F#-1)" />
+                        <ComboBoxItem Content="7 (G-1)" />
+                        <ComboBoxItem Content="8 (G#-1)" />
+                        <ComboBoxItem Content="9 (A-1)" />
+                        <ComboBoxItem Content="10 (A#-1)" />
+                        <ComboBoxItem Content="11 (B-1)" />
+                        <ComboBoxItem Content="12 (C0)" />
+                        <ComboBoxItem Content="13 (C#0)" />
+                        <ComboBoxItem Content="14 (D0)" />
+                        <ComboBoxItem Content="15 (D#0)" />
+                        <ComboBoxItem Content="16 (E0)" />
+                        <ComboBoxItem Content="17 (F0)" />
+                        <ComboBoxItem Content="18 (F#0)" />
+                        <ComboBoxItem Content="19 (G0)" />
+                        <ComboBoxItem Content="20 (G#0)" />
+                        <ComboBoxItem Content="21 (A0)" />
+                        <ComboBoxItem Content="22 (A#0)" />
+                        <ComboBoxItem Content="23 (B0)" />
+                        <ComboBoxItem Content="24 (C1)" />
+                        <ComboBoxItem Content="25 (C#1)" />
+                        <ComboBoxItem Content="26 (D1)" />
+                        <ComboBoxItem Content="27 (D#1)" />
+                        <ComboBoxItem Content="28 (E1)" />
+                        <ComboBoxItem Content="29 (F1)" />
+                        <ComboBoxItem Content="30 (F#1)" />
+                        <ComboBoxItem Content="31 (G1)" />
+                        <ComboBoxItem Content="32 (G#1)" />
+                        <ComboBoxItem Content="33 (A1)" />
+                        <ComboBoxItem Content="34 (A#1)" />
+                        <ComboBoxItem Content="35 (B1)" />
+                        <ComboBoxItem Content="36 (C2)" />
+                        <ComboBoxItem Content="37 (C#2)" />
+                        <ComboBoxItem Content="38 (D2)" />
+                        <ComboBoxItem Content="39 (D#2)" />
+                        <ComboBoxItem Content="40 (E2)" />
+                        <ComboBoxItem Content="41 (F2)" />
+                        <ComboBoxItem Content="42 (F#2)" />
+                        <ComboBoxItem Content="43 (G2)" />
+                        <ComboBoxItem Content="44 (G#2)" />
+                        <ComboBoxItem Content="45 (A2)" />
+                        <ComboBoxItem Content="46 (A#2)" />
+                        <ComboBoxItem Content="47 (B2)" />
+                        <ComboBoxItem Content="48 (C3)" />
+                        <ComboBoxItem Content="49 (C#3)" />
+                        <ComboBoxItem Content="50 (D3)" />
+                        <ComboBoxItem Content="51 (D#3)" />
+                        <ComboBoxItem Content="52 (E3)" />
+                        <ComboBoxItem Content="53 (F3)" />
+                        <ComboBoxItem Content="54 (F#3)" />
+                        <ComboBoxItem Content="55 (G3)" />
+                        <ComboBoxItem Content="56 (G#3)" />
+                        <ComboBoxItem Content="57 (A3)" />
+                        <ComboBoxItem Content="58 (A#3)" />
+                        <ComboBoxItem Content="59 (B3)" />
+                        <ComboBoxItem Content="60 (C4)" />
+                        <ComboBoxItem Content="61 (C#4)" />
+                        <ComboBoxItem Content="62 (D4)" />
+                        <ComboBoxItem Content="63 (D#4)" />
+                        <ComboBoxItem Content="64 (E4)" />
+                        <ComboBoxItem Content="65 (F4)" />
+                        <ComboBoxItem Content="66 (F#4)" />
+                        <ComboBoxItem Content="67 (G4)" />
+                        <ComboBoxItem Content="68 (G#4)" />
+                        <ComboBoxItem Content="69 (A4)" />
+                        <ComboBoxItem Content="70 (A#4)" />
+                        <ComboBoxItem Content="71 (B4)" />
+                        <ComboBoxItem Content="72 (C5)" />
+                        <ComboBoxItem Content="73 (C#5)" />
+                        <ComboBoxItem Content="74 (D5)" />
+                        <ComboBoxItem Content="75 (D#5)" />
+                        <ComboBoxItem Content="76 (E5)" />
+                        <ComboBoxItem Content="77 (F5)" />
+                        <ComboBoxItem Content="78 (F#5)" />
+                        <ComboBoxItem Content="79 (G5)" />
+                        <ComboBoxItem Content="80 (G#5)" />
+                        <ComboBoxItem Content="81 (A5)" />
+                        <ComboBoxItem Content="82 (A#5)" />
+                        <ComboBoxItem Content="83 (B5)" />
+                        <ComboBoxItem Content="84 (C6)" />
+                        <ComboBoxItem Content="85 (C#6)" />
+                        <ComboBoxItem Content="86 (D6)" />
+                        <ComboBoxItem Content="87 (D#6)" />
+                        <ComboBoxItem Content="88 (E6)" />
+                        <ComboBoxItem Content="89 (F6)" />
+                        <ComboBoxItem Content="90 (F#6)" />
+                        <ComboBoxItem Content="91 (G6)" />
+                        <ComboBoxItem Content="92 (G#6)" />
+                        <ComboBoxItem Content="93 (A6)" />
+                        <ComboBoxItem Content="94 (A#6)" />
+                        <ComboBoxItem Content="95 (B6)" />
+                        <ComboBoxItem Content="96 (C7)" />
+                        <ComboBoxItem Content="97 (C#7)" />
+                        <ComboBoxItem Content="98 (D7)" />
+                        <ComboBoxItem Content="99 (D#7)" />
+                        <ComboBoxItem Content="100 (E7)" />
+                        <ComboBoxItem Content="101 (F7)" />
+                        <ComboBoxItem Content="102 (F#7)" />
+                        <ComboBoxItem Content="103 (G7)" />
+                        <ComboBoxItem Content="104 (G#7)" />
+                        <ComboBoxItem Content="105 (A7)" />
+                        <ComboBoxItem Content="106 (A#7)" />
+                        <ComboBoxItem Content="107 (B7)" />
+                        <ComboBoxItem Content="108 (C8)" />
+                        <ComboBoxItem Content="109 (C#8)" />
+                        <ComboBoxItem Content="110 (D8)" />
+                        <ComboBoxItem Content="111 (D#8)" />
+                        <ComboBoxItem Content="112 (E8)" />
+                        <ComboBoxItem Content="113 (F8)" />
+                        <ComboBoxItem Content="114 (F#8)" />
+                        <ComboBoxItem Content="115 (G8)" />
+                        <ComboBoxItem Content="116 (G#8)" />
+                        <ComboBoxItem Content="117 (A8)" />
+                        <ComboBoxItem Content="118 (A#8)" />
+                        <ComboBoxItem Content="119 (B8)" />
+                        <ComboBoxItem Content="120 (C9)" />
+                        <ComboBoxItem Content="121 (C#9)" />
+                        <ComboBoxItem Content="122 (D9)" />
+                        <ComboBoxItem Content="123 (D#9)" />
+                        <ComboBoxItem Content="124 (E9)" />
+                        <ComboBoxItem Content="125 (F9)" />
+                        <ComboBoxItem Content="126 (F#9)" />
+                        <ComboBoxItem Content="127 (G9)" />
+                    </ComboBox>
                 </Grid>
             </GroupBox>
             <local:OperatorParameter HorizontalAlignment="Left" Margin="0,118,0,0" Width="250" OperatorNumber="1" HasFeedback="True" Height="501" VerticalAlignment="Top"
