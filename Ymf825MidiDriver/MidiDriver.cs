@@ -11,8 +11,15 @@ namespace Ymf825MidiDriver
         #region -- Private Fields --
 
         private readonly int[] noteOnKeys = new int[16];
+        private readonly int[] programNumbers = new int[16];
         private readonly double[] corrections = new double[16];
         private readonly double[] pitchBends = new double[16];
+        private readonly double[] volumes = new double[16];
+        private readonly double[] toneVolumes = new double[16];
+        private readonly double[] lchVolumes = new double[16];
+        private readonly double[] rchVolumes = new double[16];
+        private readonly double[] expressions = new double[16];
+        private readonly bool[] percussionMode = { false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false };
         private readonly ToneParameterCollection toneParameterList = new ToneParameterCollection();
 
         #endregion
@@ -43,6 +50,12 @@ namespace Ymf825MidiDriver
                 noteOnKeys[i] = -1;
                 pitchBends[i] = 1.0;
                 corrections[i] = 1.0;
+
+                volumes[i] = 100.0 / 127.0;
+                toneVolumes[i] = 1.0;
+                lchVolumes[i] = 1.0;
+                rchVolumes[i] = 1.0;
+                expressions[i] = 1.0;
             }
         }
 
@@ -86,8 +99,8 @@ namespace Ymf825MidiDriver
 
             if (i == 16)
                 return;
-            
-            ProgramChange(i, toneItem.ProgramNumber);
+
+            ProgramChange(i, toneItem.ProgramNumber, true);
         }
 
         #endregion
@@ -101,7 +114,7 @@ namespace Ymf825MidiDriver
             switch (midiEvent.Type)
             {
                 case EventType.NoteOff:
-                    NoteOff(midiEvent.Channel, midiEvent.Data1, midiEvent.Data2);
+                    NoteOff(midiEvent.Channel, midiEvent.Data1);
                     break;
 
                 case EventType.NoteOn:
@@ -109,6 +122,7 @@ namespace Ymf825MidiDriver
                     break;
 
                 case EventType.ControlChange:
+                    ControlChange(midiEvent.Channel, midiEvent.Data1, midiEvent.Data2);
                     break;
 
                 case EventType.ProgramChange:
@@ -128,7 +142,6 @@ namespace Ymf825MidiDriver
                 case EventType.MetaEvent:
                     break;
 
-                case EventType.PolyphonicKeyPressure:
                 default:
                     return;
             }
@@ -136,78 +149,189 @@ namespace Ymf825MidiDriver
 
         private void MidiInOnReceivedExclusiveMessage(object sender, ReceivedExclusiveMessageEventArgs e)
         {
+            var message = e.Message.ToArray();
 
+            // Set Percussion Channel
+            if (message.Length == 9 && message[4] == 0x40 && message[6] == 0x15)
+            {
+                int channel;
+                switch (message[5])
+                {
+                    case 16: channel = 9; break;
+                    case 17: channel = 0; break;
+                    case 18: channel = 1; break;
+                    case 19: channel = 2; break;
+                    case 20: channel = 3; break;
+                    case 21: channel = 4; break;
+                    case 22: channel = 5; break;
+                    case 23: channel = 6; break;
+                    case 24: channel = 7; break;
+                    case 25: channel = 8; break;
+                    case 26: channel = 10; break;
+                    case 27: channel = 11; break;
+                    case 28: channel = 12; break;
+                    case 29: channel = 13; break;
+                    case 30: channel = 14; break;
+                    case 31: channel = 15; break;
+                    default: channel = 0; break;
+                }
+
+                var isPercussion = message[7] != 0;
+                percussionMode[channel] = isPercussion;
+                Console.WriteLine($"Change Chanel Mode: Ch {channel} - {isPercussion}");
+            }
         }
 
-        private void NoteOff(int channel, int key, int velocity)
+        private void NoteOff(int channel, int key)
         {
             if (noteOnKeys[channel] != key)
                 return;
 
-            Driver.SetVoiceNumber(channel);
-            Driver.SetToneFlag(channel, false, false, false);
-            noteOnKeys[channel] = -1;
+            SendNoteOff(channel);
         }
 
         private void NoteOn(int channel, int key, int velocity)
         {
             if (noteOnKeys[channel] != -1)
-                Driver.SetToneFlag(channel, false, false, false);
+                NoteOff(channel, key);
+
+            if (percussionMode[channel])
+            {
+                SendNoteOff(channel);
+                PercussionNoteOn(channel, key, velocity);
+                return;
+            }
             
+            SendNoteOn(channel, key, velocity);
+            noteOnKeys[channel] = key;
+        }
+
+        private void PercussionNoteOn(int channel, int key, int velocity)
+        {
+            var tone = ToneItems.FirstOrDefault(t => 
+                t.ProgramNumberAssigned && t.ProgramNumber == programNumbers[channel] &&
+                t.PercussionNumberAssigned && t.PercussionNumber == key) ?? new ToneItem();
+            SetProgram(channel, tone.ProgramNumber, tone);
+            SendNoteOn(channel, tone.PercussionNoteNumber, velocity);
+            noteOnKeys[channel] = key;
+        }
+
+        private void ProgramChange(int channel, int program, bool forceChange = false)
+        {
+            var tone = ToneItems.FirstOrDefault(t => t.ProgramNumberAssigned && t.ProgramNumber == program) ?? new ToneItem();
+            SetProgram(channel, program, tone, forceChange);
+        }
+
+        private void ControlChange(int channel, int data1, int data2)
+        {
+            switch (data1)
+            {
+                case 7: // volume
+                    volumes[channel] = data2 / 127.0;
+                    SetVoiceVolume(channel, true);
+                    break;
+
+                case 10: // panpot
+                    SetPanpot(channel, data2 / 64.0 - 1.0);
+                    SetVoiceVolume(channel, true);
+                    break;
+
+                case 11: // expression
+                    expressions[channel] = data2 / 127.0;
+                    SetVoiceVolume(channel, true);
+                    break;
+            }
+        }
+
+        private void PitchBend(int channel, int data1, int data2)
+        {
+            var bendData = ((data2 << 7) | data1) - 8192;
+            // precalc: Math.Pow(2.0, 2.0 / 12.0) = 1.122462048309373
+            pitchBends[channel] = Math.Pow(1.122462048309373, bendData / 8192.0);
+            var correction = corrections[channel] * pitchBends[channel];
+
+            Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
+            Driver.SetVoiceNumber(channel);
+            Driver.SetFrequencyMultiplier(integer, fraction);
+        }
+
+        // ------
+
+        private void SetProgram(int channel, int programNumber, ToneItem tone, bool forceChange = false)
+        {
+            //if (!forceChange && toneParameterList[channel] == tone.ToneParameter)
+            //{
+            //    toneVolumes[channel] = tone.Volume;
+            //    SetPanpot(channel, tone.Panpot);
+            //    return;
+            //}
+
+            toneParameterList[channel] = tone.ToneParameter;
+            programNumbers[channel] = programNumber;
+            toneVolumes[channel] = tone.Volume;
+            SetPanpot(channel, tone.Panpot);
+            SendProgramChange(channel);
+            //Console.WriteLine($"Perc: {tone.Name} - {tone.PercussionNumber}");
+        }
+
+        private void SetVoiceVolume(int channel, bool setVoiceNumber = false)
+        {
+            if (setVoiceNumber)
+                Driver.SetVoiceNumber(channel);
+
+            var lch = (int)Math.Round(expressions[channel] * volumes[channel] * lchVolumes[channel] * toneVolumes[channel] * 31.0);
+            var rch = (int)Math.Round(expressions[channel] * volumes[channel] * rchVolumes[channel] * toneVolumes[channel] * 31.0);
+
+            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0);
+            Driver.SetVoiceVolume(lch);
+
+            Ymf825Client.SetTarget(TargetDevice.Ymf825Board1);
+            Driver.SetVoiceVolume(rch);
+
+            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
+            //Console.WriteLine($"Volume: #{channel} - L:{lch}, R:{rch}");
+        }
+
+        private void SendNoteOff(int channel)
+        {
+            Driver.SetVoiceNumber(channel);
+            Driver.SetToneFlag(channel, false, false, false);
+            noteOnKeys[channel] = -1;
+        }
+
+        private void SendNoteOn(int channel, int key, int velocity)
+        {
             var volume = velocity / 127.0;
 
             Ymf825Driver.GetFnumAndBlock(key, out var fnum, out var block, out var correction);
             corrections[channel] = correction;
             correction *= pitchBends[channel];
             Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
-            
+
             Driver.SetVoiceNumber(channel);
             Driver.SetChannelVolume((int)Math.Round(volume * 31.0), false);
             Driver.SetFrequencyMultiplier(integer, fraction);
             Driver.SetFnumAndBlock((int)Math.Round(fnum), block);
             Driver.SetToneFlag(channel, true, false, false);
-
-            noteOnKeys[channel] = key;
         }
-
-        private void ProgramChange(int channel, int program)
+     
+        private void SendProgramChange(int channel)
         {
-            Console.WriteLine($"Ch: {channel}, Prog: {program}");
-            var tone = ToneItems.FirstOrDefault(t => t.ProgramNumberAssigned && t.ProgramNumber == program) ?? new ToneItem();
-
-            toneParameterList[channel] = tone.ToneParameter;
-
             var toneBuffer = new byte[512];
             var toneBufferSize = toneParameterList.Export(toneBuffer, 0, channel);
-            
-            var lchVolume = tone.Volume * Math.Cos(tone.Panpot < 0.0 ? 0.0 : tone.Panpot);
-            var rchVolume = tone.Volume * Math.Cos(tone.Panpot < 0.0 ? -tone.Panpot : 0.0);
-
             Driver.SetVoiceNumber(channel);
             Driver.SetSequencerSetting(SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
-            Driver.SleepAction(1);
+            //Driver.SleepAction(1);
             Driver.SetSequencerSetting(SequencerSetting.Reset);
-
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0);
-            Driver.SetVoiceVolume((int)Math.Round(lchVolume * 31.0));
-
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board1);
-            Driver.SetVoiceVolume((int)Math.Round(rchVolume * 31.0));
-
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
-
+            SetVoiceVolume(channel);
             Driver.WriteContentsData(toneBuffer, 0, toneBufferSize);
         }
 
-        private void PitchBend(int channel, int data1, int data2)
+        private void SetPanpot(int channel, double panValue)
         {
-            var bendData = ((data2 << 7) | data1) - 8192;
-            pitchBends[channel] = Math.Pow(Math.Pow(2.0, 2.0 / 12.0), bendData / 8192.0);
-            var correction = corrections[channel] * pitchBends[channel];
-            
-            Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
-            Driver.SetVoiceNumber(channel);
-            Driver.SetFrequencyMultiplier(integer, fraction);
+            lchVolumes[channel] = panValue > 0.0 ? Math.Sin((panValue + 1.0) * Math.PI / 2.0) : 1.0;
+            rchVolumes[channel] = panValue < 0.0 ? Math.Sin((-panValue + 1.0) * Math.PI / 2.0) : 1.0;
+            //Console.WriteLine($"Panpot: #{channel} - L:{lchVolumes[channel]:f2}, R:{rchVolumes[channel]:f2}");
         }
 
         #endregion
