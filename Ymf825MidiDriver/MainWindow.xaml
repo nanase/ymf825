@@ -62,6 +62,7 @@
         <CommandBinding Command="{x:Static local:MainWindow.DuplicateToneCommand}" Executed="DuplicateToneCommand_Executed" />
         <CommandBinding Command="{x:Static local:MainWindow.ServerConnectionToggleCommand}" Executed="ServerConnectionToggleCommand_Executed" />
         <CommandBinding Command="{x:Static local:MainWindow.MidiConnectionToggleCommand}" Executed="MidiConnectionToggleCommand_Executed" />
+        <CommandBinding Command="{x:Static local:MainWindow.ToneExportCommand}" Executed="ToneExportCommand_Executed" />
     </Window.CommandBindings>
     <Grid>
         <Menu Height="20" VerticalAlignment="Top">
@@ -159,6 +160,7 @@
                     </Button>
                     <Separator/>
                     <Button IsEnabled="{Binding SelectedValue, Converter={StaticResource BoolSelectedValueConverter}, ElementName=ToneListBox}"
+                            Command="{x:Static local:MainWindow.ToneExportCommand}"
                             ToolTip="エクスポート">
                         <Image Source="Resources/page_white_go.png" Style="{StaticResource ImageEnabled}"/>
                     </Button>

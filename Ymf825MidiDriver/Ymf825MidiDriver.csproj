@@ -97,6 +97,9 @@
     <Compile Include="AlgorithmConverter.cs" />
     <Compile Include="MidiConnectionConverter.cs" />
     <Compile Include="ServerConnectionConverter.cs" />
+    <Compile Include="ToneExportWindow.xaml.cs">
+      <DependentUpon>ToneExportWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ToneItem.cs" />
     <Compile Include="ToneNumberToStringConveter.cs" />
     <Compile Include="WaveShape.cs" />
@@ -149,6 +152,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="OperatorParameter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ToneExportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

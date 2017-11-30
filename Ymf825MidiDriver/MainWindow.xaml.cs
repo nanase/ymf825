@@ -27,6 +27,7 @@ namespace Ymf825MidiDriver
         public static readonly RoutedCommand DuplicateToneCommand = new RoutedCommand();
         public static readonly RoutedCommand ServerConnectionToggleCommand = new RoutedCommand();
         public static readonly RoutedCommand MidiConnectionToggleCommand = new RoutedCommand();
+        public static readonly RoutedCommand ToneExportCommand = new RoutedCommand();
         public static readonly DependencyProperty ServerConnectingProperty = DependencyProperty.Register(nameof(ServerConnecting), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty ServerConnectedProperty = DependencyProperty.Register(nameof(ServerConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty MidiConnectedProperty = DependencyProperty.Register(nameof(MidiConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
@@ -154,7 +155,7 @@ namespace Ymf825MidiDriver
 
             e.Handled = true;
         }
-        
+
         private void ToolBar_Loaded(object sender, RoutedEventArgs e)
         {
             var toolBar = sender as ToolBar;
@@ -165,7 +166,7 @@ namespace Ymf825MidiDriver
             if (toolBar?.Template.FindName("MainPanelBorder", toolBar) is FrameworkElement mainPanelBorder)
                 mainPanelBorder.Margin = new Thickness(0);
         }
-        
+
         private void ComboBoxMidiDevice_DropDownOpened(object sender, EventArgs e)
         {
             UpdateComboBoxMidiDevice();
@@ -177,7 +178,7 @@ namespace Ymf825MidiDriver
         {
             e.CanExecute = true;
         }
-        
+
         private void NewToneCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             toneItems.Add(new ToneItem());
@@ -344,7 +345,13 @@ namespace Ymf825MidiDriver
 
             MidiConnected = !MidiConnected;
         }
-        
+
+        private void ToneExportCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var toneExportWindow = new ToneExportWindow { ToneItem = SelectedToneItem, Owner = this };
+            toneExportWindow.ShowDialog();
+        }
+
         #endregion
 
         #endregion
@@ -448,7 +455,7 @@ namespace Ymf825MidiDriver
             if (midiDevices.Count > 0)
                 ComboBoxMidiDevice.SelectedIndex = 0;
         }
-        
+
         #endregion
     }
 }
