@@ -22,6 +22,7 @@ namespace Ymf825
         #region -- Private Fields --
 
         private readonly SerialPort port;
+        private readonly object syncObject = new object();
 
         private static readonly byte[] DataHardwareReset = { 0xfe };
         private static readonly byte[] DataVersion = { 0xff };
@@ -91,7 +92,8 @@ namespace Ymf825
 
         public void ResetHardware()
         {
-            port.Write(DataHardwareReset, 0, DataHardwareReset.Length);
+            lock (syncObject)
+                port.Write(DataHardwareReset, 0, DataHardwareReset.Length);
         }
 
         public void ResetSoftware()
@@ -105,7 +107,8 @@ namespace Ymf825
 
             try
             {
-                port.Write(new byte[] { 0x00, address, data }, 0, 3);
+                lock (syncObject)
+                    port.Write(new byte[] { 0x00, address, data }, 0, 3);
                 WriteBytesTotal += 2;
                 WriteCommandsTotal++;
 
@@ -148,10 +151,13 @@ namespace Ymf825
 
             try
             {
-                port.Write(new byte[] { 0x01 }, 0, 1);
-                port.Write(size, 0, 2);
-                port.Write(new[] { address }, 0, 1);
-                port.Write(data, offset, count);
+                lock (syncObject)
+                {
+                    port.Write(new byte[] {0x01}, 0, 1);
+                    port.Write(size, 0, 2);
+                    port.Write(new[] {address}, 0, 1);
+                    port.Write(data, offset, count);
+                }
 
                 BurstWriteBytesTotal += 3 + count;
                 BurstWriteCommandsTotal++;
@@ -171,8 +177,12 @@ namespace Ymf825
 
             try
             {
-                port.Write(new byte[] { 0x20, (byte)device, address }, 0, 3);
-                port.Read(readBuffer, 0, 1);
+                lock (syncObject)
+                {
+                    port.Write(new byte[] {0x20, (byte) device, address}, 0, 3);
+                    port.Read(readBuffer, 0, 1);
+                }
+
                 ReadBytesTotal++;
                 WriteBytesTotal++;
                 ReadCommandsTotal++;
@@ -195,7 +205,11 @@ namespace Ymf825
         public void SetTarget(TargetDevice device)
         {
             targetDevice = device;
-            port.Write(new byte[] { 0x40, (byte)device }, 0, 2);
+
+            lock (syncObject)
+            {
+                port.Write(new byte[] {0x40, (byte) device}, 0, 2);
+            }
         }
 
         public static bool IsAvailable()
