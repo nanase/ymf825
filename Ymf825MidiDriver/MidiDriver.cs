@@ -126,7 +126,7 @@ namespace Ymf825MidiDriver
                     break;
 
                 case EventType.ProgramChange:
-                    ProgramChange(midiEvent.Channel, midiEvent.Data1);
+                    ProgramChange(midiEvent.Channel, midiEvent.Data1, true);
                     break;
 
                 case EventType.ChannelPressure:
@@ -259,12 +259,12 @@ namespace Ymf825MidiDriver
 
         private void SetProgram(int channel, int programNumber, ToneItem tone, bool forceChange = false)
         {
-            //if (!forceChange && toneParameterList[channel] == tone.ToneParameter)
-            //{
-            //    toneVolumes[channel] = tone.Volume;
-            //    SetPanpot(channel, tone.Panpot);
-            //    return;
-            //}
+            if (!forceChange && toneParameterList[channel] == tone.ToneParameter)
+            {
+                toneVolumes[channel] = tone.Volume;
+                SetPanpot(channel, tone.Panpot);
+                return;
+            }
 
             toneParameterList[channel] = tone.ToneParameter;
             programNumbers[channel] = programNumber;
