@@ -331,6 +331,7 @@ namespace Ymf825MidiDriver
                 {
                     midiIn = new MidiIn(ComboBoxMidiDevice.SelectedIndex);
                     midiDriver = new MidiDriver(toneItems, midiIn, ymf825Client);
+                    ymf825Client.ResetSoftware();
                     midiDriver.Start();
                 }
                 catch (Exception ex)
