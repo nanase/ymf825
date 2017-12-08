@@ -163,7 +163,7 @@ namespace Ymf825
 
         #region -- Public Properties --
 
-        public IYmf825Client Client { get; }
+        public Ymf825 SoundChip { get; }
 
         public Action<int> SleepAction
         {
@@ -175,9 +175,9 @@ namespace Ymf825
 
         #region -- Constructors --
 
-        public Ymf825Driver(IYmf825Client client)
+        public Ymf825Driver(Ymf825 soundChip)
         {
-            Client = client;
+            SoundChip = soundChip;
         }
 
         static Ymf825Driver()
@@ -200,7 +200,7 @@ namespace Ymf825
         /// </summary>
         public void ResetHardware()
         {
-            Client.ResetHardware();
+            SoundChip.ResetHardware();
         }
 
         #endregion
@@ -209,8 +209,8 @@ namespace Ymf825
 
         public void ResetSoftware()
         {
-            SetPowerRailSelection(false);
-            SetAnalogBlockPowerDown(AnalogBlock.Ap0 | AnalogBlock.Ap1 | AnalogBlock.Ap2);
+            SetPowerRailSelection(true);
+            SetAnalogBlockPowerDown(AnalogBlock.All);
             sleepAction(1);
 
             SetClockEnable(true);
@@ -220,10 +220,7 @@ namespace Ymf825
 
             SetSoftReset(0x00);
             sleepAction(30);
-
-            SetAnalogBlockPowerDown(AnalogBlock.Ap2);
-            sleepAction(1);
-
+            
             SetAnalogBlockPowerDown(AnalogBlock.None);
             SetMasterVolume(0xf0);
             SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
@@ -250,7 +247,7 @@ namespace Ymf825
         /// <param name="enable">true のとき、クロック有効。false のとき、クロック無効。</param>
         public void SetClockEnable(bool enable)
         {
-            Client.Write(0x00, (byte)(enable ? 0x01 : 0x00));
+            SoundChip.Write(0x00, (byte)(enable ? 0x01 : 0x00));
         }
 
         /// <summary>
@@ -259,7 +256,8 @@ namespace Ymf825
         /// <returns>true のとき、クロック有効。false のとき、クロック無効。</returns>
         public bool GetClockEnable(TargetDevice device)
         {
-            return Client.Read(device, 0x00) == 0x01;
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x00) == 0x01;
         }
 
         #endregion
@@ -272,7 +270,7 @@ namespace Ymf825
         /// <param name="state">true のとき、リセット状態。false のとき、非リセット状態。</param>
         public void SetAllRegisterReset(bool state)
         {
-            Client.Write(0x01, (byte)(state ? 0x80 : 0x00));
+            SoundChip.Write(0x01, (byte)(state ? 0x80 : 0x00));
         }
 
         /// <summary>
@@ -281,7 +279,8 @@ namespace Ymf825
         /// <returns>true のとき、リセット状態。false のとき、非リセット状態。</returns>
         public bool GetAllRegisterReset(TargetDevice device)
         {
-            return Client.Read(device, 0x01) == 0x80;
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x01) == 0x80;
         }
 
         #endregion
@@ -294,7 +293,7 @@ namespace Ymf825
         /// <param name="block">Power-down 状態に設定されるブロックを表す <see cref="AnalogBlock"/> 構造体の値。</param>
         public void SetAnalogBlockPowerDown(AnalogBlock block)
         {
-            Client.Write(0x02, (byte)((int)block & 0x0f));
+            SoundChip.Write(0x02, (byte)((int)block & 0x0f));
         }
 
         /// <summary>
@@ -303,7 +302,8 @@ namespace Ymf825
         /// <returns>Power-down 状態に設定されたブロックを表す <see cref="AnalogBlock"/> 構造体の値。</returns>
         public AnalogBlock GetAnalogBlockPowerDown(TargetDevice device)
         {
-            return (AnalogBlock)(Client.Read(device, 0x02) & 0x0f);
+            SoundChip.ChangeTargetDevice(device);
+            return (AnalogBlock)(SoundChip.Read(0x02) & 0x0f);
         }
 
         #endregion
@@ -316,7 +316,7 @@ namespace Ymf825
         /// <param name="gainLevel">ゲインレベルを表す <see cref="Gain"/> 構造体の値。</param>
         public void SetGain(Gain gainLevel)
         {
-            Client.Write(0x03, (byte)((int)gainLevel & 0x03));
+            SoundChip.Write(0x03, (byte)((int)gainLevel & 0x03));
         }
 
         /// <summary>
@@ -325,7 +325,8 @@ namespace Ymf825
         /// <returns>ゲインレベルを表す <see cref="Gain"/> 構造体の値。</returns>
         public Gain GetGein(TargetDevice device)
         {
-            return (Gain)(Client.Read(device, 0x03) & 0x03);
+            SoundChip.ChangeTargetDevice(device);
+            return (Gain)(SoundChip.Read(0x03) & 0x03);
         }
 
         #endregion
@@ -338,7 +339,8 @@ namespace Ymf825
         /// <returns>デバイスに割り当てられているハードウェア ID を表す整数値。</returns>
         public int GetHardwareId(TargetDevice device)
         {
-            return Client.Read(device, 0x04);
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x04);
         }
 
         #endregion
@@ -347,7 +349,7 @@ namespace Ymf825
 
         public void WriteContentsData(byte[] data, int offset, int count)
         {
-            Client.BurstWriteBytes(0x07, data, offset, count);
+            SoundChip.BurstWrite(0x07, data, offset, count);
         }
 
         #endregion
@@ -356,12 +358,13 @@ namespace Ymf825
 
         public void SetSequencerSetting(SequencerSetting setting)
         {
-            Client.Write(0x08, (byte)((int)setting & 0xff));
+            SoundChip.Write(0x08, (byte)((int)setting & 0xff));
         }
 
         public SequencerSetting GetSequencerSetting(TargetDevice device)
         {
-            return (SequencerSetting)(Client.Read(device, 0x08) & 0xff);
+            SoundChip.ChangeTargetDevice(device);
+            return (SequencerSetting)(SoundChip.Read(0x08) & 0xff);
         }
 
         #endregion
@@ -372,14 +375,15 @@ namespace Ymf825
         {
             volume &= 0x1f;
             size &= 0x01ff;
-            Client.Write(0x09, (byte)(volume << 3 | (applyInterpolation ? 0x00 : 0x04) | size >> 8));
-            Client.Write(0x0a, (byte)(size & 0xff));
+            SoundChip.Write(0x09, (byte)(volume << 3 | (applyInterpolation ? 0x00 : 0x04) | size >> 8));
+            SoundChip.Write(0x0a, (byte)(size & 0xff));
         }
 
         public (int volume, bool applyInterpolation, int size) GetSequencerVolume(TargetDevice device)
         {
-            var msb = Client.Read(device, 0x09);
-            var lsb = Client.Read(device, 0x0a);
+            SoundChip.ChangeTargetDevice(device);
+            var msb = SoundChip.Read(0x09);
+            var lsb = SoundChip.Read(0x0a);
             return (msb >> 3, (msb & 0x04) == 0, (msb & 0x01) << 8 | lsb);
         }
 
@@ -389,12 +393,13 @@ namespace Ymf825
 
         public void SetVoiceNumber(int number)
         {
-            Client.Write(0x0b, (byte)(number & 0x0f));
+            SoundChip.Write(0x0b, (byte)(number & 0x0f));
         }
 
         public int GetVoiceNumber(TargetDevice device)
         {
-            return Client.Read(device, 0x0b);
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x0b);
         }
 
         #endregion
@@ -403,7 +408,7 @@ namespace Ymf825
 
         public void SetVoiceVolume(int volume)
         {
-            Client.Write(0x0c, (byte)((volume & 0x1f) << 2));
+            SoundChip.Write(0x0c, (byte)((volume & 0x1f) << 2));
         }
 
         #endregion
@@ -413,8 +418,8 @@ namespace Ymf825
         public void SetFnumAndBlock(int fnum, int block)
         {
             fnum &= 0x03ff;
-            Client.Write(0x0d, (byte)(((fnum & 0x0380) >> 4) | (block & 0x07)));
-            Client.Write(0x0e, (byte)(fnum & 0x7f));
+            SoundChip.Write(0x0d, (byte)(((fnum & 0x0380) >> 4) | (block & 0x07)));
+            SoundChip.Write(0x0e, (byte)(fnum & 0x7f));
         }
 
         #endregion
@@ -423,7 +428,7 @@ namespace Ymf825
 
         public void SetToneFlag(int toneNumber, bool keyOn, bool mute, bool resetEnvelopeGenerator)
         {
-            Client.Write(0x0f, (byte)(
+            SoundChip.Write(0x0f, (byte)(
                 (keyOn ? 0x40 : 0x00) |
                 (mute ? 0x20 : 0x00) |
                 (resetEnvelopeGenerator ? 0x10 : 0x00) |
@@ -436,7 +441,7 @@ namespace Ymf825
 
         public void SetChannelVolume(int volume, bool applyInterpolation)
         {
-            Client.Write(0x10, (byte)(
+            SoundChip.Write(0x10, (byte)(
                 (volume & 0x1f) << 2 |
                 (applyInterpolation ? 0x00 : 0x01)));
         }
@@ -447,7 +452,7 @@ namespace Ymf825
 
         public void SetVibratoModuration(int depth)
         {
-            Client.Write(0x11, (byte)(depth & 0x07));
+            SoundChip.Write(0x11, (byte)(depth & 0x07));
         }
 
         #endregion
@@ -457,8 +462,8 @@ namespace Ymf825
         public void SetFrequencyMultiplier(int integer, int fraction)
         {
             fraction &= 0x01ff;
-            Client.Write(0x12, (byte)((integer & 0x03) << 3 | fraction >> 6));
-            Client.Write(0x13, (byte)((fraction & 0x3f) << 1));
+            SoundChip.Write(0x12, (byte)((integer & 0x03) << 3 | fraction >> 6));
+            SoundChip.Write(0x13, (byte)((fraction & 0x3f) << 1));
         }
 
         #endregion
@@ -467,7 +472,7 @@ namespace Ymf825
 
         public void SetInterporationInMuteState(bool enable)
         {
-            Client.Write(0x14, (byte)(enable ? 0x00 : 0x01));
+            SoundChip.Write(0x14, (byte)(enable ? 0x00 : 0x01));
         }
 
         #endregion
@@ -477,8 +482,8 @@ namespace Ymf825
         public void SetSequencerTimeUnitSetting(int timeUnit)
         {
             timeUnit &= 0x3fff;
-            Client.Write(0x17, (byte)(timeUnit >> 7));
-            Client.Write(0x18, (byte)(timeUnit & 0x7f));
+            SoundChip.Write(0x17, (byte)(timeUnit >> 7));
+            SoundChip.Write(0x18, (byte)(timeUnit & 0x7f));
         }
 
         #endregion
@@ -487,12 +492,13 @@ namespace Ymf825
 
         public void SetMasterVolume(int volume)
         {
-            Client.Write(0x19, (byte)((volume & 0x3f) << 2));
+            SoundChip.Write(0x19, (byte)((volume & 0x3f) << 2));
         }
 
         public int GetMasterVolume(TargetDevice device)
         {
-            return Client.Read(device, 0x19) >> 2;
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x19) >> 2;
         }
 
         #endregion
@@ -502,12 +508,13 @@ namespace Ymf825
         public void SetSoftReset(byte value)
         {
             // TODO: value の詳細を調査
-            Client.Write(0x1a, value);
+            SoundChip.Write(0x1a, value);
         }
 
         public byte GetSoftReset(TargetDevice device)
         {
-            return Client.Read(device, 0x1a);
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x1a);
         }
 
         #endregion
@@ -517,7 +524,7 @@ namespace Ymf825
         public void SetVolumeInterpolationSetting(bool dadjt, byte muteItime, byte chvolItime, byte mvolItime)
         {
             // TODO: パラメータは列挙体を使って書き換える
-            Client.Write(0x1b, (byte)(
+            SoundChip.Write(0x1b, (byte)(
                 (dadjt ? 0x40 : 0x00) |
                 ((muteItime & 0x03) << 4) |
                 ((chvolItime & 0x03) << 2) |
@@ -526,7 +533,8 @@ namespace Ymf825
 
         public (bool dadjt, byte muteItime, byte chvolItime, byte mvolItime) GetVolumeInterpolationSetting(TargetDevice device)
         {
-            var readByte = Client.Read(device, 0x1b);
+            SoundChip.ChangeTargetDevice(device);
+            var readByte = SoundChip.Read(0x1b);
             return (
                 (readByte & 0x40) != 0,
                 (byte)((readByte >> 4) & 0x03),
@@ -540,12 +548,13 @@ namespace Ymf825
 
         public void SetLfoReset(bool reset)
         {
-            Client.Write(0x1c, (byte)(reset ? 0x01 : 0x00));
+            SoundChip.Write(0x1c, (byte)(reset ? 0x01 : 0x00));
         }
 
         public bool GetLfoReset(TargetDevice device)
         {
-            return Client.Read(device, 0x1c) == 0x01;
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x1c) == 0x01;
         }
 
         #endregion
@@ -554,12 +563,13 @@ namespace Ymf825
 
         public void SetPowerRailSelection(bool select)
         {
-            Client.Write(0x1d, (byte)(select ? 0x01 : 0x00));
+            SoundChip.Write(0x1d, (byte)(select ? 0x01 : 0x00));
         }
 
         public bool GetPowerRailSelection(TargetDevice device)
         {
-            return Client.Read(device, 0x1d) == 0x01;
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x1d) == 0x01;
         }
 
         #endregion
@@ -578,12 +588,13 @@ namespace Ymf825
 
         public void SetSoftwareTestCommunication(byte value)
         {
-            Client.Write(0x50, value);
+            SoundChip.Write(0x50, value);
         }
 
         public byte GetSoftwareTestCommunication(TargetDevice device)
         {
-            return Client.Read(device, 0x50);
+            SoundChip.ChangeTargetDevice(device);
+            return SoundChip.Read(0x50);
         }
 
         #endregion

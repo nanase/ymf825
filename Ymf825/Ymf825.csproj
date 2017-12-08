@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -25,7 +25,8 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -37,18 +38,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalogBlock.cs" />
-    <Compile Include="DataBurstWriteEventArgs.cs" />
-    <Compile Include="DataTransferedEventArgs.cs" />
-    <Compile Include="IYmf825Client.cs" />
-    <Compile Include="OperatorParameter.cs" />
+    <Compile Include="CbYmf825Bb.cs" />
     <Compile Include="Gain.cs" />
+    <Compile Include="IO\DeviceInfo.cs" />
+    <Compile Include="IO\DllDirectorySwitcher.cs" />
+    <Compile Include="IO\Spi.cs" />
+    <Compile Include="OperatorParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequencerSetting.cs" />
     <Compile Include="TargetDevice.cs" />
     <Compile Include="ToneParameter.cs" />
     <Compile Include="ToneParameterCollection.cs" />
-    <Compile Include="Ymf825Client.cs" />
+    <Compile Include="Ymf825.cs" />
     <Compile Include="Ymf825Driver.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\x64\ftd2xx.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\x86\ftd2xx.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
