@@ -106,36 +106,7 @@ namespace Ymf825.IO
         #endregion
 
         #region -- Public Methods --
-
-        public static DeviceInfo[] GetDeviceInfoList()
-        {
-            var devNums = (uint)DeviceCount;
-            var deviceInfoList = new DeviceInfo[devNums];
-
-            if (devNums < 1)
-                return deviceInfoList;
-
-            var structSize = Marshal.SizeOf<DeviceListInfoNode>();
-            var listPointer = Marshal.AllocHGlobal(structSize * (int)devNums);
-
-            if (FT_GetDeviceInfoList(listPointer, ref devNums) == FtStatus.FT_OK)
-            {
-                for (var i = 0; i < devNums; i++)
-                {
-                    var node = Marshal.PtrToStructure<DeviceListInfoNode>(listPointer + structSize * i);
-                    deviceInfoList[i] = new DeviceInfo(i, node);
-                }
-            }
-            else
-            {
-                deviceInfoList = new DeviceInfo[0];
-            }
-
-            Marshal.FreeHGlobal(listPointer);
-
-            return deviceInfoList;
-        }
-
+        
         public void SetCsTargetPin(byte pin)
         {
             if (IsDisposed)
@@ -225,6 +196,35 @@ namespace Ymf825.IO
             Dispose(true);
         }
 
+        public static DeviceInfo[] GetDeviceInfoList()
+        {
+            var devNums = (uint)DeviceCount;
+            var deviceInfoList = new DeviceInfo[devNums];
+
+            if (devNums < 1)
+                return deviceInfoList;
+
+            var structSize = Marshal.SizeOf<DeviceListInfoNode>();
+            var listPointer = Marshal.AllocHGlobal(structSize * (int)devNums);
+
+            if (FT_GetDeviceInfoList(listPointer, ref devNums) == FtStatus.FT_OK)
+            {
+                for (var i = 0; i < devNums; i++)
+                {
+                    var node = Marshal.PtrToStructure<DeviceListInfoNode>(listPointer + structSize * i);
+                    deviceInfoList[i] = new DeviceInfo(i, node);
+                }
+            }
+            else
+            {
+                deviceInfoList = new DeviceInfo[0];
+            }
+
+            Marshal.FreeHGlobal(listPointer);
+
+            return deviceInfoList;
+        }
+        
         #endregion
 
         #region -- Protected Methods --
