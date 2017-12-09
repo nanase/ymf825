@@ -150,7 +150,7 @@ namespace Ymf825.IO
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
             if (writeBufferSize < 11)
-                ExtendWriteBuffer(11);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 11);
 
             BufferWriteCsEnable(0);
             Marshal.Copy(new byte[] { 0x11, 0x01, 0x00, address, data }, 0, writeBuffer + 3, 5);
@@ -173,7 +173,7 @@ namespace Ymf825.IO
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
             if (writeBufferSize < 10 + count)
-                ExtendWriteBuffer(10 + count);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 10 + count);
 
             BufferWriteCsEnable(0);
             Marshal.Copy(new byte[] { 0x11, (byte)((count) & 0x00ff), (byte)((count) >> 8), address }, 0, writeBuffer + 3, 4);
@@ -185,10 +185,10 @@ namespace Ymf825.IO
         public byte Read(byte address)
         {
             if (readBufferSize < 2)
-                ExtendReadBuffer(2);
+                ExtendBuffer(ref readBuffer, ref readBufferSize, 2);
 
             if (writeBufferSize < 11)
-                ExtendWriteBuffer(11);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 11);
 
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
@@ -209,7 +209,7 @@ namespace Ymf825.IO
         public void ResetHardware()
         {
             if (writeBufferSize < 3)
-                ExtendWriteBuffer(3);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 3);
 
             WriteRaw(0x82, 0xff, 0xff);
             Thread.Sleep(2);
@@ -276,12 +276,12 @@ namespace Ymf825.IO
             Thread.Sleep(10);
 
             CheckStatus(FT_SetTimeouts(handle, 1, 1000));
-            CheckStatus(FT_SetLatencyTimer(handle, 1));
+            CheckStatus(FT_SetLatencyTimer(handle, 1));                 // 1ms
 
-            CheckStatus(FT_SetBitMode(handle, 0x00, FtBitmodeReset));    // Reset
+            CheckStatus(FT_SetBitMode(handle, 0x00, FtBitmodeReset));   // Reset
             Thread.Sleep(10);
 
-            CheckStatus(FT_SetBitMode(handle, 0x00, FtBitmodeMpsse));    // Enable MPSSE Mode
+            CheckStatus(FT_SetBitMode(handle, 0x00, FtBitmodeMpsse));   // Enable MPSSE Mode
             CheckStatus(FT_Purge(handle, FtPurgeRx));
             Thread.Sleep(20);
 
@@ -317,7 +317,7 @@ namespace Ymf825.IO
         private void WriteRaw(params byte[] data)
         {
             if (writeBufferSize < data.Length)
-                ExtendWriteBuffer(data.Length);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, data.Length);
 
             Marshal.Copy(data, 0, writeBuffer, data.Length);
             CheckStatus(FT_Write(handle, writeBuffer, (uint)data.Length - 1, out var _));
@@ -335,25 +335,11 @@ namespace Ymf825.IO
             Marshal.Copy(readBuffer, readData, 0, (int)bytesReturned);
             return readData;
         }
-
-        private void ExtendWriteBuffer(int size)
-        {
-            writeBufferSize = size;
-            Marshal.FreeHGlobal(writeBuffer);
-            writeBuffer = Marshal.AllocHGlobal(writeBufferSize);
-        }
-
-        private void ExtendReadBuffer(int size)
-        {
-            readBufferSize = size;
-            Marshal.FreeHGlobal(readBuffer);
-            readBuffer = Marshal.AllocHGlobal(readBufferSize);
-        }
-
+        
         private void BufferWriteCsEnable(int offset)
         {
             if (writeBufferSize < offset + 3)
-                ExtendWriteBuffer(3);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, offset + 3);
 
             Marshal.WriteByte(writeBuffer, offset, 0x80);
 
@@ -368,14 +354,22 @@ namespace Ymf825.IO
         private void BufferWriteCsDisable(int offset)
         {
             if (writeBufferSize < offset + 3)
-                ExtendWriteBuffer(3);
+                ExtendBuffer(ref writeBuffer, ref writeBufferSize, offset + 3);
 
             Marshal.WriteByte(writeBuffer, offset, 0x80);
             Marshal.WriteByte(writeBuffer, offset + 1, (byte)(csEnableLevelHigh ? 0x00 : csPin));
             Marshal.WriteByte(writeBuffer, offset + 2, 0xfb);
         }
+        
+        private static void ExtendBuffer(ref IntPtr buffer, ref int bufferSize, int extendedSize)
         {
+            if (bufferSize <= 0)
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
 
+            bufferSize = extendedSize;
+            Marshal.FreeHGlobal(buffer);
+            buffer = Marshal.AllocHGlobal(bufferSize);
+        }
 
         private static void CheckStatus(FtStatus ftStatus)
         {
