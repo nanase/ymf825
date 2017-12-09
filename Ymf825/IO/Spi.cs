@@ -138,6 +138,9 @@ namespace Ymf825.IO
 
         public void SetCsTargetPin(byte pin)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if ((csTargetPin & 0x07) != 0)
                 throw new InvalidOperationException("使用できない CS ピンが指定されています。");
 
@@ -146,12 +149,18 @@ namespace Ymf825.IO
 
         public void Flush()
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             QueueFlushCommand();
             SendBuffer();
         }
 
         public void Write(byte address, byte data)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
@@ -162,6 +171,9 @@ namespace Ymf825.IO
 
         public void BurstWrite(byte address, byte[] data, int offset, int count)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
@@ -182,6 +194,9 @@ namespace Ymf825.IO
 
         public byte Read(byte address)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
