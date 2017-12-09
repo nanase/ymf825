@@ -5,16 +5,27 @@ namespace Ymf825
 {
     public abstract class Ymf825 : IDisposable
     {
+        #region -- Public Properties --
+        
         public Ymf825Spi SpiInterface { get; }
         
         public bool IsDisposed { get; protected set; }
 
-        protected Ymf825(int spiDeviceIndex)
         public abstract TargetDevice AvailableChip { get; }
+
+        #endregion
+
+        #region -- Constructors --
+
+        protected Ymf825(int spiDeviceIndex, byte csPin)
         {
             SpiInterface = new Ymf825Spi(spiDeviceIndex, csPin);
         }
 
+        #endregion
+
+        #region -- Public Methods --
+        
         public virtual void Write(byte address, byte data)
         {
             if (address >= 0x80)
@@ -54,6 +65,15 @@ namespace Ymf825
             SpiInterface.SetCsTargetPin((byte)(targetValue << 3));
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
+
+        #region -- Protected Methods --
+        
         protected virtual void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -66,10 +86,7 @@ namespace Ymf825
 
             IsDisposed = true;
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        
+        #endregion
     }
 }
