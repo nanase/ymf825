@@ -417,6 +417,7 @@ namespace Ymf825
 
         public void SetFnumAndBlock(int fnum, int block)
         {
+            block &= 0x07;
             fnum &= 0x03ff;
             SoundChip.Write(0x0d, (byte)(((fnum & 0x0380) >> 4) | (block & 0x07)));
             SoundChip.Write(0x0e, (byte)(fnum & 0x7f));
@@ -649,10 +650,10 @@ namespace Ymf825
                 blockMod = Math.Pow(2.0, block);
                 block = 0;
             }
-            else if (block > 7)
+            else if (block > 6)
             {
-                blockMod = Math.Pow(2.0, block - 7);
-                block = 7;
+                blockMod = Math.Pow(2.0, block - 6);
+                block = 6;
             }
 
             fnum = FnumTable[key % 12] * blockMod;
