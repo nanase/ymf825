@@ -9,15 +9,11 @@ namespace Ymf825
         {
             SpiInterface.SetCsTargetPin(0x18);
         }
+        private const TargetDevice AllAvailableChip = TargetDevice.Board0 | TargetDevice.Board1;
 
-        public override void ChangeTargetDevice(TargetDevice target)
-        {
-            var targetValue = (int)target;
+        public override TargetDevice AvailableChip => AllAvailableChip;
 
-            if (targetValue == 0 || targetValue > 0x03)
-                throw new ArgumentOutOfRangeException(nameof(target));
 
-            SpiInterface.SetCsTargetPin((byte)(targetValue << 3));
         }
     }
 }

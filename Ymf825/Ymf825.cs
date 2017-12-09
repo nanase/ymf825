@@ -10,6 +10,7 @@ namespace Ymf825
         public bool IsDisposed { get; protected set; }
 
         protected Ymf825(int spiDeviceIndex)
+        public abstract TargetDevice AvailableChip { get; }
         {
             SpiInterface = new Ymf825Spi(spiDeviceIndex, csPin);
         }
@@ -43,7 +44,15 @@ namespace Ymf825
             SpiInterface.ResetHardware();
         }
 
-        public abstract void ChangeTargetDevice(TargetDevice target);
+        public virtual void ChangeTargetDevice(TargetDevice target)
+        {
+            var targetValue = (int)target;
+
+            if (targetValue == 0 || targetValue > (int)AvailableChip)
+                throw new ArgumentOutOfRangeException(nameof(target));
+
+            SpiInterface.SetCsTargetPin((byte)(targetValue << 3));
+        }
 
         protected virtual void Dispose(bool disposing)
         {
