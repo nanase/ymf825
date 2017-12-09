@@ -7,6 +7,8 @@ namespace Ymf825
     {
         #region -- Private Fields --
 
+        private readonly object lockObject = new object();
+
         private Action<int> sleepAction = Thread.Sleep;
 
         private static readonly double[] FnumTable = new double[12];
@@ -159,11 +161,17 @@ namespace Ymf825
             2.63e-3
         };
 
+        private TargetChip previousTargetChip;
+
+        private Thread sectionThread;
+
         #endregion
 
         #region -- Public Properties --
 
         public Ymf825 SoundChip { get; }
+
+        public bool SectionMode { get; private set; }
 
         public Action<int> SleepAction
         {
@@ -190,6 +198,77 @@ namespace Ymf825
 
         #region -- Public Methods --
 
+        public void EnableSectionMode()
+        {
+            if (SectionMode)
+                return;
+
+            SectionMode = true;
+            SoundChip.AutoFlush = false;
+        }
+
+        public void DisableSectionMode()
+        {
+            if (!SectionMode)
+                return;
+
+            SectionMode = false;
+            SoundChip.AutoFlush = true;
+            sectionThread = null;
+
+            if (Monitor.IsEntered(lockObject))
+                Monitor.Exit(lockObject);
+        }
+
+        public void Section(Action action, int sleep = 0)
+        {
+            BeginSection();
+            action();
+            EndSection(sleep);
+        }
+
+        public void Section(TargetChip target, Action action, int sleep = 0)
+        {
+            BeginSection(target);
+            action();
+            EndSection(sleep);
+        }
+
+        public void BeginSection(TargetChip target = TargetChip.None)
+        {
+            if (SectionMode)
+            {
+                Monitor.Enter(lockObject);
+                sectionThread = Thread.CurrentThread;
+            }
+            
+            if (target == TargetChip.None)
+                return;
+
+            previousTargetChip = SoundChip.CurrentTargetChip;
+            SoundChip.ChangeTargetDevice(target);
+        }
+
+        public void EndSection(int sleep = 0)
+        {
+            SoundChip.Flush();
+
+            if (sleep > 0)
+                sleepAction(sleep);
+
+            if (previousTargetChip != TargetChip.None)
+            {
+                SoundChip.ChangeTargetDevice(previousTargetChip);
+                previousTargetChip = TargetChip.None;
+            }
+
+            if (!SectionMode)
+                return;
+
+            sectionThread = null;
+            Monitor.Exit(lockObject);
+        }
+
         // レジスタの操作メソッドについてはスリープを入れない。
         // 操作メソッドをまとめて一連の処理を行うメソッドには適切なスリープを入れる。
 
@@ -209,32 +288,48 @@ namespace Ymf825
 
         public void ResetSoftware()
         {
-            SetPowerRailSelection(true);
-            SetAnalogBlockPowerDown(AnalogBlock.All);
-            sleepAction(1);
+            BeginSection();
+            {
+                SetPowerRailSelection(true);
+                SetAnalogBlockPowerDown(AnalogBlock.All);
+            }
+            EndSection(1);
 
-            SetClockEnable(true);
-            SetAllRegisterReset(false);
-            SetSoftReset(0xa3);
-            sleepAction(1);
+            BeginSection();
+            {
+                SetClockEnable(true);
+                SetAllRegisterReset(false);
+                SetSoftReset(0xa3);
+            }
+            EndSection(1);
 
-            SetSoftReset(0x00);
-            sleepAction(30);
+            BeginSection();
+            {
+                SetSoftReset(0x00);
+            }
+            EndSection(30);
 
-            SetAnalogBlockPowerDown(AnalogBlock.None);
-            SetMasterVolume(0x3f);
-            SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
-            SetInterporationInMuteState(true);
-            SetGain(Gain.Level75);
+            BeginSection();
+            {
+                SetAnalogBlockPowerDown(AnalogBlock.None);
+                SetMasterVolume(0x3f);
+                SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
+                SetInterporationInMuteState(true);
+                SetGain(Gain.Level75);
 
-            SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
-                                SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
-            sleepAction(21);
+                SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
+                                    SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
+            }
+            EndSection(21);
 
-            SetSequencerSetting(SequencerSetting.Reset);
-            SetSequencerVolume(0x1f, false, 0);
+            BeginSection();
+            {
+                SetSequencerSetting(SequencerSetting.Reset);
+                SetSequencerVolume(0x1f, false, 0);
 
-            SetSequencerTimeUnitSetting(0x2000);
+                SetSequencerTimeUnitSetting(0x2000);
+            }
+            EndSection();
         }
 
         #endregion
@@ -256,8 +351,7 @@ namespace Ymf825
         /// <returns>true のとき、クロック有効。false のとき、クロック無効。</returns>
         public bool GetClockEnable(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x00) == 0x01;
+            return SectionForRead(chip, () => SoundChip.Read(0x00) == 0x01);
         }
 
         #endregion
@@ -279,8 +373,7 @@ namespace Ymf825
         /// <returns>true のとき、リセット状態。false のとき、非リセット状態。</returns>
         public bool GetAllRegisterReset(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x01) == 0x80;
+            return SectionForRead(chip, () => SoundChip.Read(0x01) == 0x80);
         }
 
         #endregion
@@ -302,8 +395,7 @@ namespace Ymf825
         /// <returns>Power-down 状態に設定されたブロックを表す <see cref="AnalogBlock"/> 構造体の値。</returns>
         public AnalogBlock GetAnalogBlockPowerDown(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return (AnalogBlock)(SoundChip.Read(0x02) & 0x0f);
+            return SectionForRead(chip, () => (AnalogBlock)(SoundChip.Read(0x02) & 0x0f));
         }
 
         #endregion
@@ -325,8 +417,7 @@ namespace Ymf825
         /// <returns>ゲインレベルを表す <see cref="Gain"/> 構造体の値。</returns>
         public Gain GetGein(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return (Gain)(SoundChip.Read(0x03) & 0x03);
+            return SectionForRead(chip, () => (Gain)(SoundChip.Read(0x03) & 0x03));
         }
 
         #endregion
@@ -339,8 +430,7 @@ namespace Ymf825
         /// <returns>デバイスに割り当てられているハードウェア ID を表す整数値。</returns>
         public int GetHardwareId(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x04);
+            return SectionForRead(chip, () => SoundChip.Read(0x04));
         }
 
         #endregion
@@ -363,8 +453,7 @@ namespace Ymf825
 
         public SequencerSetting GetSequencerSetting(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return (SequencerSetting)(SoundChip.Read(0x08) & 0xff);
+            return SectionForRead(chip, () => (SequencerSetting)(SoundChip.Read(0x08) & 0xff));
         }
 
         #endregion
@@ -381,10 +470,12 @@ namespace Ymf825
 
         public (int volume, bool applyInterpolation, int size) GetSequencerVolume(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            var msb = SoundChip.Read(0x09);
-            var lsb = SoundChip.Read(0x0a);
-            return (msb >> 3, (msb & 0x04) == 0, (msb & 0x01) << 8 | lsb);
+            return SectionForRead(chip, () =>
+            {
+                var msb = SoundChip.Read(0x09);
+                var lsb = SoundChip.Read(0x0a);
+                return (msb >> 3, (msb & 0x04) == 0, (msb & 0x01) << 8 | lsb);
+            });
         }
 
         #endregion
@@ -398,8 +489,7 @@ namespace Ymf825
 
         public int GetVoiceNumber(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x0b);
+            return SectionForRead(chip, () => SoundChip.Read(0x0b));
         }
 
         #endregion
@@ -498,8 +588,7 @@ namespace Ymf825
 
         public int GetMasterVolume(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x19) >> 2;
+            return SectionForRead(chip, () => SoundChip.Read(0x19) >> 2);
         }
 
         #endregion
@@ -514,8 +603,7 @@ namespace Ymf825
 
         public byte GetSoftReset(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x1a);
+            return SectionForRead(chip, () => SoundChip.Read(0x1a));
         }
 
         #endregion
@@ -534,13 +622,15 @@ namespace Ymf825
 
         public (bool dadjt, byte muteItime, byte chvolItime, byte mvolItime) GetVolumeInterpolationSetting(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            var readByte = SoundChip.Read(0x1b);
-            return (
-                (readByte & 0x40) != 0,
-                (byte)((readByte >> 4) & 0x03),
-                (byte)((readByte >> 2) & 0x03),
-                (byte)(readByte & 0x03));
+            return SectionForRead(chip, () =>
+            {
+                var readByte = SoundChip.Read(0x1b);
+                return (
+                    (readByte & 0x40) != 0,
+                    (byte)((readByte >> 4) & 0x03),
+                    (byte)((readByte >> 2) & 0x03),
+                    (byte)(readByte & 0x03));
+            });
         }
 
         #endregion
@@ -554,8 +644,7 @@ namespace Ymf825
 
         public bool GetLfoReset(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x1c) == 0x01;
+            return SectionForRead(chip, () => SoundChip.Read(0x1c) == 0x01);
         }
 
         #endregion
@@ -569,8 +658,7 @@ namespace Ymf825
 
         public bool GetPowerRailSelection(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x1d) == 0x01;
+            return SectionForRead(chip, () => SoundChip.Read(0x1d) == 0x01);
         }
 
         #endregion
@@ -594,11 +682,26 @@ namespace Ymf825
 
         public byte GetSoftwareTestCommunication(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(chip);
-            return SoundChip.Read(0x50);
+            return SectionForRead(chip, () => SoundChip.Read(0x50));
         }
 
         #endregion
+
+        #endregion
+
+        #region -- Private Methods --
+
+        private T SectionForRead<T>(TargetChip target, Func<T> func)
+        {
+            if (sectionThread != null && sectionThread == Thread.CurrentThread)
+                throw new InvalidOperationException("読み取り命令は同じスレッドで複数のセクションに突入させることはできません。");
+
+            BeginSection(target);
+            var result = func();
+            EndSection();
+
+            return result;
+        }
 
         #endregion
 
