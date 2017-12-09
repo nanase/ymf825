@@ -40,12 +40,18 @@ namespace Ymf825
 
         public void Flush()
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             lock (lockObject)
                 SpiInterface.Flush();
         }
 
         public virtual void Write(byte address, byte data)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if (address >= 0x80)
                 throw new ArgumentOutOfRangeException(nameof(address));
 
@@ -60,6 +66,9 @@ namespace Ymf825
 
         public virtual void BurstWrite(byte address, byte[] data, int offset, int count)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if (address >= 0x80)
                 throw new ArgumentOutOfRangeException(nameof(address));
 
@@ -74,6 +83,9 @@ namespace Ymf825
 
         public virtual byte Read(byte address)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             if (address >= 0x80)
                 throw new ArgumentOutOfRangeException(nameof(address));
 
@@ -83,12 +95,18 @@ namespace Ymf825
 
         public virtual void ResetHardware()
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             lock (lockObject)
                 SpiInterface.ResetHardware();
         }
 
         public void ChangeTargetDevice(TargetChip target)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(ToString());
+
             var targetValue = (int) target;
 
             if (targetValue == 0 || targetValue > (int) AvailableChip)
