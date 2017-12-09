@@ -143,6 +143,12 @@ namespace Ymf825.IO
             csTargetPin = pin;
         }
 
+        public void Flush()
+        {
+            Marshal.WriteByte(WriteBuffer, 0x87);
+            CheckStatus(FT_Write(handle, WriteBuffer, 1, out var _));
+        }
+
         public void Write(byte address, byte data)
         {
             if (csTargetPin == 0)
@@ -154,7 +160,8 @@ namespace Ymf825.IO
             BufferWriteCsEnable(0);
             Marshal.Copy(new byte[] { 0x11, 0x01, 0x00, address, data }, 0, WriteBuffer + 3, 5);
             BufferWriteCsDisable(8);
-            FlushBuffer(11);
+            SendBuffer(11);
+            Flush();
         }
 
         public void BurstWrite(byte address, byte[] data, int offset, int count)
@@ -178,7 +185,8 @@ namespace Ymf825.IO
             Marshal.Copy(new byte[] { 0x11, (byte)((count) & 0x00ff), (byte)((count) >> 8), address }, 0, WriteBuffer + 3, 4);
             Marshal.Copy(data, offset, WriteBuffer + 7, count);
             BufferWriteCsDisable(7 + count);
-            FlushBuffer(10 + count);
+            SendBuffer(10 + count);
+            Flush();
         }
 
         public byte Read(byte address)
@@ -199,14 +207,13 @@ namespace Ymf825.IO
             BufferWriteCsEnable(0);
             Marshal.Copy(new byte[] { 0x31, 0x01, 0x00, address, 0x00 }, 0, WriteBuffer + 3, 5);
             BufferWriteCsDisable(8);
-            FlushBuffer(11);
+            SendBuffer(11);
+            Flush();
             WaitQueue(2);
 
             return ReadRaw().ToArray()[1];
         }
-
         
-
         public void Dispose()
         {
             Dispose(true);
@@ -247,17 +254,15 @@ namespace Ymf825.IO
             }
         }
 
-        protected void FlushBuffer(int length)
+        protected void SendBuffer(int length)
         {
             CheckStatus(FT_Write(handle, WriteBuffer, (uint)length - 1, out var _));
 #if TRACE
             Trace(writeBuffer, length);
 #endif
-            Marshal.WriteByte(WriteBuffer, 0x87);
-            CheckStatus(FT_Write(handle, WriteBuffer, 1, out var _));
         }
 
-        protected void WriteRaw(params byte[] data)
+        protected void Send(params byte[] data)
         {
             if (WriteBufferSize < data.Length)
                 ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, data.Length);
@@ -267,8 +272,6 @@ namespace Ymf825.IO
 #if TRACE
             Trace(writeBuffer, length);
 #endif
-            Marshal.WriteByte(WriteBuffer, 0x87);
-            CheckStatus(FT_Write(handle, WriteBuffer, 1, out var _));
         }
 
         protected IEnumerable<byte> ReadRaw()
@@ -321,7 +324,7 @@ namespace Ymf825.IO
             CheckStatus(FT_Purge(handle, FtPurgeRx));
             Thread.Sleep(20);
 
-            WriteRaw(
+            Send(
                 0x86, 0x02, 0x00,   // SCK is 10MHz
                 0x80, 0xf8, 0xfb,   // ADBUS: v - 1111 1000, d - 1111 1011 (0: in, 1: out)
                 0x82, 0xff, 0xff,   // ACBUS: v - 1111 1111, d - 1111 1111 (0: in, 1: out)
