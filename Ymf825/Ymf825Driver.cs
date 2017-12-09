@@ -220,7 +220,7 @@ namespace Ymf825
 
             SetSoftReset(0x00);
             sleepAction(30);
-            
+
             SetAnalogBlockPowerDown(AnalogBlock.None);
             SetMasterVolume(0x3f);
             SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);

@@ -6,9 +6,9 @@ namespace Ymf825
     public abstract class Ymf825 : IDisposable
     {
         #region -- Public Properties --
-        
+
         public Ymf825Spi SpiInterface { get; }
-        
+
         public bool IsDisposed { get; protected set; }
 
         public abstract TargetChip AvailableChip { get; }
@@ -25,7 +25,7 @@ namespace Ymf825
         #endregion
 
         #region -- Public Methods --
-        
+
         public virtual void Write(byte address, byte data)
         {
             if (address >= 0x80)
@@ -73,7 +73,7 @@ namespace Ymf825
         #endregion
 
         #region -- Protected Methods --
-        
+
         protected virtual void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -86,7 +86,7 @@ namespace Ymf825
 
             IsDisposed = true;
         }
-        
+
         #endregion
     }
 }

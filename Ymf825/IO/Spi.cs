@@ -62,7 +62,7 @@ namespace Ymf825.IO
 
         private readonly IntPtr handle;
         private readonly bool csEnableLevelHigh;
-        
+
         private readonly byte csPin;
         private byte csTargetPin;
 
@@ -72,8 +72,9 @@ namespace Ymf825.IO
 
         protected IntPtr ReadBuffer;
         protected IntPtr WriteBuffer;
+        protected int WriteBufferIndex;
         protected int ReadBufferSize = 16;
-        protected int WriteBufferSize = 16;
+        protected int WriteBufferSize = 4096;
 
         #endregion
 
@@ -82,6 +83,8 @@ namespace Ymf825.IO
         public static int DeviceCount => FT_CreateDeviceInfoList(out var numDevs) != FtStatus.FT_OK ? 0 : (int)numDevs;
 
         public bool IsDisposed { get; private set; }
+
+        public bool AutoFlush { get; set; } = true;
 
         #endregion
 
@@ -154,14 +157,14 @@ namespace Ymf825.IO
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
-            if (WriteBufferSize < 11)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 11);
+            QueueBufferCsEnable();
+            QueueBuffer(0x11, 0x01, 0x00, address, data);
+            QueueBufferCsDisable();
 
-            BufferWriteCsEnable(0);
-            Marshal.Copy(new byte[] { 0x11, 0x01, 0x00, address, data }, 0, WriteBuffer + 3, 5);
-            BufferWriteCsDisable(8);
-            SendBuffer(11);
-            Flush();
+            if (AutoFlush)
+                QueueFlushCommand();
+
+            SendBuffer();
         }
 
         public void BurstWrite(byte address, byte[] data, int offset, int count)
@@ -178,42 +181,42 @@ namespace Ymf825.IO
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
-            if (WriteBufferSize < 10 + count)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 10 + count);
+            QueueBufferCsEnable();
+            QueueBuffer(0x11, (byte)((count) & 0x00ff), (byte)(count >> 8), address);
+            QueueBuffer(data, offset, count);
+            QueueBufferCsDisable();
 
-            BufferWriteCsEnable(0);
-            Marshal.Copy(new byte[] { 0x11, (byte)((count) & 0x00ff), (byte)((count) >> 8), address }, 0, WriteBuffer + 3, 4);
-            Marshal.Copy(data, offset, WriteBuffer + 7, count);
-            BufferWriteCsDisable(7 + count);
-            SendBuffer(10 + count);
-            Flush();
+            if (AutoFlush)
+                QueueFlushCommand();
+
+            SendBuffer();
         }
 
         public byte Read(byte address)
         {
-            if (ReadBufferSize < 2)
-                ExtendBuffer(ref ReadBuffer, ref ReadBufferSize, 2);
-
-            if (WriteBufferSize < 11)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 11);
-
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
             if (csTargetPin != 0 && (csTargetPin & (csTargetPin - 1)) != 0)
                 throw new InvalidOperationException("複数の CS ピンを指定して Read 命令は実行できません。");
 
-            Marshal.WriteInt16(ReadBuffer, 0);
-            BufferWriteCsEnable(0);
-            Marshal.Copy(new byte[] { 0x31, 0x01, 0x00, address, 0x00 }, 0, WriteBuffer + 3, 5);
-            BufferWriteCsDisable(8);
-            SendBuffer(11);
             Flush();
+
+            if (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes > 0)
+                CheckStatus(FT_Purge(handle, FtPurgeRx));
+
+            Marshal.WriteInt16(ReadBuffer, 0);
+
+            QueueBufferCsEnable();
+            QueueBuffer(0x31, 0x01, 0x00, address, 0x00);
+            QueueBufferCsDisable();
+            QueueFlushCommand();
+            SendBuffer();
             WaitQueue(2);
 
             return ReadRaw()[1];
         }
-        
+
         public void Dispose()
         {
             Dispose(true);
@@ -247,50 +250,48 @@ namespace Ymf825.IO
             Dispose(false);
         }
 
-        protected void WaitQueue(int requireBytes)
+        protected void SendBuffer()
         {
-            while (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes < requireBytes)
+            if (WriteBufferIndex == 0)
+                return;
+
+            CheckStatus(FT_Write(handle, WriteBuffer, (uint)WriteBufferIndex - 1, out var _));
+#if TRACE
+            Trace(WriteBuffer, WriteBufferIndex);
+#endif
+            WriteBufferIndex = 0;
+        }
+
+        protected void QueueBuffer(byte[] data, int offset, int count)
+        {
+            if (WriteBufferIndex + count > WriteBufferSize)
             {
+                var tempBuffer = new byte[WriteBufferSize];
+                var newWriteBuffer = Marshal.AllocHGlobal(WriteBufferIndex + count);
+                Marshal.Copy(WriteBuffer, tempBuffer, 0, WriteBufferSize);
+                Marshal.Copy(tempBuffer, 0, newWriteBuffer, WriteBufferSize);
+                Marshal.FreeHGlobal(WriteBuffer);
+                WriteBuffer = newWriteBuffer;
+                WriteBufferSize = WriteBufferIndex + count;
             }
+
+            Marshal.Copy(data, offset, WriteBuffer + WriteBufferIndex, count);
+            WriteBufferIndex += count;
         }
 
-        protected void SendBuffer(int length)
-        {
-            CheckStatus(FT_Write(handle, WriteBuffer, (uint)length - 1, out var _));
-#if TRACE
-            Trace(writeBuffer, length);
-#endif
-        }
+        protected void QueueBuffer(params byte[] data) => QueueBuffer(data, 0, data.Length);
 
-        protected void Send(params byte[] data)
-        {
-            if (WriteBufferSize < data.Length)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, data.Length);
+        protected void QueueFlushCommand() => QueueBuffer(0x87);
 
-            Marshal.Copy(data, 0, WriteBuffer, data.Length);
-            CheckStatus(FT_Write(handle, WriteBuffer, (uint)data.Length - 1, out var _));
-#if TRACE
-            Trace(writeBuffer, length);
-#endif
-        }
+        protected void QueueBufferCsEnable() => QueueBuffer(
+            0x80,
+            (byte)(csEnableLevelHigh ? csPin & csTargetPin : csPin ^ csTargetPin),
+            0xfb);
 
-        protected IReadOnlyList<byte> ReadRaw()
-        {
-            CheckStatus(FT_Read(handle, ReadBuffer, (uint)ReadBufferSize, out var bytesReturned));
-            var readData = new byte[bytesReturned];
-            Marshal.Copy(ReadBuffer, readData, 0, (int)bytesReturned);
-            return readData;
-        }
-        
-        protected static void ExtendBuffer(ref IntPtr buffer, ref int bufferSize, int extendedSize)
-        {
-            if (bufferSize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(bufferSize));
-
-            bufferSize = extendedSize;
-            Marshal.FreeHGlobal(buffer);
-            buffer = Marshal.AllocHGlobal(bufferSize);
-        }
+        protected void QueueBufferCsDisable() => QueueBuffer(
+            0x80,
+            (byte)(csEnableLevelHigh ? 0x00 : csPin),
+            0xfb);
 
         #endregion
 
@@ -324,7 +325,7 @@ namespace Ymf825.IO
             CheckStatus(FT_Purge(handle, FtPurgeRx));
             Thread.Sleep(20);
 
-            Send(
+            QueueBuffer(
                 0x86, 0x02, 0x00,   // SCK is 10MHz
                 0x80, 0xf8, 0xfb,   // ADBUS: v - 1111 1000, d - 1111 1011 (0: in, 1: out)
                 0x82, 0xff, 0xff,   // ACBUS: v - 1111 1111, d - 1111 1111 (0: in, 1: out)
@@ -332,35 +333,26 @@ namespace Ymf825.IO
                 0x85,
                 0x8d
             );
+            SendBuffer();
 
             Thread.Sleep(100);
         }
-        
-        private void BufferWriteCsEnable(int offset)
+
+        private IReadOnlyList<byte> ReadRaw()
         {
-            if (WriteBufferSize < offset + 3)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, offset + 3);
-
-            Marshal.WriteByte(WriteBuffer, offset, 0x80);
-
-            if (csEnableLevelHigh)
-                Marshal.WriteByte(WriteBuffer, offset + 1, (byte)(csPin & csTargetPin));
-            else
-                Marshal.WriteByte(WriteBuffer, offset + 1, (byte)(csPin ^ csTargetPin));
-
-            Marshal.WriteByte(WriteBuffer, offset + 2, 0xfb);
+            CheckStatus(FT_Read(handle, ReadBuffer, (uint)ReadBufferSize, out var bytesReturned));
+            var readData = new byte[bytesReturned];
+            Marshal.Copy(ReadBuffer, readData, 0, (int)bytesReturned);
+            return readData;
         }
 
-        private void BufferWriteCsDisable(int offset)
+        private void WaitQueue(int requireBytes)
         {
-            if (WriteBufferSize < offset + 3)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, offset + 3);
-
-            Marshal.WriteByte(WriteBuffer, offset, 0x80);
-            Marshal.WriteByte(WriteBuffer, offset + 1, (byte)(csEnableLevelHigh ? 0x00 : csPin));
-            Marshal.WriteByte(WriteBuffer, offset + 2, 0xfb);
+            while (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes < requireBytes)
+            {
+            }
         }
-        
+
         private static void CheckStatus(FtStatus ftStatus)
         {
             if (ftStatus != FtStatus.FT_OK)

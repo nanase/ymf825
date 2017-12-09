@@ -18,16 +18,19 @@ namespace Ymf825.IO
 
         public void ResetHardware()
         {
-            if (WriteBufferSize < 3)
-                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 3);
-
-            Send(0x82, 0xff, 0xff);
+            QueueBuffer(0x82, 0xff, 0xff);
+            QueueFlushCommand();
+            SendBuffer();
             Thread.Sleep(2);
 
-            Send(0x82, 0x00, 0xff);
+            QueueBuffer(0x82, 0x00, 0xff);
+            QueueFlushCommand();
+            SendBuffer();
             Thread.Sleep(2);
 
-            Send(0x82, 0xff, 0xff);
+            QueueBuffer(0x82, 0xff, 0xff);
+            QueueFlushCommand();
+            SendBuffer();
         }
 
         #endregion
