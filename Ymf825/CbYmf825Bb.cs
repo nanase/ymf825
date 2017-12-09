@@ -20,7 +20,6 @@
         public CbYmf825Bb(int spiDeviceIndex)
             : base(spiDeviceIndex, CsPin)
         {
-            SpiInterface.SetCsTargetPin(CsPin);
         }
 
         #endregion

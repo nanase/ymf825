@@ -13,6 +13,8 @@ namespace Ymf825
 
         public abstract TargetChip AvailableChip { get; }
 
+        public TargetChip CurrentTargetChip { get; private set; }
+
         #endregion
 
         #region -- Constructors --
@@ -20,6 +22,8 @@ namespace Ymf825
         protected Ymf825(int spiDeviceIndex, byte csPin)
         {
             SpiInterface = new Ymf825Spi(spiDeviceIndex, csPin);
+            SpiInterface.SetCsTargetPin(csPin);
+            CurrentTargetChip = AvailableChip;
         }
 
         #endregion
@@ -55,14 +59,14 @@ namespace Ymf825
             SpiInterface.ResetHardware();
         }
 
-        public virtual void ChangeTargetDevice(TargetChip target)
+        public void ChangeTargetDevice(TargetChip target)
         {
-            var targetValue = (int)target;
+            var targetValue = (int) target;
 
-            if (targetValue == 0 || targetValue > (int)AvailableChip)
+            if (targetValue == 0 || targetValue > (int) AvailableChip)
                 throw new ArgumentOutOfRangeException(nameof(target));
 
-            SpiInterface.SetCsTargetPin((byte)(targetValue << 3));
+                SpiInterface.SetCsTargetPin((byte) (targetValue << 3));
         }
 
         public void Dispose()
