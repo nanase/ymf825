@@ -222,10 +222,10 @@ namespace Ymf825
             sleepAction(30);
             
             SetAnalogBlockPowerDown(AnalogBlock.None);
-            SetMasterVolume(0xf0);
+            SetMasterVolume(0x3f);
             SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
             SetInterporationInMuteState(true);
-            SetGain(Gain.Level65);
+            SetGain(Gain.Level75);
 
             SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
                                 SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
