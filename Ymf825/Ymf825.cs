@@ -5,6 +5,12 @@ namespace Ymf825
 {
     public abstract class Ymf825 : IDisposable
     {
+        #region -- Private Fields --
+
+        private readonly object lockObject = new object();
+
+        #endregion
+
         #region -- Public Properties --
 
         public Ymf825Spi SpiInterface { get; }
@@ -14,6 +20,8 @@ namespace Ymf825
         public abstract TargetChip AvailableChip { get; }
 
         public TargetChip CurrentTargetChip { get; private set; }
+
+        public bool AutoFlush { get; set; } = true;
 
         #endregion
 
@@ -30,12 +38,24 @@ namespace Ymf825
 
         #region -- Public Methods --
 
+        public void Flush()
+        {
+            lock (lockObject)
+                SpiInterface.Flush();
+        }
+
         public virtual void Write(byte address, byte data)
         {
             if (address >= 0x80)
                 throw new ArgumentOutOfRangeException(nameof(address));
 
-            SpiInterface.Write(address, data);
+            lock (lockObject)
+            {
+                SpiInterface.Write(address, data);
+
+                if (AutoFlush)
+                    SpiInterface.Flush();
+            }
         }
 
         public virtual void BurstWrite(byte address, byte[] data, int offset, int count)
@@ -43,7 +63,13 @@ namespace Ymf825
             if (address >= 0x80)
                 throw new ArgumentOutOfRangeException(nameof(address));
 
-            SpiInterface.BurstWrite(address, data, offset, count);
+            lock (lockObject)
+            {
+                SpiInterface.BurstWrite(address, data, offset, count);
+
+                if (AutoFlush)
+                    SpiInterface.Flush();
+            }
         }
 
         public virtual byte Read(byte address)
@@ -51,12 +77,14 @@ namespace Ymf825
             if (address >= 0x80)
                 throw new ArgumentOutOfRangeException(nameof(address));
 
-            return SpiInterface.Read((byte)(address | 0x80));
+            lock (lockObject)
+                return SpiInterface.Read((byte)(address | 0x80));
         }
 
         public virtual void ResetHardware()
         {
-            SpiInterface.ResetHardware();
+            lock (lockObject)
+                SpiInterface.ResetHardware();
         }
 
         public void ChangeTargetDevice(TargetChip target)
@@ -66,7 +94,11 @@ namespace Ymf825
             if (targetValue == 0 || targetValue > (int) AvailableChip)
                 throw new ArgumentOutOfRangeException(nameof(target));
 
+            lock (lockObject)
+            {
+                CurrentTargetChip = target;
                 SpiInterface.SetCsTargetPin((byte) (targetValue << 3));
+            }
         }
 
         public void Dispose()
