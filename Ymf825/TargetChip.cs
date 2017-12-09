@@ -3,7 +3,7 @@
 namespace Ymf825
 {
     [Flags]
-    public enum TargetDevice
+    public enum TargetChip
     {
         Board0 = 1,
         Board1 = 2,

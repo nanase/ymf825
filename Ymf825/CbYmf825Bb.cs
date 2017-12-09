@@ -5,13 +5,13 @@
         #region -- Private Fields --
         
         private const int CsPin = 0x18;
-        private const TargetDevice AllAvailableChip = TargetDevice.Board0 | TargetDevice.Board1;
+        private const TargetChip AllAvailableChip = TargetChip.Board0 | TargetChip.Board1;
 
         #endregion
 
         #region -- Public Properties --
         
-        public override TargetDevice AvailableChip => AllAvailableChip;
+        public override TargetChip AvailableChip => AllAvailableChip;
 
         #endregion
 

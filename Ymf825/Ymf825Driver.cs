@@ -254,9 +254,9 @@ namespace Ymf825
         /// 内部マスタークロック (CLKE) の状態をデバイスから取得します。
         /// </summary>
         /// <returns>true のとき、クロック有効。false のとき、クロック無効。</returns>
-        public bool GetClockEnable(TargetDevice device)
+        public bool GetClockEnable(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x00) == 0x01;
         }
 
@@ -277,9 +277,9 @@ namespace Ymf825
         /// レジスタのリセット状態 (ALRST) をデバイスから取得します。
         /// </summary>
         /// <returns>true のとき、リセット状態。false のとき、非リセット状態。</returns>
-        public bool GetAllRegisterReset(TargetDevice device)
+        public bool GetAllRegisterReset(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x01) == 0x80;
         }
 
@@ -300,9 +300,9 @@ namespace Ymf825
         /// アナログブロックの Power-down 状態を取得します。
         /// </summary>
         /// <returns>Power-down 状態に設定されたブロックを表す <see cref="AnalogBlock"/> 構造体の値。</returns>
-        public AnalogBlock GetAnalogBlockPowerDown(TargetDevice device)
+        public AnalogBlock GetAnalogBlockPowerDown(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return (AnalogBlock)(SoundChip.Read(0x02) & 0x0f);
         }
 
@@ -323,9 +323,9 @@ namespace Ymf825
         /// 出力のゲインレベルを取得します。
         /// </summary>
         /// <returns>ゲインレベルを表す <see cref="Gain"/> 構造体の値。</returns>
-        public Gain GetGein(TargetDevice device)
+        public Gain GetGein(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return (Gain)(SoundChip.Read(0x03) & 0x03);
         }
 
@@ -337,9 +337,9 @@ namespace Ymf825
         /// ハードウェアの ID を取得します。
         /// </summary>
         /// <returns>デバイスに割り当てられているハードウェア ID を表す整数値。</returns>
-        public int GetHardwareId(TargetDevice device)
+        public int GetHardwareId(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x04);
         }
 
@@ -361,9 +361,9 @@ namespace Ymf825
             SoundChip.Write(0x08, (byte)((int)setting & 0xff));
         }
 
-        public SequencerSetting GetSequencerSetting(TargetDevice device)
+        public SequencerSetting GetSequencerSetting(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return (SequencerSetting)(SoundChip.Read(0x08) & 0xff);
         }
 
@@ -379,9 +379,9 @@ namespace Ymf825
             SoundChip.Write(0x0a, (byte)(size & 0xff));
         }
 
-        public (int volume, bool applyInterpolation, int size) GetSequencerVolume(TargetDevice device)
+        public (int volume, bool applyInterpolation, int size) GetSequencerVolume(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             var msb = SoundChip.Read(0x09);
             var lsb = SoundChip.Read(0x0a);
             return (msb >> 3, (msb & 0x04) == 0, (msb & 0x01) << 8 | lsb);
@@ -396,9 +396,9 @@ namespace Ymf825
             SoundChip.Write(0x0b, (byte)(number & 0x0f));
         }
 
-        public int GetVoiceNumber(TargetDevice device)
+        public int GetVoiceNumber(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x0b);
         }
 
@@ -496,9 +496,9 @@ namespace Ymf825
             SoundChip.Write(0x19, (byte)((volume & 0x3f) << 2));
         }
 
-        public int GetMasterVolume(TargetDevice device)
+        public int GetMasterVolume(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x19) >> 2;
         }
 
@@ -512,9 +512,9 @@ namespace Ymf825
             SoundChip.Write(0x1a, value);
         }
 
-        public byte GetSoftReset(TargetDevice device)
+        public byte GetSoftReset(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x1a);
         }
 
@@ -532,9 +532,9 @@ namespace Ymf825
                 (mvolItime & 0x03)));
         }
 
-        public (bool dadjt, byte muteItime, byte chvolItime, byte mvolItime) GetVolumeInterpolationSetting(TargetDevice device)
+        public (bool dadjt, byte muteItime, byte chvolItime, byte mvolItime) GetVolumeInterpolationSetting(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             var readByte = SoundChip.Read(0x1b);
             return (
                 (readByte & 0x40) != 0,
@@ -552,9 +552,9 @@ namespace Ymf825
             SoundChip.Write(0x1c, (byte)(reset ? 0x01 : 0x00));
         }
 
-        public bool GetLfoReset(TargetDevice device)
+        public bool GetLfoReset(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x1c) == 0x01;
         }
 
@@ -567,9 +567,9 @@ namespace Ymf825
             SoundChip.Write(0x1d, (byte)(select ? 0x01 : 0x00));
         }
 
-        public bool GetPowerRailSelection(TargetDevice device)
+        public bool GetPowerRailSelection(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x1d) == 0x01;
         }
 
@@ -592,9 +592,9 @@ namespace Ymf825
             SoundChip.Write(0x50, value);
         }
 
-        public byte GetSoftwareTestCommunication(TargetDevice device)
+        public byte GetSoftwareTestCommunication(TargetChip chip)
         {
-            SoundChip.ChangeTargetDevice(device);
+            SoundChip.ChangeTargetDevice(chip);
             return SoundChip.Read(0x50);
         }
 

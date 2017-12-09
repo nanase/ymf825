@@ -11,7 +11,7 @@ namespace Ymf825
         
         public bool IsDisposed { get; protected set; }
 
-        public abstract TargetDevice AvailableChip { get; }
+        public abstract TargetChip AvailableChip { get; }
 
         #endregion
 
@@ -55,7 +55,7 @@ namespace Ymf825
             SpiInterface.ResetHardware();
         }
 
-        public virtual void ChangeTargetDevice(TargetDevice target)
+        public virtual void ChangeTargetDevice(TargetChip target)
         {
             var targetValue = (int)target;
 
