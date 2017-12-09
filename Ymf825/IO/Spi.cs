@@ -84,8 +84,6 @@ namespace Ymf825.IO
 
         public bool IsDisposed { get; private set; }
 
-        public bool AutoFlush { get; set; } = true;
-
         #endregion
 
         #region -- Constructors --
@@ -148,8 +146,8 @@ namespace Ymf825.IO
 
         public void Flush()
         {
-            Marshal.WriteByte(WriteBuffer, 0x87);
-            CheckStatus(FT_Write(handle, WriteBuffer, 1, out var _));
+            QueueFlushCommand();
+            SendBuffer();
         }
 
         public void Write(byte address, byte data)
@@ -160,11 +158,6 @@ namespace Ymf825.IO
             QueueBufferCsEnable();
             QueueBuffer(0x11, 0x01, 0x00, address, data);
             QueueBufferCsDisable();
-
-            if (AutoFlush)
-                QueueFlushCommand();
-
-            SendBuffer();
         }
 
         public void BurstWrite(byte address, byte[] data, int offset, int count)
@@ -185,11 +178,6 @@ namespace Ymf825.IO
             QueueBuffer(0x11, (byte)((count) & 0x00ff), (byte)(count >> 8), address);
             QueueBuffer(data, offset, count);
             QueueBufferCsDisable();
-
-            if (AutoFlush)
-                QueueFlushCommand();
-
-            SendBuffer();
         }
 
         public byte Read(byte address)
@@ -199,8 +187,8 @@ namespace Ymf825.IO
 
             if (csTargetPin != 0 && (csTargetPin & (csTargetPin - 1)) != 0)
                 throw new InvalidOperationException("複数の CS ピンを指定して Read 命令は実行できません。");
-
-            Flush();
+            
+            SendBuffer();
 
             if (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes > 0)
                 CheckStatus(FT_Purge(handle, FtPurgeRx));
