@@ -211,7 +211,7 @@ namespace Ymf825.IO
             Flush();
             WaitQueue(2);
 
-            return ReadRaw().ToArray()[1];
+            return ReadRaw()[1];
         }
         
         public void Dispose()
@@ -274,7 +274,7 @@ namespace Ymf825.IO
 #endif
         }
 
-        protected IEnumerable<byte> ReadRaw()
+        protected IReadOnlyList<byte> ReadRaw()
         {
             CheckStatus(FT_Read(handle, ReadBuffer, (uint)ReadBufferSize, out var bytesReturned));
             var readData = new byte[bytesReturned];
