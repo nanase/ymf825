@@ -1,15 +1,17 @@
 ﻿using System;
+using Ymf825.IO;
 
 namespace Ymf825
 {
     public abstract class Ymf825 : IDisposable
     {
-        public IO.Spi SpiInterface { get; }
+        public Ymf825Spi SpiInterface { get; }
+        
         public bool IsDisposed { get; protected set; }
 
         protected Ymf825(int spiDeviceIndex)
         {
-            SpiInterface = new IO.Spi(spiDeviceIndex, false, 0x18);
+            SpiInterface = new Ymf825Spi(spiDeviceIndex, csPin);
         }
 
         public virtual void Write(byte address, byte data)

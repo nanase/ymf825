@@ -62,14 +62,18 @@ namespace Ymf825.IO
 
         private readonly IntPtr handle;
         private readonly bool csEnableLevelHigh;
-
-        private IntPtr readBuffer;
-        private IntPtr writeBuffer;
-        private int readBufferSize = 16;
-        private int writeBufferSize = 16;
-
+        
         private readonly byte csPin;
         private byte csTargetPin;
+
+        #endregion
+
+        #region -- Protected Fields --
+
+        protected IntPtr ReadBuffer;
+        protected IntPtr WriteBuffer;
+        protected int ReadBufferSize = 16;
+        protected int WriteBufferSize = 16;
 
         #endregion
 
@@ -91,16 +95,11 @@ namespace Ymf825.IO
         public Spi(int deviceIndex, bool csEnableLevelHigh, byte csPin)
         {
             CheckStatus(FT_Open((uint)deviceIndex, out handle));
-            readBuffer = Marshal.AllocHGlobal(readBufferSize);
-            writeBuffer = Marshal.AllocHGlobal(writeBufferSize);
+            ReadBuffer = Marshal.AllocHGlobal(ReadBufferSize);
+            WriteBuffer = Marshal.AllocHGlobal(WriteBufferSize);
             this.csEnableLevelHigh = csEnableLevelHigh;
             this.csPin = csPin;
             Initialize();
-
-            // write CS Disable
-            //BufferWriteCsDisable(0);
-            //FlushBuffer(3);
-            ResetHardware();
         }
 
         #endregion
@@ -149,11 +148,11 @@ namespace Ymf825.IO
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
-            if (writeBufferSize < 11)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 11);
+            if (WriteBufferSize < 11)
+                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 11);
 
             BufferWriteCsEnable(0);
-            Marshal.Copy(new byte[] { 0x11, 0x01, 0x00, address, data }, 0, writeBuffer + 3, 5);
+            Marshal.Copy(new byte[] { 0x11, 0x01, 0x00, address, data }, 0, WriteBuffer + 3, 5);
             BufferWriteCsDisable(8);
             FlushBuffer(11);
         }
@@ -172,23 +171,23 @@ namespace Ymf825.IO
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
 
-            if (writeBufferSize < 10 + count)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 10 + count);
+            if (WriteBufferSize < 10 + count)
+                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 10 + count);
 
             BufferWriteCsEnable(0);
-            Marshal.Copy(new byte[] { 0x11, (byte)((count) & 0x00ff), (byte)((count) >> 8), address }, 0, writeBuffer + 3, 4);
-            Marshal.Copy(data, offset, writeBuffer + 7, count);
+            Marshal.Copy(new byte[] { 0x11, (byte)((count) & 0x00ff), (byte)((count) >> 8), address }, 0, WriteBuffer + 3, 4);
+            Marshal.Copy(data, offset, WriteBuffer + 7, count);
             BufferWriteCsDisable(7 + count);
             FlushBuffer(10 + count);
         }
 
         public byte Read(byte address)
         {
-            if (readBufferSize < 2)
-                ExtendBuffer(ref readBuffer, ref readBufferSize, 2);
+            if (ReadBufferSize < 2)
+                ExtendBuffer(ref ReadBuffer, ref ReadBufferSize, 2);
 
-            if (writeBufferSize < 11)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 11);
+            if (WriteBufferSize < 11)
+                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, 11);
 
             if (csTargetPin == 0)
                 throw new InvalidOperationException("CS ピンが指定されていません。");
@@ -196,9 +195,9 @@ namespace Ymf825.IO
             if (csTargetPin != 0 && (csTargetPin & (csTargetPin - 1)) != 0)
                 throw new InvalidOperationException("複数の CS ピンを指定して Read 命令は実行できません。");
 
-            Marshal.WriteInt16(readBuffer, 0);
+            Marshal.WriteInt16(ReadBuffer, 0);
             BufferWriteCsEnable(0);
-            Marshal.Copy(new byte[] { 0x31, 0x01, 0x00, address, 0x00 }, 0, writeBuffer + 3, 5);
+            Marshal.Copy(new byte[] { 0x31, 0x01, 0x00, address, 0x00 }, 0, WriteBuffer + 3, 5);
             BufferWriteCsDisable(8);
             FlushBuffer(11);
             WaitQueue(2);
@@ -206,19 +205,7 @@ namespace Ymf825.IO
             return ReadRaw().ToArray()[1];
         }
 
-        public void ResetHardware()
-        {
-            if (writeBufferSize < 3)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, 3);
-
-            WriteRaw(0x82, 0xff, 0xff);
-            Thread.Sleep(2);
-
-            WriteRaw(0x82, 0x00, 0xff);
-            Thread.Sleep(2);
-
-            WriteRaw(0x82, 0xff, 0xff);
-        }
+        
 
         public void Dispose()
         {
@@ -242,8 +229,8 @@ namespace Ymf825.IO
             if (handle != IntPtr.Zero)
                 CheckStatus(FT_Close(handle));
 
-            Marshal.FreeHGlobal(writeBuffer);
-            Marshal.FreeHGlobal(readBuffer);
+            Marshal.FreeHGlobal(WriteBuffer);
+            Marshal.FreeHGlobal(ReadBuffer);
 
             IsDisposed = true;
         }
@@ -251,6 +238,55 @@ namespace Ymf825.IO
         ~Spi()
         {
             Dispose(false);
+        }
+
+        protected void WaitQueue(int requireBytes)
+        {
+            while (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes < requireBytes)
+            {
+            }
+        }
+
+        protected void FlushBuffer(int length)
+        {
+            CheckStatus(FT_Write(handle, WriteBuffer, (uint)length - 1, out var _));
+#if TRACE
+            Trace(writeBuffer, length);
+#endif
+            Marshal.WriteByte(WriteBuffer, 0x87);
+            CheckStatus(FT_Write(handle, WriteBuffer, 1, out var _));
+        }
+
+        protected void WriteRaw(params byte[] data)
+        {
+            if (WriteBufferSize < data.Length)
+                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, data.Length);
+
+            Marshal.Copy(data, 0, WriteBuffer, data.Length);
+            CheckStatus(FT_Write(handle, WriteBuffer, (uint)data.Length - 1, out var _));
+#if TRACE
+            Trace(writeBuffer, length);
+#endif
+            Marshal.WriteByte(WriteBuffer, 0x87);
+            CheckStatus(FT_Write(handle, WriteBuffer, 1, out var _));
+        }
+
+        protected IEnumerable<byte> ReadRaw()
+        {
+            CheckStatus(FT_Read(handle, ReadBuffer, (uint)ReadBufferSize, out var bytesReturned));
+            var readData = new byte[bytesReturned];
+            Marshal.Copy(ReadBuffer, readData, 0, (int)bytesReturned);
+            return readData;
+        }
+        
+        protected static void ExtendBuffer(ref IntPtr buffer, ref int bufferSize, int extendedSize)
+        {
+            if (bufferSize <= 0)
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+
+            bufferSize = extendedSize;
+            Marshal.FreeHGlobal(buffer);
+            buffer = Marshal.AllocHGlobal(bufferSize);
         }
 
         #endregion
@@ -296,81 +332,32 @@ namespace Ymf825.IO
 
             Thread.Sleep(100);
         }
-
-        private void WaitQueue(int requireBytes)
-        {
-            while (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes < requireBytes)
-            {
-            }
-        }
-
-        private void FlushBuffer(int length)
-        {
-            CheckStatus(FT_Write(handle, writeBuffer, (uint)length - 1, out var _));
-#if TRACE
-            Trace(writeBuffer, length);
-#endif
-            Marshal.WriteByte(writeBuffer, 0x87);
-            CheckStatus(FT_Write(handle, writeBuffer, 1, out var _));
-        }
-
-        private void WriteRaw(params byte[] data)
-        {
-            if (writeBufferSize < data.Length)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, data.Length);
-
-            Marshal.Copy(data, 0, writeBuffer, data.Length);
-            CheckStatus(FT_Write(handle, writeBuffer, (uint)data.Length - 1, out var _));
-#if TRACE
-            Trace(writeBuffer, length);
-#endif
-            Marshal.WriteByte(writeBuffer, 0x87);
-            CheckStatus(FT_Write(handle, writeBuffer, 1, out var _));
-        }
-
-        private IEnumerable<byte> ReadRaw()
-        {
-            CheckStatus(FT_Read(handle, readBuffer, (uint)readBufferSize, out var bytesReturned));
-            var readData = new byte[bytesReturned];
-            Marshal.Copy(readBuffer, readData, 0, (int)bytesReturned);
-            return readData;
-        }
         
         private void BufferWriteCsEnable(int offset)
         {
-            if (writeBufferSize < offset + 3)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, offset + 3);
+            if (WriteBufferSize < offset + 3)
+                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, offset + 3);
 
-            Marshal.WriteByte(writeBuffer, offset, 0x80);
+            Marshal.WriteByte(WriteBuffer, offset, 0x80);
 
             if (csEnableLevelHigh)
-                Marshal.WriteByte(writeBuffer, offset + 1, (byte)(csPin & csTargetPin));
+                Marshal.WriteByte(WriteBuffer, offset + 1, (byte)(csPin & csTargetPin));
             else
-                Marshal.WriteByte(writeBuffer, offset + 1, (byte)(csPin ^ csTargetPin));
+                Marshal.WriteByte(WriteBuffer, offset + 1, (byte)(csPin ^ csTargetPin));
 
-            Marshal.WriteByte(writeBuffer, offset + 2, 0xfb);
+            Marshal.WriteByte(WriteBuffer, offset + 2, 0xfb);
         }
 
         private void BufferWriteCsDisable(int offset)
         {
-            if (writeBufferSize < offset + 3)
-                ExtendBuffer(ref writeBuffer, ref writeBufferSize, offset + 3);
+            if (WriteBufferSize < offset + 3)
+                ExtendBuffer(ref WriteBuffer, ref WriteBufferSize, offset + 3);
 
-            Marshal.WriteByte(writeBuffer, offset, 0x80);
-            Marshal.WriteByte(writeBuffer, offset + 1, (byte)(csEnableLevelHigh ? 0x00 : csPin));
-            Marshal.WriteByte(writeBuffer, offset + 2, 0xfb);
+            Marshal.WriteByte(WriteBuffer, offset, 0x80);
+            Marshal.WriteByte(WriteBuffer, offset + 1, (byte)(csEnableLevelHigh ? 0x00 : csPin));
+            Marshal.WriteByte(WriteBuffer, offset + 2, 0xfb);
         }
         
-        private static void ExtendBuffer(ref IntPtr buffer, ref int bufferSize, int extendedSize)
-        {
-            if (bufferSize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(bufferSize));
-
-            bufferSize = extendedSize;
-            Marshal.FreeHGlobal(buffer);
-            buffer = Marshal.AllocHGlobal(bufferSize);
-        }
-
         private static void CheckStatus(FtStatus ftStatus)
         {
             if (ftStatus != FtStatus.FT_OK)
