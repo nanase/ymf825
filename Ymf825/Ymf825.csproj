@@ -42,6 +42,7 @@
     <Compile Include="Gain.cs" />
     <Compile Include="IO\DeviceInfo.cs" />
     <Compile Include="IO\DllDirectorySwitcher.cs" />
+    <Compile Include="IO\FtStatus.cs" />
     <Compile Include="IO\Spi.cs" />
     <Compile Include="OperatorParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

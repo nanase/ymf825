@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -375,92 +374,15 @@ namespace Ymf825.IO
             Marshal.WriteByte(writeBuffer, offset + 1, (byte)(csEnableLevelHigh ? 0x00 : csPin));
             Marshal.WriteByte(writeBuffer, offset + 2, 0xfb);
         }
+        {
+
 
         private static void CheckStatus(FtStatus ftStatus)
         {
-            switch (ftStatus)
-            {
-                case FtStatus.FT_OK:
-                    return;
-
-                case FtStatus.FT_INVALID_HANDLE:
-                    throw new InvalidOperationException("無効なハンドルが指定されました。");
-
-                case FtStatus.FT_DEVICE_NOT_FOUND:
-                    throw new InvalidOperationException("指定されたデバイスが見つかりませんでした。");
-
-                case FtStatus.FT_DEVICE_NOT_OPENED:
-                    throw new InvalidOperationException("指定されたデバイスを開けませんでした。");
-
-                case FtStatus.FT_IO_ERROR:
-                    throw new InvalidOperationException("IOエラーが発生しました。");
-
-                case FtStatus.FT_INSUFFICIENT_RESOURCES:
-                    throw new InvalidOperationException("リソースが不足しています。");
-
-                case FtStatus.FT_INVALID_ARGS:
-                case FtStatus.FT_INVALID_PARAMETER:
-                    throw new InvalidOperationException("無効なパラメータが指定されました。");
-
-                case FtStatus.FT_INVALID_BAUD_RATE:
-                    throw new InvalidOperationException("無効なボーレートが指定されました。");
-
-                case FtStatus.FT_EEPROM_READ_FAILED:
-                case FtStatus.FT_EEPROM_ERASE_FAILED:
-                case FtStatus.FT_DEVICE_NOT_OPENED_FOR_ERASE:
-                    throw new InvalidOperationException("読み込まれようとしたデバイスは開かれていませんでした。");
-
-                case FtStatus.FT_EEPROM_WRITE_FAILED:
-                case FtStatus.FT_DEVICE_NOT_OPENED_FOR_WRITE:
-                    throw new InvalidOperationException("書き込まれようとしたデバイスは開かれていませんでした。");
-
-                case FtStatus.FT_FAILED_TO_WRITE_DEVICE:
-                    throw new InvalidOperationException("デバイスへの書き込みに失敗しました。");
-
-                case FtStatus.FT_EEPROM_NOT_PRESENT:
-                case FtStatus.FT_EEPROM_NOT_PROGRAMMED:
-                    throw new InvalidOperationException("EEPROM がデバイスに存在しません。");
-
-                case FtStatus.FT_NOT_SUPPORTED:
-                    throw new InvalidOperationException("実行された命令はサポートされていません。");
-
-                case FtStatus.FT_OTHER_ERROR:
-                    throw new InvalidOperationException("不明なエラーです。");
-
-                case FtStatus.FT_DEVICE_LIST_NOT_READY:
-                    throw new InvalidOperationException("デバイスリストを取得中です。");
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(ftStatus), ftStatus, null);
-            }
+            if (ftStatus != FtStatus.FT_OK)
+                throw new InvalidOperationException(ftStatus.GetErrorMessage());
         }
 
         #endregion
-    }
-
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal enum FtStatus : uint
-    {
-        FT_OK,
-        FT_INVALID_HANDLE,
-        FT_DEVICE_NOT_FOUND,
-        FT_DEVICE_NOT_OPENED,
-        FT_IO_ERROR,
-        FT_INSUFFICIENT_RESOURCES,
-        FT_INVALID_PARAMETER,
-        FT_INVALID_BAUD_RATE,
-
-        FT_DEVICE_NOT_OPENED_FOR_ERASE,
-        FT_DEVICE_NOT_OPENED_FOR_WRITE,
-        FT_FAILED_TO_WRITE_DEVICE,
-        FT_EEPROM_READ_FAILED,
-        FT_EEPROM_WRITE_FAILED,
-        FT_EEPROM_ERASE_FAILED,
-        FT_EEPROM_NOT_PRESENT,
-        FT_EEPROM_NOT_PROGRAMMED,
-        FT_INVALID_ARGS,
-        FT_NOT_SUPPORTED,
-        FT_OTHER_ERROR,
-        FT_DEVICE_LIST_NOT_READY,
     }
 }
