@@ -283,7 +283,7 @@ namespace Ymf825
                 Monitor.Enter(lockObject);
                 sectionThread = Thread.CurrentThread;
             }
-            
+
             if (target == TargetChip.None)
                 return;
 
@@ -341,28 +341,25 @@ namespace Ymf825
             if (Monitor.IsEntered(lockObject))
                 throw new InvalidOperationException("このメソッドはセクション内で実行できません。");
 
-            BeginSection();
+            Section(() =>
             {
                 SetPowerRailSelection(true);
                 SetAnalogBlockPowerDown(AnalogBlock.All);
-            }
-            EndSection(1);
+            }, 1);
 
-            BeginSection();
+            Section(() =>
             {
                 SetClockEnable(true);
                 SetAllRegisterReset(false);
                 SetSoftReset(0xa3);
-            }
-            EndSection(1);
+            }, 1);
 
-            BeginSection();
+            Section(() =>
             {
                 SetSoftReset(0x00);
-            }
-            EndSection(30);
+            }, 30);
 
-            BeginSection();
+            Section(() =>
             {
                 SetAnalogBlockPowerDown(AnalogBlock.None);
                 SetMasterVolume(0x3f);
@@ -372,17 +369,15 @@ namespace Ymf825
 
                 SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
                                     SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
-            }
-            EndSection(21);
+            }, 21);
 
-            BeginSection();
+            Section(() =>
             {
                 SetSequencerSetting(SequencerSetting.Reset);
                 SetSequencerVolume(0x1f, false, 0);
 
                 SetSequencerTimeUnitSetting(0x2000);
-            }
-            EndSection();
+            });
         }
 
         #endregion
