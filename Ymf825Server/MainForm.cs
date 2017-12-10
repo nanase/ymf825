@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Ports;
 using System.Linq;
-using System.ServiceModel;
-using System.Text;
 using System.Windows.Forms;
 using RegisterMap;
 using Ymf825;
+using Ymf825.IO;
 
 namespace Ymf825Server
 {
@@ -18,9 +14,9 @@ namespace Ymf825Server
         private readonly MapRenderer registerMap;
         private readonly MapRenderer[] toneParameterRegisterMap = new MapRenderer[16];
         private readonly PictureBox[] tonePrameterPictureBoxes;
-        private SerialPort serialPort;
-        private Ymf825Client ymf825Client;
-        private ServiceHost serviceHost;
+        private Ymf825.Ymf825 ymf825;
+        private Ymf825Driver driver;
+        private DeviceInfo spiDeviceInfo;
         private bool connected;
 
         #endregion
@@ -91,21 +87,15 @@ namespace Ymf825Server
 
         private void timer_stat_Tick(object sender, EventArgs e)
         {
-            label_writeBytes.Text = ymf825Client.WriteBytesTotal.ToString("N0");
-            label_burstWriteBytes.Text = ymf825Client.BurstWriteBytesTotal.ToString("N0");
-            label_readBytes.Text = ymf825Client.ReadBytesTotal.ToString("N0");
+            label_enteredSection.Text = driver.EnteredSectionCount.ToString("N0");
 
-            label_writeCommands.Text = ymf825Client.WriteCommandsTotal.ToString("N0");
-            label_burstWriteCommands.Text = ymf825Client.BurstWriteCommandsTotal.ToString("N0");
-            label_readCommands.Text = ymf825Client.ReadCommandsTotal.ToString("N0");
+            label_writeBytes.Text = ymf825.WriteBytes.ToString("N0");
+            label_burstWriteBytes.Text = ymf825.BurstWriteBytes.ToString("N0");
+            label_readBytes.Text = ymf825.ReadBytes.ToString("N0");
 
-            label_failedWriteBytes.Text = ymf825Client.FailedWriteBytesTotal.ToString("N0");
-            label_failedBurstWriteBytes.Text = ymf825Client.FailedBurstWriteBytesTotal.ToString("N0");
-            label_failedReadBytes.Text = ymf825Client.FailedReadBytesTotal.ToString("N0");
-
-            label_writeError.Text = ymf825Client.WriteErrorTotal.ToString("N0");
-            label_burstWriteError.Text = ymf825Client.BurstWriteErrorTotal.ToString("N0");
-            label_readError.Text = ymf825Client.ReadErrorTotal.ToString("N0");
+            label_writeCommands.Text = ymf825.WriteCommandCount.ToString("N0");
+            label_burstWriteCommands.Text = ymf825.BurstWriteCommandCount.ToString("N0");
+            label_readCommands.Text = ymf825.ReadCommandCount.ToString("N0");
         }
 
         private void toolStripButton_refresh_Click(object sender, EventArgs e)
@@ -146,7 +136,7 @@ namespace Ymf825Server
             for (var i = 0; i < 16; i++)
                 toneParameterRegisterMap[i].ClearAll();
 
-            ymf825Client.ResetHardware();
+            ymf825.ResetHardware();
         }
 
         private void toolStripButton_softReset_Click(object sender, EventArgs e)
@@ -159,7 +149,7 @@ namespace Ymf825Server
             for (var i = 0; i < 16; i++)
                 toneParameterRegisterMap[i].ClearAll();
 
-            ymf825Client.ResetSoftware();
+            driver.ResetSoftware();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -173,16 +163,16 @@ namespace Ymf825Server
 
         private void ConnectDevice()
         {
-            var baudRate = int.Parse(toolStripComboBox_baudRate.SelectedItem.ToString());
-            serialPort = new SerialPort(toolStripComboBox_deviceList.SelectedItem.ToString(), baudRate, Parity.None);
-            serialPort.Open();
+            spiDeviceInfo = Spi.GetDeviceInfoList()[toolStripComboBox_deviceList.SelectedIndex];
+            ymf825 = new CbwYmf825Bb(toolStripComboBox_deviceList.SelectedIndex);
+            Ymf825.Ymf825Server.Start(ymf825);
+            driver = Ymf825.Ymf825Server.Client.GetDriver();
 
-            ymf825Client = new Ymf825Client(serialPort);
-            ymf825Client.DataWrote += (sender, args) =>
+            ymf825.DataWrote += (sender, args) =>
             {
                 registerMap.SetData(args.Address, args.Data);
             };
-            ymf825Client.DataBurstWrote += (sender, args) =>
+            ymf825.DataBurstWrote += (sender, args) =>
             {
                 if (args.Data.Count <= 0)
                     return;
@@ -201,40 +191,19 @@ namespace Ymf825Server
                     for (var j = 0; j < 30; j++)
                         toneParameterRegisterMap[i].SetData(j, args.Data[i * 30 + j + 1]);
             };
-            serviceHost = new ServiceHost(ymf825Client, new Uri(Ymf825Client.ServiceUri));
-
-            try
-            {
-                serviceHost.AddServiceEndpoint(typeof(IYmf825Client), new NetNamedPipeBinding(), Ymf825Client.ServiceName);
-                serviceHost.Open();
-            }
-            catch (AddressAlreadyInUseException)
-            {
-                MessageBox.Show("既にサービスは起動しています。");
-                DisconnectDevice();
-                return;
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("不明なエラーが発生しました。\n\n" + e);
-                DisconnectDevice();
-                return;
-            }
-
+            
             connected = true;
-            ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
+            driver.ResetHardware();
+            driver.ResetSoftware();
         }
 
         private void DisconnectDevice()
         {
-            if (serviceHost != null && serviceHost.State == CommunicationState.Opened)
-                serviceHost.Close();
+            Ymf825.Ymf825Server.Stop();
+            driver = null;
 
-            serviceHost = null;
-            ymf825Client = null;
-
-            serialPort?.Dispose();
-            serialPort = null;
+            ymf825?.Dispose();
+            ymf825 = null;
             connected = false;
         }
 
@@ -242,12 +211,11 @@ namespace Ymf825Server
         {
             toolStripButton_refresh.Enabled = !connected;
             toolStripComboBox_deviceList.Enabled = !connected;
-            toolStripComboBox_baudRate.Enabled = !connected;
+            toolStripComboBox_interface.Enabled = !connected;
             toolStripButton_connect.Enabled = !connected;
             toolStripButton_disconnect.Enabled = connected;
             toolStripButton_reset.Enabled = connected;
             toolStripButton_softReset.Enabled = connected;
-            button_CommTest.Enabled = connected;
 
             timer_stat.Enabled = connected;
         }
@@ -256,23 +224,22 @@ namespace Ymf825Server
         {
             if (reset)
             {
-                label_serialPortName.Text = "";
-                label_serialPortBaudRate.Text = "";
+                label_interfaceName.Text = "";
                 return;
             }
 
-            label_serialPortName.Text = serialPort.PortName;
-            label_serialPortBaudRate.Text = serialPort.BaudRate.ToString("N0");
+            label_interfaceName.Text = spiDeviceInfo.Description;
         }
 
         private void RefreshDeviceList()
         {
             toolStripComboBox_deviceList.Items.Clear();
-            var deviceInfoArray = SerialPort.GetPortNames();
+
+            var deviceInfoArray = Spi.GetDeviceInfoList();
 
             foreach (var deviceInfo in deviceInfoArray)
             {
-                toolStripComboBox_deviceList.Items.Add(deviceInfo);
+                toolStripComboBox_deviceList.Items.Add($"{deviceInfo.Description} ({deviceInfo.SerialNumber})");
             }
 
             if (deviceInfoArray.Length > 0)
@@ -282,15 +249,16 @@ namespace Ymf825Server
             }
             else
             {
-                toolStripComboBox_deviceList.Items.Add("ポートが見つかりません");
+                toolStripComboBox_deviceList.Items.Add("デバイスが見つかりません");
                 toolStripComboBox_deviceList.Enabled = false;
                 toolStripButton_connect.Enabled = false;
             }
 
             toolStripComboBox_deviceList.SelectedIndex = 0;
-            toolStripComboBox_baudRate.SelectedItem = "115200";
+            toolStripComboBox_interface.SelectedIndex = 0;
         }
 
+        /*
         private void communicationTest_Click(object sender, EventArgs e)
         {
             button_CommTest.Enabled = false;
@@ -304,7 +272,6 @@ namespace Ymf825Server
             logger.WriteLine("Finished.");
             button_CommTest.Enabled = true;
         }
-
 
         private static void FillZeroToComm(Ymf825Driver driver, TextWriter logger)
         {
@@ -398,9 +365,11 @@ namespace Ymf825Server
 
             logger.WriteLine("OK");
         }
+        */
 
         #endregion
 
+        /*
         private class CommTest
         {
             private readonly byte[] writeLog;
@@ -444,11 +413,11 @@ namespace Ymf825Server
             public void Test(byte value)
             {
                 driver.SetSoftwareTestCommunication(value);
-                driver.GetSoftwareTestCommunication(TargetDevice.Ymf825Board0);
-                driver.GetSoftwareTestCommunication(TargetDevice.Ymf825Board1);
+                driver.GetSoftwareTestCommunication(Target.Ymf825Board0);
+                driver.GetSoftwareTestCommunication(Target.Ymf825Board1);
             }
         }
-        
+
         private class ControlWriter : TextWriter
         {
             private readonly Control textbox;
@@ -470,5 +439,6 @@ namespace Ymf825Server
                 textbox.Text += value;
             }
         }
+        */
     }
 }
