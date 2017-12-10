@@ -369,7 +369,7 @@ namespace Ymf825
             Section(() =>
             {
                 SetAnalogBlockPowerDown(AnalogBlock.None);
-                SetMasterVolume(0x38);
+                SetMasterVolume(0x30);
                 SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
                 SetInterporationInMuteState(true);
                 SetGain(Gain.Level75);
