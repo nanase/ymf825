@@ -7,17 +7,16 @@ namespace Ymf825
     /// <summary>
     /// YMF825 のレジスタ命令を抽象化し、各種操作を提供します。
     /// </summary>
-    [DataContract]
     public class Ymf825Driver
     {
         #region -- Private Fields --
-
+        
         private readonly object lockObject = new object();
-
+        
         private Action<int> sleepAction = Thread.Sleep;
-
+        
         private static readonly double[] FnumTable = new double[12];
-
+        
         private static readonly double[] AttackRateTimeTable = {
             double.PositiveInfinity,
             double.PositiveInfinity,
@@ -91,7 +90,7 @@ namespace Ymf825
             0.0,
             0.0
         };
-
+        
         private static readonly double[] EnvelopeRateTimeTable = {
             double.PositiveInfinity,
             double.PositiveInfinity,
@@ -165,9 +164,9 @@ namespace Ymf825
             2.63e-3,
             2.63e-3
         };
-
+        
         private TargetChip previousTargetChip;
-
+        
         private Thread sectionThread;
 
         #endregion

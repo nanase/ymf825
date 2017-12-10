@@ -1,6 +1,6 @@
 ﻿namespace Ymf825Server
 {
-    partial class MainForm
+    partial class ServerWindow
     {
         /// <summary>
         /// 必要なデザイナー変数です。
@@ -246,7 +246,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(88, 13);
             this.label8.TabIndex = 30;
-            this.label8.Text = "Entered Section";
+            this.label8.Text = "Section Entered";
             // 
             // label_readCommands
             // 
@@ -580,19 +580,20 @@
             // timer_registerMap
             // 
             this.timer_registerMap.Enabled = true;
-            this.timer_registerMap.Interval = 30;
+            this.timer_registerMap.Interval = 50;
             this.timer_registerMap.Tick += new System.EventHandler(this.timer_registerMap_Tick);
             // 
             // timer_stat
             // 
-            this.timer_stat.Interval = 250;
+            this.timer_stat.Interval = 150;
             this.timer_stat.Tick += new System.EventHandler(this.timer_stat_Tick);
             // 
-            // MainForm
+            // ServerWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(795, 447);
+            this.ControlBox = false;
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -600,7 +601,8 @@
             this.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Name = "MainForm";
+            this.MinimizeBox = false;
+            this.Name = "ServerWindow";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "YMF825 Server";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);

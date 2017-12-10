@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using RegisterMap;
@@ -7,7 +8,7 @@ using Ymf825.IO;
 
 namespace Ymf825Server
 {
-    internal partial class MainForm : Form
+    public partial class ServerWindow : Form
     {
         #region -- Private Fields --
 
@@ -15,15 +16,29 @@ namespace Ymf825Server
         private readonly MapRenderer[] toneParameterRegisterMap = new MapRenderer[16];
         private readonly PictureBox[] tonePrameterPictureBoxes;
         private Ymf825.Ymf825 ymf825;
-        private Ymf825Driver driver;
-        private DeviceInfo spiDeviceInfo;
-        private bool connected;
+
+        #endregion
+
+        #region -- Public Properties --
+
+        public bool SpiConnected { get; private set; }
+
+        public DeviceInfo DeviceInfo { get; private set; }
+
+        public Ymf825Driver Driver { get; private set; }
+
+        #endregion
+
+        #region -- Public Events --
+        
+        public event EventHandler Connected;
+        public event EventHandler Disconnected;
 
         #endregion
 
         #region -- Constructors --
 
-        public MainForm()
+        public ServerWindow()
         {
             InitializeComponent();
 
@@ -68,7 +83,7 @@ namespace Ymf825Server
             UpdateControlByConnected();
             RefreshDeviceList();
         }
-
+        
         #endregion
 
         #region -- Event Handlers --
@@ -87,7 +102,7 @@ namespace Ymf825Server
 
         private void timer_stat_Tick(object sender, EventArgs e)
         {
-            label_enteredSection.Text = driver.EnteredSectionCount.ToString("N0");
+            label_enteredSection.Text = Driver.EnteredSectionCount.ToString("N0");
 
             label_writeBytes.Text = ymf825.WriteBytes.ToString("N0");
             label_burstWriteBytes.Text = ymf825.BurstWriteBytes.ToString("N0");
@@ -100,7 +115,7 @@ namespace Ymf825Server
 
         private void toolStripButton_refresh_Click(object sender, EventArgs e)
         {
-            if (connected)
+            if (SpiConnected)
                 return;
 
             RefreshDeviceList();
@@ -108,7 +123,7 @@ namespace Ymf825Server
 
         private void toolStripButton_connect_Click(object sender, EventArgs e)
         {
-            if (connected)
+            if (SpiConnected)
                 return;
 
             ConnectDevice();
@@ -118,7 +133,7 @@ namespace Ymf825Server
 
         private void toolStripButton_disconnect_Click(object sender, EventArgs e)
         {
-            if (!connected)
+            if (!SpiConnected)
                 return;
 
             DisconnectDevice();
@@ -128,7 +143,7 @@ namespace Ymf825Server
 
         private void toolStripButton_reset_Click(object sender, EventArgs e)
         {
-            if (!connected)
+            if (!SpiConnected)
                 return;
 
             registerMap.ClearAll();
@@ -141,7 +156,7 @@ namespace Ymf825Server
 
         private void toolStripButton_softReset_Click(object sender, EventArgs e)
         {
-            if (!connected)
+            if (!SpiConnected)
                 return;
 
             registerMap.ClearAll();
@@ -149,7 +164,7 @@ namespace Ymf825Server
             for (var i = 0; i < 16; i++)
                 toneParameterRegisterMap[i].ClearAll();
 
-            driver.ResetSoftware();
+            Driver.ResetSoftware();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -158,15 +173,14 @@ namespace Ymf825Server
         }
 
         #endregion
-
+        
         #region -- Private Methods --
 
         private void ConnectDevice()
         {
-            spiDeviceInfo = Spi.GetDeviceInfoList()[toolStripComboBox_deviceList.SelectedIndex];
+            DeviceInfo = Spi.GetDeviceInfoList()[toolStripComboBox_deviceList.SelectedIndex];
             ymf825 = new CbwYmf825Bb(toolStripComboBox_deviceList.SelectedIndex);
-            Ymf825.Ymf825Server.Start(ymf825);
-            driver = Ymf825.Ymf825Server.Client.GetDriver();
+            Driver = new Ymf825Driver(ymf825);
 
             ymf825.DataWrote += (sender, args) =>
             {
@@ -192,32 +206,33 @@ namespace Ymf825Server
                         toneParameterRegisterMap[i].SetData(j, args.Data[i * 30 + j + 1]);
             };
             
-            connected = true;
-            driver.ResetHardware();
-            driver.ResetSoftware();
+            SpiConnected = true;
+            Driver.ResetHardware();
+            Driver.ResetSoftware();
+            Connected?.Invoke(this, new EventArgs());
         }
 
         private void DisconnectDevice()
         {
-            Ymf825.Ymf825Server.Stop();
-            driver = null;
-
+            Driver?.ResetHardware();
+            Driver = null;
             ymf825?.Dispose();
             ymf825 = null;
-            connected = false;
+            SpiConnected = false;
+            Disconnected?.Invoke(this, new EventArgs());
         }
 
         private void UpdateControlByConnected()
         {
-            toolStripButton_refresh.Enabled = !connected;
-            toolStripComboBox_deviceList.Enabled = !connected;
-            toolStripComboBox_interface.Enabled = !connected;
-            toolStripButton_connect.Enabled = !connected;
-            toolStripButton_disconnect.Enabled = connected;
-            toolStripButton_reset.Enabled = connected;
-            toolStripButton_softReset.Enabled = connected;
+            toolStripButton_refresh.Enabled = !SpiConnected;
+            toolStripComboBox_deviceList.Enabled = !SpiConnected;
+            toolStripComboBox_interface.Enabled = !SpiConnected;
+            toolStripButton_connect.Enabled = !SpiConnected;
+            toolStripButton_disconnect.Enabled = SpiConnected;
+            toolStripButton_reset.Enabled = SpiConnected;
+            toolStripButton_softReset.Enabled = SpiConnected;
 
-            timer_stat.Enabled = connected;
+            timer_stat.Enabled = SpiConnected;
         }
 
         private void UpdateSpiDeviceInfoLabel(bool reset = false)
@@ -228,7 +243,7 @@ namespace Ymf825Server
                 return;
             }
 
-            label_interfaceName.Text = spiDeviceInfo.Description;
+            label_interfaceName.Text = DeviceInfo.Description;
         }
 
         private void RefreshDeviceList()

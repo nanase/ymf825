@@ -33,8 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +46,6 @@
     <Compile Include="IO\FtStatus.cs" />
     <Compile Include="IO\Spi.cs" />
     <Compile Include="IO\Ymf825Spi.cs" />
-    <Compile Include="IYmf825Client.cs" />
     <Compile Include="OperatorParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequencerSetting.cs" />
@@ -56,9 +53,7 @@
     <Compile Include="ToneParameter.cs" />
     <Compile Include="ToneParameterCollection.cs" />
     <Compile Include="Ymf825.cs" />
-    <Compile Include="Ymf825Client.cs" />
     <Compile Include="Ymf825Driver.cs" />
-    <Compile Include="Ymf825Server.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\x64\ftd2xx.dll">
