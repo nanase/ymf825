@@ -32,34 +32,24 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton_refresh = new System.Windows.Forms.ToolStripButton();
             this.toolStripComboBox_deviceList = new System.Windows.Forms.ToolStripComboBox();
-            this.toolStripComboBox_baudRate = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripComboBox_interface = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripButton_connect = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton_disconnect = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton_reset = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton_softReset = new System.Windows.Forms.ToolStripButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label_readError = new System.Windows.Forms.Label();
-            this.label_burstWriteError = new System.Windows.Forms.Label();
-            this.label_writeError = new System.Windows.Forms.Label();
-            this.label_failedReadBytes = new System.Windows.Forms.Label();
-            this.label_failedBurstWriteBytes = new System.Windows.Forms.Label();
-            this.label_failedWriteBytes = new System.Windows.Forms.Label();
+            this.label_enteredSection = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.label_readCommands = new System.Windows.Forms.Label();
             this.label_burstWriteCommands = new System.Windows.Forms.Label();
             this.label_writeCommands = new System.Windows.Forms.Label();
             this.label_readBytes = new System.Windows.Forms.Label();
             this.label_burstWriteBytes = new System.Windows.Forms.Label();
             this.label_writeBytes = new System.Windows.Forms.Label();
-            this.label_serialPortBaudRate = new System.Windows.Forms.Label();
-            this.label_serialPortName = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.label_interfaceName = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -88,9 +78,6 @@
             this.pictureBox_tone1 = new System.Windows.Forms.PictureBox();
             this.timer_registerMap = new System.Windows.Forms.Timer(this.components);
             this.timer_stat = new System.Windows.Forms.Timer(this.components);
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button_CommTest = new System.Windows.Forms.Button();
             this.toolStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -112,7 +99,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_tone3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_tone2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_tone1)).BeginInit();
-            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -121,10 +107,12 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton_refresh,
             this.toolStripComboBox_deviceList,
-            this.toolStripComboBox_baudRate,
+            this.toolStripComboBox_interface,
             this.toolStripButton_connect,
             this.toolStripButton_disconnect,
             this.toolStripSeparator1,
+            this.toolStripButton1,
+            this.toolStripSeparator2,
             this.toolStripButton_reset,
             this.toolStripButton_softReset});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -149,30 +137,13 @@
             this.toolStripComboBox_deviceList.Name = "toolStripComboBox_deviceList";
             this.toolStripComboBox_deviceList.Size = new System.Drawing.Size(200, 25);
             // 
-            // toolStripComboBox_baudRate
+            // toolStripComboBox_interface
             // 
-            this.toolStripComboBox_baudRate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.toolStripComboBox_baudRate.Items.AddRange(new object[] {
-            "300",
-            "600",
-            "1200",
-            "2400",
-            "4800",
-            "9600",
-            "14400",
-            "19200",
-            "28800",
-            "38400",
-            "57600",
-            "115200",
-            "256000",
-            "460000",
-            "512000",
-            "1000000",
-            "2000000",
-            "3000000"});
-            this.toolStripComboBox_baudRate.Name = "toolStripComboBox_baudRate";
-            this.toolStripComboBox_baudRate.Size = new System.Drawing.Size(121, 25);
+            this.toolStripComboBox_interface.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.toolStripComboBox_interface.Items.AddRange(new object[] {
+            "CBW-YMF825-BB"});
+            this.toolStripComboBox_interface.Name = "toolStripComboBox_interface";
+            this.toolStripComboBox_interface.Size = new System.Drawing.Size(130, 25);
             // 
             // toolStripButton_connect
             // 
@@ -199,6 +170,20 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = global::Ymf825Server.Properties.Resources.comments;
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButton1.Text = "toolStripButton1";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
             // toolStripButton_reset
             // 
             this.toolStripButton_reset.Image = global::Ymf825Server.Properties.Resources.lightning;
@@ -219,27 +204,15 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label_readError);
-            this.groupBox1.Controls.Add(this.label_burstWriteError);
-            this.groupBox1.Controls.Add(this.label_writeError);
-            this.groupBox1.Controls.Add(this.label_failedReadBytes);
-            this.groupBox1.Controls.Add(this.label_failedBurstWriteBytes);
-            this.groupBox1.Controls.Add(this.label_failedWriteBytes);
+            this.groupBox1.Controls.Add(this.label_enteredSection);
+            this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.label_readCommands);
             this.groupBox1.Controls.Add(this.label_burstWriteCommands);
             this.groupBox1.Controls.Add(this.label_writeCommands);
             this.groupBox1.Controls.Add(this.label_readBytes);
             this.groupBox1.Controls.Add(this.label_burstWriteBytes);
             this.groupBox1.Controls.Add(this.label_writeBytes);
-            this.groupBox1.Controls.Add(this.label_serialPortBaudRate);
-            this.groupBox1.Controls.Add(this.label_serialPortName);
-            this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.label12);
-            this.groupBox1.Controls.Add(this.label13);
-            this.groupBox1.Controls.Add(this.label14);
-            this.groupBox1.Controls.Add(this.label15);
-            this.groupBox1.Controls.Add(this.label8);
+            this.groupBox1.Controls.Add(this.label_interfaceName);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label5);
@@ -250,82 +223,36 @@
             this.groupBox1.Location = new System.Drawing.Point(6, 31);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(260, 306);
+            this.groupBox1.Size = new System.Drawing.Size(260, 211);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "接続情報/統計";
             // 
-            // label_readError
+            // label_enteredSection
             // 
-            this.label_readError.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label_enteredSection.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_readError.Location = new System.Drawing.Point(73, 286);
-            this.label_readError.Name = "label_readError";
-            this.label_readError.Size = new System.Drawing.Size(181, 13);
-            this.label_readError.TabIndex = 29;
-            this.label_readError.Text = "0";
-            this.label_readError.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label_enteredSection.Location = new System.Drawing.Point(100, 38);
+            this.label_enteredSection.Name = "label_enteredSection";
+            this.label_enteredSection.Size = new System.Drawing.Size(154, 13);
+            this.label_enteredSection.TabIndex = 31;
+            this.label_enteredSection.Text = "0";
+            this.label_enteredSection.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // label_burstWriteError
+            // label8
             // 
-            this.label_burstWriteError.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_burstWriteError.Location = new System.Drawing.Point(102, 268);
-            this.label_burstWriteError.Name = "label_burstWriteError";
-            this.label_burstWriteError.Size = new System.Drawing.Size(152, 13);
-            this.label_burstWriteError.TabIndex = 28;
-            this.label_burstWriteError.Text = "0";
-            this.label_burstWriteError.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label_writeError
-            // 
-            this.label_writeError.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_writeError.Location = new System.Drawing.Point(75, 250);
-            this.label_writeError.Name = "label_writeError";
-            this.label_writeError.Size = new System.Drawing.Size(179, 13);
-            this.label_writeError.TabIndex = 27;
-            this.label_writeError.Text = "0";
-            this.label_writeError.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label_failedReadBytes
-            // 
-            this.label_failedReadBytes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_failedReadBytes.Location = new System.Drawing.Point(109, 228);
-            this.label_failedReadBytes.Name = "label_failedReadBytes";
-            this.label_failedReadBytes.Size = new System.Drawing.Size(145, 13);
-            this.label_failedReadBytes.TabIndex = 26;
-            this.label_failedReadBytes.Text = "0";
-            this.label_failedReadBytes.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label_failedBurstWriteBytes
-            // 
-            this.label_failedBurstWriteBytes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_failedBurstWriteBytes.Location = new System.Drawing.Point(138, 210);
-            this.label_failedBurstWriteBytes.Name = "label_failedBurstWriteBytes";
-            this.label_failedBurstWriteBytes.Size = new System.Drawing.Size(116, 13);
-            this.label_failedBurstWriteBytes.TabIndex = 25;
-            this.label_failedBurstWriteBytes.Text = "0";
-            this.label_failedBurstWriteBytes.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label_failedWriteBytes
-            // 
-            this.label_failedWriteBytes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_failedWriteBytes.Location = new System.Drawing.Point(111, 192);
-            this.label_failedWriteBytes.Name = "label_failedWriteBytes";
-            this.label_failedWriteBytes.Size = new System.Drawing.Size(143, 13);
-            this.label_failedWriteBytes.TabIndex = 24;
-            this.label_failedWriteBytes.Text = "0";
-            this.label_failedWriteBytes.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 38);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(88, 13);
+            this.label8.TabIndex = 30;
+            this.label8.Text = "Entered Section";
             // 
             // label_readCommands
             // 
             this.label_readCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_readCommands.Location = new System.Drawing.Point(103, 170);
+            this.label_readCommands.Location = new System.Drawing.Point(103, 154);
             this.label_readCommands.Name = "label_readCommands";
             this.label_readCommands.Size = new System.Drawing.Size(151, 13);
             this.label_readCommands.TabIndex = 23;
@@ -336,7 +263,7 @@
             // 
             this.label_burstWriteCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_burstWriteCommands.Location = new System.Drawing.Point(132, 152);
+            this.label_burstWriteCommands.Location = new System.Drawing.Point(132, 136);
             this.label_burstWriteCommands.Name = "label_burstWriteCommands";
             this.label_burstWriteCommands.Size = new System.Drawing.Size(122, 13);
             this.label_burstWriteCommands.TabIndex = 22;
@@ -347,7 +274,7 @@
             // 
             this.label_writeCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_writeCommands.Location = new System.Drawing.Point(105, 134);
+            this.label_writeCommands.Location = new System.Drawing.Point(105, 118);
             this.label_writeCommands.Name = "label_writeCommands";
             this.label_writeCommands.Size = new System.Drawing.Size(149, 13);
             this.label_writeCommands.TabIndex = 21;
@@ -358,7 +285,7 @@
             // 
             this.label_readBytes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_readBytes.Location = new System.Drawing.Point(75, 112);
+            this.label_readBytes.Location = new System.Drawing.Point(75, 96);
             this.label_readBytes.Name = "label_readBytes";
             this.label_readBytes.Size = new System.Drawing.Size(179, 13);
             this.label_readBytes.TabIndex = 20;
@@ -369,7 +296,7 @@
             // 
             this.label_burstWriteBytes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_burstWriteBytes.Location = new System.Drawing.Point(100, 94);
+            this.label_burstWriteBytes.Location = new System.Drawing.Point(100, 78);
             this.label_burstWriteBytes.Name = "label_burstWriteBytes";
             this.label_burstWriteBytes.Size = new System.Drawing.Size(154, 13);
             this.label_burstWriteBytes.TabIndex = 19;
@@ -380,109 +307,36 @@
             // 
             this.label_writeBytes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_writeBytes.Location = new System.Drawing.Point(75, 76);
+            this.label_writeBytes.Location = new System.Drawing.Point(75, 60);
             this.label_writeBytes.Name = "label_writeBytes";
             this.label_writeBytes.Size = new System.Drawing.Size(179, 13);
             this.label_writeBytes.TabIndex = 18;
             this.label_writeBytes.Text = "0";
             this.label_writeBytes.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // label_serialPortBaudRate
+            // label_interfaceName
             // 
-            this.label_serialPortBaudRate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label_interfaceName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_serialPortBaudRate.Location = new System.Drawing.Point(135, 36);
-            this.label_serialPortBaudRate.Name = "label_serialPortBaudRate";
-            this.label_serialPortBaudRate.Size = new System.Drawing.Size(119, 13);
-            this.label_serialPortBaudRate.TabIndex = 16;
-            this.label_serialPortBaudRate.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label_serialPortName
-            // 
-            this.label_serialPortName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_serialPortName.Location = new System.Drawing.Point(97, 18);
-            this.label_serialPortName.Name = "label_serialPortName";
-            this.label_serialPortName.Size = new System.Drawing.Size(157, 13);
-            this.label_serialPortName.TabIndex = 15;
-            this.label_serialPortName.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 268);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(90, 13);
-            this.label10.TabIndex = 14;
-            this.label10.Text = "BurstWrite error";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 210);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(126, 13);
-            this.label11.TabIndex = 13;
-            this.label11.Text = "Failed BurstWrite bytes";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 192);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(99, 13);
-            this.label12.TabIndex = 9;
-            this.label12.Text = "Failed Write bytes";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 286);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(61, 13);
-            this.label13.TabIndex = 12;
-            this.label13.Text = "Read error";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(6, 228);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(97, 13);
-            this.label14.TabIndex = 10;
-            this.label14.Text = "Failed Read bytes";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(6, 250);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(63, 13);
-            this.label15.TabIndex = 11;
-            this.label15.Text = "Write error";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 36);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(126, 13);
-            this.label8.TabIndex = 7;
-            this.label8.Text = "Baud Rate (per second)";
+            this.label_interfaceName.Location = new System.Drawing.Point(97, 18);
+            this.label_interfaceName.Name = "label_interfaceName";
+            this.label_interfaceName.Size = new System.Drawing.Size(157, 13);
+            this.label_interfaceName.TabIndex = 15;
+            this.label_interfaceName.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(6, 18);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(59, 13);
+            this.label7.Size = new System.Drawing.Size(52, 13);
             this.label7.TabIndex = 6;
-            this.label7.Text = "Serial Port";
+            this.label7.Text = "Interface";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 152);
+            this.label6.Location = new System.Drawing.Point(6, 136);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(120, 13);
             this.label6.TabIndex = 5;
@@ -491,7 +345,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 94);
+            this.label5.Location = new System.Drawing.Point(6, 78);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(92, 13);
             this.label5.TabIndex = 4;
@@ -500,7 +354,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 76);
+            this.label1.Location = new System.Drawing.Point(6, 60);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(65, 13);
             this.label1.TabIndex = 0;
@@ -509,7 +363,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 170);
+            this.label4.Location = new System.Drawing.Point(6, 154);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(91, 13);
             this.label4.TabIndex = 3;
@@ -518,7 +372,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 112);
+            this.label2.Location = new System.Drawing.Point(6, 96);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(63, 13);
             this.label2.TabIndex = 1;
@@ -527,7 +381,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 134);
+            this.label3.Location = new System.Drawing.Point(6, 118);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(93, 13);
             this.label3.TabIndex = 2;
@@ -536,7 +390,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.pictureBox1);
-            this.groupBox2.Location = new System.Drawing.Point(6, 347);
+            this.groupBox2.Location = new System.Drawing.Point(6, 249);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(260, 192);
@@ -571,7 +425,7 @@
             this.groupBox3.Controls.Add(this.pictureBox_tone3);
             this.groupBox3.Controls.Add(this.pictureBox_tone2);
             this.groupBox3.Controls.Add(this.pictureBox_tone1);
-            this.groupBox3.Location = new System.Drawing.Point(278, 129);
+            this.groupBox3.Location = new System.Drawing.Point(278, 31);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(510, 410);
@@ -731,47 +585,14 @@
             // 
             // timer_stat
             // 
-            this.timer_stat.Interval = 500;
+            this.timer_stat.Interval = 250;
             this.timer_stat.Tick += new System.EventHandler(this.timer_stat_Tick);
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.textBox1);
-            this.groupBox4.Controls.Add(this.button_CommTest);
-            this.groupBox4.Location = new System.Drawing.Point(278, 31);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(510, 89);
-            this.groupBox4.TabIndex = 9;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "接続テスト";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Font = new System.Drawing.Font("Consolas", 8F);
-            this.textBox1.Location = new System.Drawing.Point(141, 18);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(363, 65);
-            this.textBox1.TabIndex = 1;
-            // 
-            // button_CommTest
-            // 
-            this.button_CommTest.Location = new System.Drawing.Point(6, 18);
-            this.button_CommTest.Name = "button_CommTest";
-            this.button_CommTest.Size = new System.Drawing.Size(129, 23);
-            this.button_CommTest.TabIndex = 0;
-            this.button_CommTest.Text = "50H CommTest";
-            this.button_CommTest.UseVisualStyleBackColor = true;
-            this.button_CommTest.Click += new System.EventHandler(this.communicationTest_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(795, 547);
-            this.Controls.Add(this.groupBox4);
+            this.ClientSize = new System.Drawing.Size(795, 447);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -806,8 +627,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_tone3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_tone2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_tone1)).EndInit();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -824,27 +643,13 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolStripButton_reset;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label_readError;
-        private System.Windows.Forms.Label label_burstWriteError;
-        private System.Windows.Forms.Label label_writeError;
-        private System.Windows.Forms.Label label_failedReadBytes;
-        private System.Windows.Forms.Label label_failedBurstWriteBytes;
-        private System.Windows.Forms.Label label_failedWriteBytes;
         private System.Windows.Forms.Label label_readCommands;
         private System.Windows.Forms.Label label_burstWriteCommands;
         private System.Windows.Forms.Label label_writeCommands;
         private System.Windows.Forms.Label label_readBytes;
         private System.Windows.Forms.Label label_burstWriteBytes;
         private System.Windows.Forms.Label label_writeBytes;
-        private System.Windows.Forms.Label label_serialPortBaudRate;
-        private System.Windows.Forms.Label label_serialPortName;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label_interfaceName;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
@@ -855,7 +660,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer timer_stat;
-        private System.Windows.Forms.ToolStripComboBox toolStripComboBox_baudRate;
+        private System.Windows.Forms.ToolStripComboBox toolStripComboBox_interface;
         private System.Windows.Forms.ToolStripButton toolStripButton_softReset;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.PictureBox pictureBox_tone1;
@@ -874,9 +679,10 @@
         private System.Windows.Forms.PictureBox pictureBox_tone5;
         private System.Windows.Forms.PictureBox pictureBox_tone4;
         private System.Windows.Forms.PictureBox pictureBox_tone3;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button_CommTest;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label_enteredSection;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
     }
 }
 
