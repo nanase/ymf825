@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Ymf825.IO;
 
 namespace Ymf825
@@ -7,6 +8,7 @@ namespace Ymf825
     /// YMF825 と通信するための機能を提供します。
     /// </summary>
     /// <inheritdoc />
+    [DataContract]
     public abstract class Ymf825 : IDisposable
     {
         #region -- Private Fields --

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Ymf825
@@ -6,6 +7,7 @@ namespace Ymf825
     /// <summary>
     /// YMF825 のレジスタ命令を抽象化し、各種操作を提供します。
     /// </summary>
+    [DataContract]
     public class Ymf825Driver
     {
         #region -- Private Fields --
