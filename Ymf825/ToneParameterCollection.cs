@@ -73,11 +73,15 @@ namespace Ymf825
 
             if (offset < 0 || offset >= buffer.Length)
                 throw new ArgumentOutOfRangeException(nameof(offset));
-
+            
             if (targetToneNumber < 0 || targetToneNumber > 15)
                 throw new IndexOutOfRangeException();
 
             var maxToneNumber = targetToneNumber + 1;
+            var requiredLength = 1 + 30 * maxToneNumber + 4;
+
+            if (offset + requiredLength > buffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(buffer), $"バッファの長さが足りません。{requiredLength} バイト必要です。");
 
             // start header
             buffer[offset] = (byte)(0x80 + maxToneNumber);
@@ -92,7 +96,7 @@ namespace Ymf825
             buffer[offset + 1 + 30 * maxToneNumber + 2] = 0x81;
             buffer[offset + 1 + 30 * maxToneNumber + 3] = 0x80;
 
-            return 1 + 30 * maxToneNumber + 4;
+            return requiredLength;
         }
 
         #endregion
