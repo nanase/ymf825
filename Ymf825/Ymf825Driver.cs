@@ -766,11 +766,20 @@ namespace Ymf825
 
         #region #80 Software test communication (0x50)
 
+        /// <summary>
+        /// 通信テストのためのレジスタを設定します。
+        /// </summary>
+        /// <param name="value">書き込まれる値。</param>
         public void SetSoftwareTestCommunication(byte value)
         {
             SoundChip.Write(0x50, value);
         }
 
+        /// <summary>
+        /// 通信テストのためのレジスタから値を取得します。
+        /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
+        /// <returns>レジスタの値。</returns>
         public byte GetSoftwareTestCommunication(TargetChip chip)
         {
             return SectionForRead(chip, () => SoundChip.Read(0x50));
