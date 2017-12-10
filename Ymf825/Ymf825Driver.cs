@@ -440,6 +440,12 @@ namespace Ymf825
 
         #region #7 CONTENTS_DATA_REG (0x07)
 
+        public void WriteContentsData(ToneParameterCollection toneParameterCollection, int targetToneNumber = 15)
+        {
+            var buffer = new byte[1 + 30 * (targetToneNumber + 1) + 4];
+            toneParameterCollection.Export(buffer, 0, targetToneNumber);
+            WriteContentsData(buffer, 0, buffer.Length);
+        }
         public void WriteContentsData(byte[] data, int offset, int count)
         {
             SoundChip.BurstWrite(0x07, data, offset, count);
