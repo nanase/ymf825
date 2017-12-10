@@ -44,6 +44,14 @@ namespace Ymf825
         /// </summary>
         public bool AutoFlush { get; set; } = true;
 
+        #region -- Public Events --
+
+        public event EventHandler<DataTransferedEventArgs> DataWrote;
+
+        public event EventHandler<DataBurstWriteEventArgs> DataBurstWrote;
+
+        public event EventHandler<DataTransferedEventArgs> DataRead;
+
         #endregion
 
         #region -- Constructors --
@@ -87,6 +95,7 @@ namespace Ymf825
             lock (lockObject)
             {
                 SpiInterface.Write(address, data);
+                DataWrote?.Invoke(this, new DataTransferedEventArgs(CurrentTargetChip, address, data));
 
                 if (AutoFlush)
                     SpiInterface.Flush();
@@ -112,6 +121,8 @@ namespace Ymf825
             {
                 SpiInterface.BurstWrite(address, data, offset, count);
 
+                DataBurstWrote?.Invoke(this, new DataBurstWriteEventArgs(CurrentTargetChip, address, data, offset, count));
+
                 if (AutoFlush)
                     SpiInterface.Flush();
             }
@@ -132,7 +143,13 @@ namespace Ymf825
                 throw new ArgumentOutOfRangeException(nameof(address));
 
             lock (lockObject)
-                return SpiInterface.Read((byte)(address | 0x80));
+            {
+                var result = SpiInterface.Read((byte)(address | 0x80));
+
+                DataRead?.Invoke(this, new DataTransferedEventArgs(CurrentTargetChip, address, result));
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -157,18 +174,18 @@ namespace Ymf825
             if (IsDisposed)
                 throw new ObjectDisposedException(ToString());
 
-            var targetValue = (int) target;
+            var targetValue = (int)target;
 
-            if (targetValue == 0 || targetValue > (int) AvailableChip)
+            if (targetValue == 0 || targetValue > (int)AvailableChip)
                 throw new ArgumentOutOfRangeException(nameof(target));
 
             lock (lockObject)
             {
                 CurrentTargetChip = target;
-                SpiInterface.SetCsTargetPin((byte) (targetValue << 3));
+                SpiInterface.SetCsTargetPin((byte)(targetValue << 3));
             }
         }
-        
+
         /// <inheritdoc />
         public void Dispose()
         {
