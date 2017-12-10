@@ -44,6 +44,38 @@ namespace Ymf825
         /// </summary>
         public bool AutoFlush { get; set; } = true;
 
+        /// <summary>
+        /// レジスタに書き込んだバイト数を取得します。
+        /// </summary>
+        public long WriteBytes { get; private set; }
+
+        /// <summary>
+        /// レジスタに BurstWrite コマンドで書き込んだバイト数を取得します。
+        /// </summary>
+        public long BurstWriteBytes { get; private set; }
+
+        /// <summary>
+        /// レジスタを読み込んだバイト数を取得します。
+        /// </summary>
+        public long ReadBytes { get; private set; }
+
+        /// <summary>
+        /// レジスタに書き込んだ回数を取得します。
+        /// </summary>
+        public long WriteCommandCount { get; private set; }
+
+        /// <summary>
+        /// レジスタに BurstWrite コマンドで書き込んだ回数を取得します。
+        /// </summary>
+        public long BurstWriteCommandCount { get; private set; }
+
+        /// <summary>
+        /// レジスタを読み込んだ回数を取得します。
+        /// </summary>
+        public long ReadCommandCount { get; private set; }
+
+        #endregion
+
         #region -- Public Events --
 
         public event EventHandler<DataTransferedEventArgs> DataWrote;
@@ -95,6 +127,8 @@ namespace Ymf825
             lock (lockObject)
             {
                 SpiInterface.Write(address, data);
+                WriteBytes += 2;
+                WriteCommandCount++;
                 DataWrote?.Invoke(this, new DataTransferedEventArgs(CurrentTargetChip, address, data));
 
                 if (AutoFlush)
@@ -121,6 +155,10 @@ namespace Ymf825
             {
                 SpiInterface.BurstWrite(address, data, offset, count);
 
+                WriteBytes++;
+                BurstWriteBytes += count;
+                BurstWriteCommandCount++;
+                
                 DataBurstWrote?.Invoke(this, new DataBurstWriteEventArgs(CurrentTargetChip, address, data, offset, count));
 
                 if (AutoFlush)
@@ -145,6 +183,10 @@ namespace Ymf825
             lock (lockObject)
             {
                 var result = SpiInterface.Read((byte)(address | 0x80));
+
+                WriteBytes++;
+                ReadBytes++;
+                ReadCommandCount++;
 
                 DataRead?.Invoke(this, new DataTransferedEventArgs(CurrentTargetChip, address, result));
 

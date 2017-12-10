@@ -194,6 +194,11 @@ namespace Ymf825
             set => sleepAction = value ?? Thread.Sleep;
         }
 
+        /// <summary>
+        /// セクションに突入した回数を取得します。
+        /// </summary>
+        public long EnteredSectionCount { get; private set; }
+
         #endregion
 
         #region -- Constructors --
@@ -283,6 +288,7 @@ namespace Ymf825
             if (SectionMode)
             {
                 Monitor.Enter(lockObject);
+                EnteredSectionCount++;
                 sectionThread = Thread.CurrentThread;
             }
 
