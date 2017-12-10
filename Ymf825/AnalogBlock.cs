@@ -2,6 +2,9 @@
 
 namespace Ymf825
 {
+    /// <summary>
+    /// YMF825 の物理ブロックを表す列挙体です。
+    /// </summary>
     [Flags]
     public enum AnalogBlock : byte
     {
@@ -14,14 +17,17 @@ namespace Ymf825
         /// VREF および IREF ブロック。
         /// </summary>
         Ap0 = 0x01,
+
         /// <summary>
         /// SPAMP および SPOUT1 ブロック。
         /// </summary>
         Ap1 = 0x02,
+
         /// <summary>
         /// SPAMP および SPOUT2 ブロック。
         /// </summary>
         Ap2 = 0x04,
+
         /// <summary>
         /// DAC ブロック。
         /// </summary>

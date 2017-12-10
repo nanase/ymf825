@@ -1,5 +1,8 @@
 ﻿namespace Ymf825
 {
+    /// <summary>
+    /// YMF825 の DAC アンプの増幅率を表す列挙体です。
+    /// </summary>
     public enum Gain : byte
     {
         /// <summary>

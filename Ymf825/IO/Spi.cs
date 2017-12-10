@@ -6,6 +6,10 @@ using System.Threading;
 
 namespace Ymf825.IO
 {
+    /// <summary>
+    /// USB を介して SPI を使用するための機能を提供します。
+    /// </summary>
+    /// <inheritdoc cref="IDisposable"/>
     public class Spi : IDisposable
     {
         #region -- Extern Methods --
@@ -80,8 +84,14 @@ namespace Ymf825.IO
 
         #region -- Public Properties --
 
+        /// <summary>
+        /// 利用可能なデバイスの数を取得します。
+        /// </summary>
         public static int DeviceCount => FT_CreateDeviceInfoList(out var numDevs) != FtStatus.FT_OK ? 0 : (int)numDevs;
 
+        /// <summary>
+        /// このインスタンスが破棄されたかを表す真偽値を取得します。
+        /// </summary>
         public bool IsDisposed { get; private set; }
 
         #endregion
@@ -93,6 +103,13 @@ namespace Ymf825.IO
             DllDirectorySwitcher.Apply();
         }
 
+        /// <summary>
+        /// パラメータを指定して新しい <see cref="Spi"/> クラスのインスタンスを初期化します。
+        /// </summary>
+        /// <param name="deviceIndex">デバイスのインデクス。</param>
+        /// <param name="csEnableLevelHigh">CS ピンを有効にする際の IO レベルを表す真偽値。
+        /// true のとき、High レベル。false のとき、Low レベル。</param>
+        /// <param name="csPin">FT シリーズにおける CS ピン位置を表す整数値。</param>
         public Spi(int deviceIndex, bool csEnableLevelHigh, byte csPin)
         {
             CheckStatus(FT_Open((uint)deviceIndex, out handle));
@@ -106,7 +123,11 @@ namespace Ymf825.IO
         #endregion
 
         #region -- Public Methods --
-        
+
+        /// <summary>
+        /// CS ピンを有効にする際の対象となる、ピン位置を表す整数値を設定します。
+        /// </summary>
+        /// <param name="pin">ピン位置を表す整数値。有効範囲は 0x08 から 0xf8 です。</param>
         public void SetCsTargetPin(byte pin)
         {
             if (IsDisposed)
@@ -118,6 +139,9 @@ namespace Ymf825.IO
             csTargetPin = pin;
         }
 
+        /// <summary>
+        /// デバイスの送信キューをフラッシュし、コマンドを即時に実行します。
+        /// </summary>
         public void Flush()
         {
             if (IsDisposed)
@@ -127,6 +151,11 @@ namespace Ymf825.IO
             SendBuffer();
         }
 
+        /// <summary>
+        /// アドレスとデータを書き込むコマンドを送信キューに追加します。
+        /// </summary>
+        /// <param name="address">アドレスを表す 1 バイトの整数値。</param>
+        /// <param name="data">データを表す 1 バイトの整数値。</param>
         public void Write(byte address, byte data)
         {
             if (IsDisposed)
@@ -140,6 +169,13 @@ namespace Ymf825.IO
             QueueBufferCsDisable();
         }
 
+        /// <summary>
+        /// アドレスと可変長のデータを書き込むコマンドを送信キューに追加します。
+        /// </summary>
+        /// <param name="address">アドレスを表す 1 バイトの整数値。</param>
+        /// <param name="data">データが格納されている <see cref="byte"/> 型の配列。</param>
+        /// <param name="offset">配列を読み出しを開始するオフセット値。</param>
+        /// <param name="count">配列から読み出すバイト数。</param>
         public void BurstWrite(byte address, byte[] data, int offset, int count)
         {
             if (IsDisposed)
@@ -163,6 +199,12 @@ namespace Ymf825.IO
             QueueBufferCsDisable();
         }
 
+        /// <summary>
+        /// アドレスを指定して SPI デバイスから 1 バイトを読み出します。
+        /// このコマンドは即時に実行されます。
+        /// </summary>
+        /// <param name="address">アドレスを表す 1 バイトの整数値。</param>
+        /// <returns>SPI デバイスから返却されたデータ。</returns>
         public byte Read(byte address)
         {
             if (IsDisposed)
@@ -191,11 +233,16 @@ namespace Ymf825.IO
             return ReadRaw()[1];
         }
 
+        /// <inheritdoc cref="IDisposable.Dispose"/>
         public void Dispose()
         {
             Dispose(true);
         }
 
+        /// <summary>
+        /// 利用可能なデバイスのリストを取得します。
+        /// </summary>
+        /// <returns>利用可能なデバイスが格納された、<see cref="DeviceInfo"/>クラスの配列。</returns>
         public static DeviceInfo[] GetDeviceInfoList()
         {
             var devNums = (uint)DeviceCount;

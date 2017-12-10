@@ -3,6 +3,10 @@ using Ymf825.IO;
 
 namespace Ymf825
 {
+    /// <summary>
+    /// YMF825 と通信するための機能を提供します。
+    /// </summary>
+    /// <inheritdoc />
     public abstract class Ymf825 : IDisposable
     {
         #region -- Private Fields --
@@ -13,14 +17,29 @@ namespace Ymf825
 
         #region -- Public Properties --
 
+        /// <summary>
+        /// YMF825 との通信に使われる SPI インタフェースのオブジェクトを取得します。
+        /// </summary>
         public Ymf825Spi SpiInterface { get; }
 
+        /// <summary>
+        /// このオブジェクトが破棄されたかを表す真偽値を取得します。
+        /// </summary>
         public bool IsDisposed { get; protected set; }
 
+        /// <summary>
+        /// サポートされている YMF825 の組み合わせを表す <see cref="TargetChip"/> 列挙体の組み合わせを取得します。
+        /// </summary>
         public abstract TargetChip AvailableChip { get; }
 
+        /// <summary>
+        /// 書き込み命令で対象となる、現在の YMF825 の組み合わせを表す <see cref="TargetChip"/> 列挙体の組み合わせを取得します。
+        /// </summary>
         public TargetChip CurrentTargetChip { get; private set; }
 
+        /// <summary>
+        /// 書き込み命令を即時に送信し、YMF825 に実行させるかを表す真偽値を取得します。
+        /// </summary>
         public bool AutoFlush { get; set; } = true;
 
         #endregion
@@ -38,6 +57,9 @@ namespace Ymf825
 
         #region -- Public Methods --
 
+        /// <summary>
+        /// 書き込み命令の送信キューをフラッシュし、YMF825 に即時に実行させます。
+        /// </summary>
         public void Flush()
         {
             if (IsDisposed)
@@ -47,6 +69,11 @@ namespace Ymf825
                 SpiInterface.Flush();
         }
 
+        /// <summary>
+        /// アドレスとデータの書き込み命令を送信キューに追加します。
+        /// </summary>
+        /// <param name="address">YMF825 のレジスタ番号。範囲は 0x00 から 0x7f です。</param>
+        /// <param name="data">レジスタに書き込まれるデータ。</param>
         public virtual void Write(byte address, byte data)
         {
             if (IsDisposed)
@@ -64,6 +91,13 @@ namespace Ymf825
             }
         }
 
+        /// <summary>
+        /// アドレスと可変長データの書き込み命令を送信キューに追加します。
+        /// </summary>
+        /// <param name="address">YMF825 のレジスタ番号。範囲は 0x00 から 0x7f です。</param>
+        /// <param name="data">可変長データが格納された <see cref="byte"/> 型の配列。</param>
+        /// <param name="offset">配列の読み出しを開始するインデクス。</param>
+        /// <param name="count">配列を読み出すバイト数。</param>
         public virtual void BurstWrite(byte address, byte[] data, int offset, int count)
         {
             if (IsDisposed)
@@ -81,6 +115,12 @@ namespace Ymf825
             }
         }
 
+        /// <summary>
+        /// 指定したアドレスを読み出す命令を実行します。
+        /// この命令は即時に実行されます。
+        /// </summary>
+        /// <param name="address">YMF825 のレジスタ番号。範囲は 0x00 から 0x7f です。</param>
+        /// <returns>YMF825 から返されたデータ。</returns>
         public virtual byte Read(byte address)
         {
             if (IsDisposed)
@@ -93,6 +133,10 @@ namespace Ymf825
                 return SpiInterface.Read((byte)(address | 0x80));
         }
 
+        /// <summary>
+        /// YMF825 をハードウェアリセットします。
+        /// この命令は即時に実行されます。
+        /// </summary>
         public virtual void ResetHardware()
         {
             if (IsDisposed)
@@ -102,6 +146,10 @@ namespace Ymf825
                 SpiInterface.ResetHardware();
         }
 
+        /// <summary>
+        /// 書き込み命令の対象となる YMF825 の組み合わせを設定します。
+        /// </summary>
+        /// <param name="target">YMF825 の組み合わせが格納された <see cref="TargetChip"/> 列挙体の値。</param>
         public void ChangeTargetDevice(TargetChip target)
         {
             if (IsDisposed)
@@ -118,7 +166,8 @@ namespace Ymf825
                 SpiInterface.SetCsTargetPin((byte) (targetValue << 3));
             }
         }
-
+        
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
