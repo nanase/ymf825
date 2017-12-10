@@ -21,58 +21,11 @@ namespace TestConsoleApp
 
                 Console.WriteLine("Software Reset");
                 driver.ResetSoftware();
-                
+
                 {
-                    var tones = new ToneParameterCollection();
-                    {
-                        var tone = tones[0];
-                        tone.BasicOctave = 0;
-                        tone.LfoFrequency = 2;
-                        tone.Algorithm = 3;
-
-                        tone.Operator1.ReleaseRate = 6;
-                        tone.Operator1.DecayRate = 15;
-                        tone.Operator1.AttackRate = 15;
-                        tone.Operator1.SustainLevel = 4;
-                        tone.Operator1.TotalLevel = 0;
-                        tone.Operator1.KeyScalingLevel = 3;
-                        tone.Operator1.MagnificationOfFrequency = 0;
-                        tone.Operator1.WaveShape = 1;
-                        tone.Operator1.FeedbackLevel = 4;
-
-                        tone.Operator2.ReleaseRate = 6;
-                        tone.Operator2.DecayRate = 15;
-                        tone.Operator2.AttackRate = 10;
-                        tone.Operator2.TotalLevel = 3;
-                        tone.Operator2.KeyScalingLevel = 2;
-                        tone.Operator2.VibratoDepth = 1;
-                        tone.Operator2.EnableVibrato = true;
-                        tone.Operator2.MagnificationOfFrequency = 1;
-                        tone.Operator2.WaveShape = 1;
-
-                        tone.Operator3.ReleaseRate = 2;
-                        tone.Operator3.DecayRate = 15;
-                        tone.Operator3.AttackRate = 15;
-                        tone.Operator3.SustainLevel = 3;
-                        tone.Operator3.TotalLevel = 38;
-                        tone.Operator3.KeyScalingLevel = 3;
-                        tone.Operator3.MagnificationOfFrequency = 4;
-                        tone.Operator3.WaveShape = 0;
-                        tone.Operator3.FeedbackLevel = 4;
-
-                        tone.Operator4.ReleaseRate = 10;
-                        tone.Operator4.DecayRate = 15;
-                        tone.Operator4.AttackRate = 10;
-                        tone.Operator4.SustainLevel = 0;
-                        tone.Operator4.TotalLevel = 3;
-                        tone.Operator4.KeyScalingLevel = 2;
-                        tone.Operator4.EnableVibrato = true;
-                        tone.Operator4.MagnificationOfFrequency = 2;
-                        tone.Operator4.WaveShape = 0;
-                    }
-
                     Console.WriteLine("Tone Init");
-
+                    var tones = new ToneParameterCollection { [0] = ToneParameter.GetSine() };
+                    
                     driver.Section(() =>
                     {
                         driver.WriteContentsData(tones, 0);
@@ -85,7 +38,7 @@ namespace TestConsoleApp
                         driver.SetSequencerSetting(SequencerSetting.Reset);
 
                         driver.SetToneFlag(0, false, true, true);
-                        driver.SetChannelVolume(28, true);
+                        driver.SetChannelVolume(31, true);
                         driver.SetVibratoModuration(0);
                         driver.SetFrequencyMultiplier(1, 0);
                     });
