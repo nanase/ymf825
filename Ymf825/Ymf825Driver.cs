@@ -288,6 +288,9 @@ namespace Ymf825
 
         public void ResetSoftware()
         {
+            if (Monitor.IsEntered(lockObject))
+                throw new InvalidOperationException("このメソッドはセクション内で実行できません。");
+
             BeginSection();
             {
                 SetPowerRailSelection(true);
