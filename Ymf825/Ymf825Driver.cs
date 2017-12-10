@@ -362,7 +362,7 @@ namespace Ymf825
             Section(() =>
             {
                 SetAnalogBlockPowerDown(AnalogBlock.None);
-                SetMasterVolume(0x3f);
+                SetMasterVolume(0x38);
                 SetVolumeInterpolationSetting(false, 0x03, 0x03, 0x03);
                 SetInterporationInMuteState(true);
                 SetGain(Gain.Level75);
@@ -947,7 +947,7 @@ namespace Ymf825
 
             return EnvelopeRateTimeTable[index];
         }
-
+        
         #endregion
     }
 }
