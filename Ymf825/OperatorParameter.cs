@@ -2,6 +2,9 @@
 
 namespace Ymf825
 {
+    /// <summary>
+    /// FM音源のオペレータのパラメータを格納したクラスです。
+    /// </summary>
     [Serializable]
     public class OperatorParameter
     {

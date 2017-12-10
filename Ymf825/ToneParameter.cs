@@ -2,6 +2,9 @@
 
 namespace Ymf825
 {
+    /// <summary>
+    /// トーンパラメータを格納したクラスです。
+    /// </summary>
     [Serializable]
     public class ToneParameter
     {

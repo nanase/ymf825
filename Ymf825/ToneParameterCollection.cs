@@ -2,6 +2,9 @@
 
 namespace Ymf825
 {
+    /// <summary>
+    /// 各ボイスのトーンパラメータを格納するクラスです。
+    /// </summary>
     [Serializable]
     public class ToneParameterCollection
     {
@@ -13,6 +16,11 @@ namespace Ymf825
 
         #region -- Public Indexer --
 
+        /// <summary>
+        /// 指定したインデクスのトーンパラメータオブジェクトを取得または設定します。
+        /// </summary>
+        /// <param name="index">ボイス番号。有効範囲は 0 から 15 です。</param>
+        /// <returns><see cref="ToneParameter"/> クラスのインスタンス。</returns>
         public ToneParameter this[int index]
         {
             get
@@ -35,6 +43,9 @@ namespace Ymf825
 
         #region -- Constructors --
 
+        /// <summary>
+        /// 新しい <see cref="ToneParameterCollection"/> クラスのインスタンスを初期化します。
+        /// </summary>
         public ToneParameterCollection()
         {
             parameters = new ToneParameter[16];
@@ -47,6 +58,14 @@ namespace Ymf825
 
         #region -- Public Methods --
 
+        /// <summary>
+        /// オブジェクトの内容を配列に書き出します。
+        /// </summary>
+        /// <param name="buffer">書き出し先の <see cref="byte"/> 型の配列。</param>
+        /// <param name="offset">書き出しを開始するインデクス。</param>
+        /// <param name="targetToneNumber">書き出し対象となるトーンパラメータのボイス番号。
+        /// 指定された番号までのトーンパラメータが書き出されます。</param>
+        /// <returns>書き出されたバイト数。</returns>
         public int Export(byte[] buffer, int offset, int targetToneNumber = 15)
         {
             if (buffer == null)

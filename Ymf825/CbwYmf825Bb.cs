@@ -1,5 +1,9 @@
 ﻿namespace Ymf825
 {
+    /// <summary>
+    /// YMF825Boardステレオ化基板 (CBW-YMF825-BB) と通信するための機能を提供します。
+    /// </summary>
+    /// <inheritdoc />
     public class CbwYmf825Bb : Ymf825
     {
         #region -- Private Fields --
@@ -10,13 +14,18 @@
         #endregion
 
         #region -- Public Properties --
-
+        
+        /// <inheritdoc />
         public override TargetChip AvailableChip => AllAvailableChip;
 
         #endregion
 
         #region -- Constructors --
 
+        /// <summary>
+        /// パラメータを指定して新しい <see cref="CbwYmf825Bb"/> クラスのインスタンスを初期化します。
+        /// </summary>
+        /// <param name="spiDeviceIndex">接続する SPI デバイスの番号。</param>
         public CbwYmf825Bb(int spiDeviceIndex)
             : base(spiDeviceIndex, CsPin)
         {
