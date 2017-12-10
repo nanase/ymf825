@@ -176,7 +176,7 @@ namespace Ymf825
         public Action<int> SleepAction
         {
             get => sleepAction;
-            set => sleepAction = value ?? (i => { });
+            set => sleepAction = value ?? Thread.Sleep;
         }
 
         #endregion
