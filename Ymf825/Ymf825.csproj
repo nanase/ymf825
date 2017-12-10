@@ -38,7 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalogBlock.cs" />
-    <Compile Include="CbYmf825Bb.cs" />
+    <Compile Include="CbwYmf825Bb.cs" />
     <Compile Include="Gain.cs" />
     <Compile Include="IO\DeviceInfo.cs" />
     <Compile Include="IO\DllDirectorySwitcher.cs" />

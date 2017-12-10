@@ -14,7 +14,7 @@ namespace TestConsoleApp
             if (Spi.DeviceCount < 1)
                 return;
 
-            using (var ymf825 = new CbYmf825Bb(0))
+            using (var ymf825 = new CbwYmf825Bb(0))
             {
                 var driver = new Ymf825Driver(ymf825);
                 Console.WriteLine("Software Reset");

@@ -1,6 +1,6 @@
 ﻿namespace Ymf825
 {
-    public class CbYmf825Bb : Ymf825
+    public class CbwYmf825Bb : Ymf825
     {
         #region -- Private Fields --
 
@@ -17,7 +17,7 @@
 
         #region -- Constructors --
 
-        public CbYmf825Bb(int spiDeviceIndex)
+        public CbwYmf825Bb(int spiDeviceIndex)
             : base(spiDeviceIndex, CsPin)
         {
         }
