@@ -112,6 +112,97 @@ namespace Ymf825
             Operator4.Export(buffer, offset + 23);
         }
 
+        /// <summary>
+        /// 正弦波を出力するトーンパラメータを取得します。
+        /// </summary>
+        /// <returns>正弦波を出力するトーンパラメータオブジェクト。</returns>
+        public static ToneParameter GetSine()
+        {
+            var tone = new ToneParameter
+            {
+                BasicOctave = 1,
+                Algorithm = 1
+            };
+            
+            tone.Operator2.TotalLevel = 0;
+            tone.Operator2.AttackRate = 8;
+            tone.Operator2.DecayRate = 15;
+            tone.Operator2.SustainRate = 0;
+            tone.Operator2.ReleaseRate = 8;
+            tone.Operator2.MagnificationOfFrequency = 1;
+
+            return tone;
+        }
+
+        /// <summary>
+        /// 矩形波を出力するトーンパラメータを取得します。
+        /// </summary>
+        /// <returns>矩形波を出力するトーンパラメータオブジェクト。</returns>
+        public static ToneParameter GetSquare()
+        {
+            var tone = new ToneParameter
+            {
+                BasicOctave = 1,
+                Algorithm = 1
+            };
+
+            tone.Operator2.TotalLevel = 0;
+            tone.Operator2.AttackRate = 8;
+            tone.Operator2.DecayRate = 15;
+            tone.Operator2.SustainRate = 0;
+            tone.Operator2.ReleaseRate = 8;
+            tone.Operator2.MagnificationOfFrequency = 1;
+            tone.Operator2.WaveShape = 6;
+
+            return tone;
+        }
+
+        /// <summary>
+        /// 鋸歯波を出力するトーンパラメータを取得します。
+        /// </summary>
+        /// <returns>鋸歯波を出力するトーンパラメータオブジェクト。</returns>
+        public static ToneParameter GetSawtooth()
+        {
+            var tone = new ToneParameter
+            {
+                BasicOctave = 1,
+                Algorithm = 1
+            };
+
+            tone.Operator2.TotalLevel = 0;
+            tone.Operator2.AttackRate = 8;
+            tone.Operator2.DecayRate = 15;
+            tone.Operator2.SustainRate = 0;
+            tone.Operator2.ReleaseRate = 8;
+            tone.Operator2.MagnificationOfFrequency = 1;
+            tone.Operator2.WaveShape = 24;
+
+            return tone;
+        }
+
+        /// <summary>
+        /// 三角波を出力するトーンパラメータを取得します。
+        /// </summary>
+        /// <returns>三角波を出力するトーンパラメータオブジェクト。</returns>
+        public static ToneParameter GetTriangle()
+        {
+            var tone = new ToneParameter
+            {
+                BasicOctave = 1,
+                Algorithm = 1
+            };
+
+            tone.Operator2.TotalLevel = 0;
+            tone.Operator2.AttackRate = 8;
+            tone.Operator2.DecayRate = 15;
+            tone.Operator2.SustainRate = 0;
+            tone.Operator2.ReleaseRate = 8;
+            tone.Operator2.MagnificationOfFrequency = 1;
+            tone.Operator2.WaveShape = 16;
+
+            return tone;
+        }
+
         #endregion
     }
 }
