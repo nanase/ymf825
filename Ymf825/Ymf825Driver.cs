@@ -3,6 +3,9 @@ using System.Threading;
 
 namespace Ymf825
 {
+    /// <summary>
+    /// YMF825 のレジスタ命令を抽象化し、各種操作を提供します。
+    /// </summary>
     public class Ymf825Driver
     {
         #region -- Private Fields --
@@ -169,10 +172,20 @@ namespace Ymf825
 
         #region -- Public Properties --
 
+        /// <summary>
+        /// レジスタの書き込み先となる YMF825 インタフェースオブジェクトを取得します。
+        /// </summary>
         public Ymf825 SoundChip { get; }
 
+        /// <summary>
+        /// セクションモードであるかを表す真偽値を取得します。
+        /// </summary>
         public bool SectionMode { get; private set; }
 
+        /// <summary>
+        /// スリープに使われるメソッドを取得または設定します。
+        /// スリープ時間の単位はミリ秒 (ms) です。
+        /// </summary>
         public Action<int> SleepAction
         {
             get => sleepAction;
@@ -183,6 +196,10 @@ namespace Ymf825
 
         #region -- Constructors --
 
+        /// <summary>
+        /// YMF825 インタフェースを指定して新しい <see cref="Ymf825Driver"/> クラスのインスタンスを初期化します。
+        /// </summary>
+        /// <param name="soundChip">レジスタの読み書き先となる YMF825 インタフェースオブジェクト。</param>
         public Ymf825Driver(Ymf825 soundChip)
         {
             SoundChip = soundChip;
@@ -198,6 +215,10 @@ namespace Ymf825
 
         #region -- Public Methods --
 
+        /// <summary>
+        /// セクションモードを有効にします。
+        /// このモードが有効であるとき、自動フラッシュは無効になり、<see cref="EndSection"/> メソッドが呼ばれるまでレジスタ書き込みが保留されます。
+        /// </summary>
         public void EnableSectionMode()
         {
             if (SectionMode)
@@ -207,6 +228,10 @@ namespace Ymf825
             SoundChip.AutoFlush = false;
         }
 
+        /// <summary>
+        /// セクションモードを無効にします。
+        /// このモードが無効であるとき、自動フラッシュが有効になり、各レジスタ書き込み命令は即時に実行されます。
+        /// </summary>
         public void DisableSectionMode()
         {
             if (!SectionMode)
@@ -220,6 +245,11 @@ namespace Ymf825
                 Monitor.Exit(lockObject);
         }
 
+        /// <summary>
+        /// 指定されたメソッドをセクション内で実行し、セクションを終了します。
+        /// </summary>
+        /// <param name="action">セクション内で実行されるメソッド。</param>
+        /// <param name="sleep">セクション終了後に待機する時間。単位はミリ秒 (ms) です。</param>
         public void Section(Action action, int sleep = 0)
         {
             BeginSection();
@@ -227,6 +257,13 @@ namespace Ymf825
             EndSection(sleep);
         }
 
+        /// <summary>
+        /// 指定されたメソッドをセクション内で実行し、セクションを終了します。
+        /// </summary>
+        /// <param name="target">セクション内で実行されるレジスタ書き込みの対象となる、
+        /// YMF825Board の組み合わせが格納された <see cref="TargetChip"/> 列挙体。</param>
+        /// <param name="action">セクション内で実行されるメソッド。</param>
+        /// <param name="sleep">セクション終了後に待機する時間。単位はミリ秒 (ms) です。</param>
         public void Section(TargetChip target, Action action, int sleep = 0)
         {
             BeginSection(target);
@@ -234,6 +271,11 @@ namespace Ymf825
             EndSection(sleep);
         }
 
+        /// <summary>
+        /// セクションを開始します。
+        /// セクションが開始されると、他のスレッドによるセクションの開始は待機状態となります。
+        /// </summary>
+        /// <param name="target">このセクションが対象とする YMF825Board の組み合わせを表す <see cref="TargetChip"/> 列挙体。</param>
         public void BeginSection(TargetChip target = TargetChip.None)
         {
             if (SectionMode)
@@ -249,6 +291,10 @@ namespace Ymf825
             SoundChip.ChangeTargetDevice(target);
         }
 
+        /// <summary>
+        /// セクションを終了し、保留されていた書き込み命令を実行します。
+        /// </summary>
+        /// <param name="sleep">セクション終了後に待機する時間。単位はミリ秒 (ms) です。</param>
         public void EndSection(int sleep = 0)
         {
             SoundChip.Flush();
@@ -286,6 +332,10 @@ namespace Ymf825
 
         #region Software Reset
 
+        /// <summary>
+        /// ソフトリセットを実行します。
+        /// このメソッドはセクション内で実行できません。
+        /// </summary>
         public void ResetSoftware()
         {
             if (Monitor.IsEntered(lockObject))
@@ -350,7 +400,9 @@ namespace Ymf825
 
         /// <summary>
         /// 内部マスタークロック (CLKE) の状態をデバイスから取得します。
+        /// このメソッドはセクション内で実行できません。
         /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
         /// <returns>true のとき、クロック有効。false のとき、クロック無効。</returns>
         public bool GetClockEnable(TargetChip chip)
         {
@@ -372,7 +424,9 @@ namespace Ymf825
 
         /// <summary>
         /// レジスタのリセット状態 (ALRST) をデバイスから取得します。
+        /// このメソッドはセクション内で実行できません。
         /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
         /// <returns>true のとき、リセット状態。false のとき、非リセット状態。</returns>
         public bool GetAllRegisterReset(TargetChip chip)
         {
@@ -394,8 +448,10 @@ namespace Ymf825
 
         /// <summary>
         /// アナログブロックの Power-down 状態を取得します。
+        /// このメソッドはセクション内で実行できません。
         /// </summary>
-        /// <returns>Power-down 状態に設定されたブロックを表す <see cref="AnalogBlock"/> 構造体の値。</returns>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
+        /// <returns>Power-down 状態に設定されたブロックを表す <see cref="AnalogBlock"/> 列挙体。</returns>
         public AnalogBlock GetAnalogBlockPowerDown(TargetChip chip)
         {
             return SectionForRead(chip, () => (AnalogBlock)(SoundChip.Read(0x02) & 0x0f));
@@ -408,7 +464,7 @@ namespace Ymf825
         /// <summary>
         /// 出力のゲインレベルを設定します。
         /// </summary>
-        /// <param name="gainLevel">ゲインレベルを表す <see cref="Gain"/> 構造体の値。</param>
+        /// <param name="gainLevel">ゲインレベルを表す <see cref="Gain"/> 列挙体。</param>
         public void SetGain(Gain gainLevel)
         {
             SoundChip.Write(0x03, (byte)((int)gainLevel & 0x03));
@@ -416,7 +472,9 @@ namespace Ymf825
 
         /// <summary>
         /// 出力のゲインレベルを取得します。
+        /// このメソッドはセクション内で実行できません。
         /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
         /// <returns>ゲインレベルを表す <see cref="Gain"/> 構造体の値。</returns>
         public Gain GetGein(TargetChip chip)
         {
@@ -429,7 +487,9 @@ namespace Ymf825
 
         /// <summary>
         /// ハードウェアの ID を取得します。
+        /// このメソッドはセクション内で実行できません。
         /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
         /// <returns>デバイスに割り当てられているハードウェア ID を表す整数値。</returns>
         public int GetHardwareId(TargetChip chip)
         {
@@ -440,12 +500,24 @@ namespace Ymf825
 
         #region #7 CONTENTS_DATA_REG (0x07)
 
+        /// <summary>
+        /// <see cref="ToneParameterCollection"/> オブジェクトを指定して、データ配列を書き込みます。
+        /// </summary>
+        /// <param name="toneParameterCollection">書き込まれる <see cref="ToneParameterCollection"/> オブジェクト。</param>
+        /// <param name="targetToneNumber">書き込み対象のトーン番号。</param>
         public void WriteContentsData(ToneParameterCollection toneParameterCollection, int targetToneNumber = 15)
         {
             var buffer = new byte[1 + 30 * (targetToneNumber + 1) + 4];
             toneParameterCollection.Export(buffer, 0, targetToneNumber);
             WriteContentsData(buffer, 0, buffer.Length);
         }
+
+        /// <summary>
+        /// トーンパラメータのデータ配列を書き込みます。
+        /// </summary>
+        /// <param name="data">トーンパラメータが格納された <see cref="byte"/> 型の配列。</param>
+        /// <param name="offset">読み取りを開始するインデクス。</param>
+        /// <param name="count">読み取るバイト数。</param>
         public void WriteContentsData(byte[] data, int offset, int count)
         {
             SoundChip.BurstWrite(0x07, data, offset, count);
@@ -455,11 +527,21 @@ namespace Ymf825
 
         #region #8 Sequencer Setting (0x08)
 
+        /// <summary>
+        /// シーケンサ設定を設定します。
+        /// </summary>
+        /// <param name="setting">シーケンサ設定の組み合わせを表す <see cref="SequencerSetting"/> 列挙体。</param>
         public void SetSequencerSetting(SequencerSetting setting)
         {
             SoundChip.Write(0x08, (byte)((int)setting & 0xff));
         }
 
+        /// <summary>
+        /// シーケンサ設定を取得します。
+        /// このメソッドはセクション内で実行できません。
+        /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
+        /// <returns>シーケンサ設定の組み合わせを表す <see cref="SequencerSetting"/> 列挙体。</returns>
         public SequencerSetting GetSequencerSetting(TargetChip chip)
         {
             return SectionForRead(chip, () => (SequencerSetting)(SoundChip.Read(0x08) & 0xff));
@@ -818,6 +900,12 @@ namespace Ymf825
             return (block + basicOctave) / 2;
         }
 
+        /// <summary>
+        /// アタック時間を計算します。
+        /// </summary>
+        /// <param name="attackRate">アタック値。</param>
+        /// <param name="rof"><see cref="CalcRof"/> メソッドで算出した Rof 値。</param>
+        /// <returns>アタック時間。単位は秒 (s) です。</returns>
         public static double CalcAttackRateTime(int attackRate, int rof)
         {
             if (attackRate < 0 || attackRate > 15)
@@ -834,6 +922,12 @@ namespace Ymf825
             return AttackRateTimeTable[index];
         }
 
+        /// <summary>
+        /// ディケイ、サスティンまたはリリース時間を計算します。
+        /// </summary>
+        /// <param name="rate">ディケイ、サスティンまたはリリース値。</param>
+        /// <param name="rof"><see cref="CalcRof"/> メソッドで算出した Rof 値。</param>
+        /// <returns>アタック時間。単位は秒 (s) です。</returns>
         public static double CalcEnvelopeRateTime(int rate, int rof)
         {
             if (rate < 0 || rate > 15)
