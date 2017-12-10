@@ -11,6 +11,7 @@ using MidiUtils.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Ymf825;
+using Ymf825Server;
 
 namespace Ymf825MidiDriver
 {
@@ -28,8 +29,7 @@ namespace Ymf825MidiDriver
         public static readonly RoutedCommand ServerConnectionToggleCommand = new RoutedCommand();
         public static readonly RoutedCommand MidiConnectionToggleCommand = new RoutedCommand();
         public static readonly RoutedCommand ToneExportCommand = new RoutedCommand();
-        public static readonly DependencyProperty ServerConnectingProperty = DependencyProperty.Register(nameof(ServerConnecting), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
-        public static readonly DependencyProperty ServerConnectedProperty = DependencyProperty.Register(nameof(ServerConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty SpiConnectedProperty = DependencyProperty.Register(nameof(SpiConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty MidiConnectedProperty = DependencyProperty.Register(nameof(MidiConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty SelectedToneItemProperty = DependencyProperty.Register(nameof(SelectedToneItem), typeof(ToneItem), typeof(MainWindow), new PropertyMetadata(default(ToneItem)));
 
@@ -39,7 +39,7 @@ namespace Ymf825MidiDriver
 
         private readonly ObservableCollection<ToneItem> toneItems;
         private readonly ObservableCollection<string> midiDevices;
-        private IYmf825Client ymf825Client;
+
         private MidiIn midiIn;
         private MidiDriver midiDriver;
 
@@ -59,26 +59,21 @@ namespace Ymf825MidiDriver
             set => SetValue(SelectedToneItemProperty, value);
         }
 
-        public bool ServerConnecting
-        {
-            // ReSharper disable once PossibleNullReferenceException
-            get => (bool)GetValue(ServerConnectingProperty);
-            set => SetValue(ServerConnectingProperty, value);
-        }
-
-        public bool ServerConnected
-        {
-            // ReSharper disable once PossibleNullReferenceException
-            get => (bool)GetValue(ServerConnectedProperty);
-            set => SetValue(ServerConnectedProperty, value);
-        }
-
         public bool MidiConnected
         {
             // ReSharper disable once PossibleNullReferenceException
             get => (bool)GetValue(MidiConnectedProperty);
             set => SetValue(MidiConnectedProperty, value);
         }
+
+        public bool SpiConnected
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            get => (bool)GetValue(SpiConnectedProperty);
+            set => SetValue(SpiConnectedProperty, value);
+        }
+
+        public ServerWindow ServerWindow { get; }
 
         #endregion
 
@@ -87,6 +82,10 @@ namespace Ymf825MidiDriver
         public MainWindow()
         {
             InitializeComponent();
+            ServerWindow = new ServerWindow();
+            ServerWindow.Connected += (sender, args) => SpiConnected = true;
+            ServerWindow.Disconnected += (sender, args) => SpiConnected = false;
+
             toneItems = new ObservableCollection<ToneItem>();
             midiDevices = new ObservableCollection<string>();
             DataContext = toneItems;
@@ -104,12 +103,20 @@ namespace Ymf825MidiDriver
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             isMonitoringChanging = true;
+            ServerWindow.Show();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (!fileChanged)
+            {
+                midiDriver.Stop();
+                midiDriver = null;
+                midiIn.Dispose();
+                midiIn = null;
+                ServerWindow.Close();
                 return;
+            }
 
             var confirm = ConfirmDiscordChanging();
 
@@ -131,6 +138,12 @@ namespace Ymf825MidiDriver
                     e.Cancel = true;
                     return;
             }
+
+            midiDriver.Stop();
+            midiDriver = null;
+            midiIn.Dispose();
+            midiIn = null;
+            ServerWindow.Close();
         }
 
         private void ToneItemsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -296,19 +309,7 @@ namespace Ymf825MidiDriver
 
         private void ServerConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (ServerConnecting)
-            {
-                ServerConnected = false;
-            }
-            else
-            {
-                ServerConnected = Ymf825Client.IsAvailable();
-
-                if (ServerConnected)
-                    ymf825Client = Ymf825Client.GetClient();
-            }
-
-            ServerConnecting = !ServerConnecting;
+            ServerWindow.Visible = !ServerWindow.Visible;
         }
 
         private void MidiConnectionToggleCommand_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -330,8 +331,7 @@ namespace Ymf825MidiDriver
                 try
                 {
                     midiIn = new MidiIn(ComboBoxMidiDevice.SelectedIndex);
-                    midiDriver = new MidiDriver(toneItems, midiIn, ymf825Client);
-                    ymf825Client.ResetSoftware();
+                    midiDriver = new MidiDriver(toneItems, midiIn, ServerWindow.Driver);
                     midiDriver.Start();
                 }
                 catch (Exception ex)

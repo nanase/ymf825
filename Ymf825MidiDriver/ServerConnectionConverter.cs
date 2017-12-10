@@ -6,20 +6,20 @@ using System.Windows.Media.Imaging;
 
 namespace Ymf825MidiDriver
 {
-    [ValueConversion(typeof(bool[]), typeof(string))]
-    class ServerConnectionConverter : IMultiValueConverter
+    [ValueConversion(typeof(bool), typeof(string))]
+    internal class ServerConnectionConverter : IValueConverter
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(values[0] is bool connecting) || !(values[1] is bool connected))
+            if (!(value is bool connected))
                 return Binding.DoNothing;
 
-            return connecting ? (connected ? "Server 接続済" : "Server エラー") : "Server 未接続";
+            return connected ? "YMF825 接続済" : "YMF825 未接続";
         }
 
-        public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return new[] { Binding.DoNothing, Binding.DoNothing };
+            return Binding.DoNothing;
         }
     }
 

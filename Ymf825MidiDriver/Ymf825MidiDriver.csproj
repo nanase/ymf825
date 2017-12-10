@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -42,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -196,6 +200,10 @@
     <ProjectReference Include="..\submodule\MidiUtils\src\MidiUtils.csproj">
       <Project>{76c90e84-9450-4635-897d-2c065f8dfc17}</Project>
       <Name>MidiUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ymf825Server\Ymf825Server.csproj">
+      <Project>{399e3a23-4f60-46a4-8824-be582099e51b}</Project>
+      <Name>Ymf825Server</Name>
     </ProjectReference>
     <ProjectReference Include="..\Ymf825\Ymf825.csproj">
       <Project>{7b92175f-edaf-42bf-88a7-d113c1c40aff}</Project>

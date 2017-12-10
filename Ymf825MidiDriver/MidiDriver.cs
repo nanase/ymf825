@@ -30,20 +30,18 @@ namespace Ymf825MidiDriver
 
         public MidiIn MidiIn { get; }
 
-        public IYmf825Client Ymf825Client { get; }
-
         public Ymf825Driver Driver { get; }
 
         #endregion
 
         #region -- Constructors --
 
-        public MidiDriver(IList<ToneItem> toneItems, MidiIn midiIn, IYmf825Client ymf825Client)
+        public MidiDriver(IList<ToneItem> toneItems, MidiIn midiIn, Ymf825Driver driver)
         {
             ToneItems = toneItems;
             MidiIn = midiIn;
-            Ymf825Client = ymf825Client;
-            Driver = new Ymf825Driver(ymf825Client);
+            Driver = driver;
+            Driver.EnableSectionMode();
 
             for (var i = 0; i < 16; i++)
             {
@@ -68,14 +66,13 @@ namespace Ymf825MidiDriver
             MidiIn.ReceivedMidiEvent += MidiInOnReceivedMidiEvent;
             MidiIn.ReceivedExclusiveMessage += MidiInOnReceivedExclusiveMessage;
             MidiIn.Start();
-            Ymf825Client.ResetHardware();
-            Ymf825Client.ResetSoftware();
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
+            Driver.ResetHardware();
+            Driver.ResetSoftware();
 
-            Driver.SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
-                                       SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
-            Driver.SleepAction(1);
-            Driver.SetSequencerSetting(SequencerSetting.Reset);
+            Driver.Section(() => Driver.SetSequencerSetting(SequencerSetting.AllKeyOff | SequencerSetting.AllMute | SequencerSetting.AllEgReset |
+                                                            SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO), 1);
+
+            Driver.Section(() => Driver.SetSequencerSetting(SequencerSetting.Reset));
         }
 
         public void Stop()
@@ -201,14 +198,14 @@ namespace Ymf825MidiDriver
                 PercussionNoteOn(channel, key, velocity);
                 return;
             }
-            
+
             SendNoteOn(channel, key, velocity);
             noteOnKeys[channel] = key;
         }
 
         private void PercussionNoteOn(int channel, int key, int velocity)
         {
-            var tone = ToneItems.FirstOrDefault(t => 
+            var tone = ToneItems.FirstOrDefault(t =>
                 t.ProgramNumberAssigned && t.ProgramNumber == programNumbers[channel] &&
                 t.PercussionNumberAssigned && t.PercussionNumber == key) ?? new ToneItem();
             SetProgram(channel, tone.ProgramNumber, tone);
@@ -251,8 +248,12 @@ namespace Ymf825MidiDriver
             var correction = corrections[channel] * pitchBends[channel];
 
             Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
-            Driver.SetVoiceNumber(channel);
-            Driver.SetFrequencyMultiplier(integer, fraction);
+
+            Driver.Section(() =>
+            {
+                Driver.SetVoiceNumber(channel);
+                Driver.SetFrequencyMultiplier(integer, fraction);
+            });
         }
 
         // ------
@@ -276,26 +277,36 @@ namespace Ymf825MidiDriver
 
         private void SetVoiceVolume(int channel, bool setVoiceNumber = false)
         {
-            if (setVoiceNumber)
-                Driver.SetVoiceNumber(channel);
-
             var lch = (int)Math.Round(expressions[channel] * volumes[channel] * lchVolumes[channel] * toneVolumes[channel] * 31.0);
             var rch = (int)Math.Round(expressions[channel] * volumes[channel] * rchVolumes[channel] * toneVolumes[channel] * 31.0);
 
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0);
-            Driver.SetVoiceVolume(lch);
+            Driver.Section(TargetChip.Board0, () =>
+            {
+                if (setVoiceNumber)
+                    Driver.SetVoiceNumber(channel);
 
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board1);
-            Driver.SetVoiceVolume(rch);
+                Driver.SetVoiceVolume(lch);
+            });
 
-            Ymf825Client.SetTarget(TargetDevice.Ymf825Board0 | TargetDevice.Ymf825Board1);
+            Driver.Section(TargetChip.Board1, () =>
+            {
+                if (setVoiceNumber)
+                    Driver.SetVoiceNumber(channel);
+
+                Driver.SetVoiceVolume(rch);
+            });
+
             //Console.WriteLine($"Volume: #{channel} - L:{lch}, R:{rch}");
         }
 
         private void SendNoteOff(int channel)
         {
-            Driver.SetVoiceNumber(channel);
-            Driver.SetToneFlag(channel, false, false, false);
+            Driver.Section(() =>
+            {
+                Driver.SetVoiceNumber(channel);
+                Driver.SetToneFlag(channel, false, false, false);
+            });
+
             noteOnKeys[channel] = -1;
         }
 
@@ -308,23 +319,27 @@ namespace Ymf825MidiDriver
             correction *= pitchBends[channel];
             Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
 
-            Driver.SetVoiceNumber(channel);
-            Driver.SetChannelVolume((int)Math.Round(volume * 31.0), false);
-            Driver.SetFrequencyMultiplier(integer, fraction);
-            Driver.SetFnumAndBlock((int)Math.Round(fnum), block);
-            Driver.SetToneFlag(channel, true, false, false);
+            Driver.Section(() =>
+            {
+                Driver.SetVoiceNumber(channel);
+                Driver.SetChannelVolume((int)Math.Round(volume * 31.0), false);
+                Driver.SetFrequencyMultiplier(integer, fraction);
+                Driver.SetFnumAndBlock((int)Math.Round(fnum), block);
+                Driver.SetToneFlag(channel, true, false, false);
+            });
         }
-     
+
         private void SendProgramChange(int channel)
         {
-            var toneBuffer = new byte[512];
-            var toneBufferSize = toneParameterList.Export(toneBuffer, 0, channel);
-            Driver.SetVoiceNumber(channel);
-            Driver.SetSequencerSetting(SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
-            //Driver.SleepAction(1);
-            Driver.SetSequencerSetting(SequencerSetting.Reset);
-            SetVoiceVolume(channel);
-            Driver.WriteContentsData(toneBuffer, 0, toneBufferSize);
+            Driver.Section(() =>
+            {
+                Driver.SetVoiceNumber(channel);
+                Driver.SetSequencerSetting(SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
+                Driver.SetSequencerSetting(SequencerSetting.Reset);
+                Driver.WriteContentsData(toneParameterList, channel);
+            });
+
+            SetVoiceVolume(channel, true);
         }
 
         private void SetPanpot(int channel, double panValue)

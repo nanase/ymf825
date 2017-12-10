@@ -7,7 +7,7 @@
         xmlns:talex="http://schemas.talex-soft.com/2010/xaml/presentation"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="YMF825 MIDI Driver" Height="715" Width="1200" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="YMF825 MIDI Driver" Height="715" Width="1200" ResizeMode="CanMinimize" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
         <local:BoolInvertConverter x:Key="BoolInvertConverter"/>
         <system:String x:Key="Algorithms">0, 1, 2, 3, 4, 5, 6, 7</system:String>
@@ -91,15 +91,9 @@
                 <Separator/>
                 <Button Command="{x:Static local:MainWindow.ServerConnectionToggleCommand}" ToolTip="Ymf825Server">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding ServerConnecting, Converter={StaticResource ServerConnectionImageConverter}, ElementName=Window}" />
-                        <Label Padding="0" Margin="3,0,0,0">
-                            <Label.Content>
-                                <MultiBinding Converter="{StaticResource ServerConnectionConverter}" Mode="OneWay">
-                                    <Binding Path="ServerConnecting" ElementName="Window" />
-                                    <Binding Path="ServerConnected" ElementName="Window" />
-                                </MultiBinding>
-                            </Label.Content>
-                        </Label>
+                        <Image Source="{Binding SpiConnected, Converter={StaticResource ServerConnectionImageConverter}, ElementName=Window, Mode=OneWay}" />
+                        <Label Padding="0" Margin="3,0,0,0"
+                               Content="{Binding SpiConnected, Converter={StaticResource ServerConnectionConverter}, ElementName=Window, Mode=OneWay}" />
                     </StackPanel>
                 </Button>
                 <Separator/>
@@ -108,7 +102,7 @@
                           ItemsSource="{Binding Mode=OneWay}" DropDownOpened="ComboBoxMidiDevice_DropDownOpened"  />
                 <Button ToolTip="MIDI-IN"
                         Command="{x:Static local:MainWindow.MidiConnectionToggleCommand}"
-                        IsEnabled="{Binding ServerConnected, ElementName=Window}"
+                        IsEnabled="{Binding SpiConnected, ElementName=Window}"
                         Style="{StaticResource ElementEnabled}">
                     <Image Source="{Binding MidiConnected, Converter={StaticResource MidiConnectionImageConverter}, ElementName=Window}" />
                 </Button>
