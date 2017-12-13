@@ -336,6 +336,7 @@ namespace Ymf825MidiDriver
                 Driver.SetVoiceNumber(channel);
                 Driver.SetSequencerSetting(SequencerSetting.R_FIFOR | SequencerSetting.R_SEQ | SequencerSetting.R_FIFO);
                 Driver.SetSequencerSetting(SequencerSetting.Reset);
+                Driver.SetVibratoModuration(1);
                 Driver.WriteContentsData(toneParameterList, channel);
             });
 
