@@ -110,9 +110,9 @@ namespace Ymf825MidiDriver
         {
             if (!fileChanged)
             {
-                midiDriver.Stop();
+                midiDriver?.Stop();
                 midiDriver = null;
-                midiIn.Dispose();
+                midiIn?.Dispose();
                 midiIn = null;
                 ServerWindow.Close();
                 return;
