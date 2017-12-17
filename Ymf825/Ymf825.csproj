@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="AnalogBlock.cs" />
     <Compile Include="CbwYmf825Bb.cs" />
+    <Compile Include="Coefficients.cs" />
     <Compile Include="DataBurstWriteEventArgs.cs" />
     <Compile Include="DataTransferedEventArgs.cs" />
     <Compile Include="Gain.cs" />
