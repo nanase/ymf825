@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Ymf825
@@ -10,13 +9,13 @@ namespace Ymf825
     public class Ymf825Driver
     {
         #region -- Private Fields --
-        
+
         private readonly object lockObject = new object();
-        
+
         private Action<int> sleepAction = Thread.Sleep;
-        
+
         private static readonly double[] FnumTable = new double[12];
-        
+
         private static readonly double[] AttackRateTimeTable = {
             double.PositiveInfinity,
             double.PositiveInfinity,
@@ -90,7 +89,7 @@ namespace Ymf825
             0.0,
             0.0
         };
-        
+
         private static readonly double[] EnvelopeRateTimeTable = {
             double.PositiveInfinity,
             double.PositiveInfinity,
@@ -164,9 +163,9 @@ namespace Ymf825
             2.63e-3,
             2.63e-3
         };
-        
+
         private TargetChip previousTargetChip;
-        
+
         private Thread sectionThread;
 
         #endregion
@@ -760,6 +759,46 @@ namespace Ymf825
 
         #region #32,33,34 W_CEQ0/1/2 (0x20,0x21,0x22)
 
+        public void SetEqualizer(int band, double[] coefficients)
+        {
+            if (band < 0 || band > 2)
+                throw new ArgumentOutOfRangeException(nameof(band));
+
+            if (coefficients == null)
+                throw new ArgumentNullException(nameof(coefficients));
+
+            if (coefficients.Length != 5)
+                throw new ArgumentNullException(nameof(coefficients));
+
+            var data = new byte[15];
+
+            for (var i = 0; i < 5; i++)
+            {
+                if (double.IsNaN(coefficients[i]) || double.IsInfinity(coefficients[i]) ||
+                    coefficients[i] <= -8.0 || coefficients[i] >= 8.0)
+                    throw new ArgumentOutOfRangeException(nameof(coefficients));
+
+                var integer = (int)Math.Abs(coefficients[i]);
+                var fraction = (int)Math.Round(Math.Abs(coefficients[i] - (int)coefficients[i]) * 1048575.0);
+
+                // 2'complement
+                if (coefficients[i] < 0.0)
+                {
+                    integer = 0x08 | (~integer & 0x07);
+                    fraction = ~fraction & 0x0fffff;
+                }
+
+                // Sign bit:       1 bit  (CEQ##[23])
+                // Integer part:   3 bits (CEQ##[22:20]) -> 2'complement
+                // Fraction part: 20 bits (CEQ##[19:0])  -> 2'complement
+                data[i * 3 + 0] = (byte)(((integer << 4) & 0xf0) | ((fraction >> 16) & 0x0f));
+                data[i * 3 + 1] = (byte)((fraction >> 8) & 0xff);
+                data[i * 3 + 2] = (byte)(fraction & 0xff);
+            }
+
+            SoundChip.BurstWrite((byte)(0x20 + band), data, 0, 15);
+        }
+
         #endregion
 
         #region #35-79 CEQ (0x23-0x4f)
@@ -954,7 +993,7 @@ namespace Ymf825
 
             return EnvelopeRateTimeTable[index];
         }
-        
+
         #endregion
     }
 }
