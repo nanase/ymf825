@@ -92,6 +92,8 @@ namespace TestConsoleApp
                     if (index >= score.Length)
                         index = 0;
                 }
+
+                ymf825.ResetHardware();
             }
         }
     }
