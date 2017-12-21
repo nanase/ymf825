@@ -1,0 +1,400 @@
+﻿<UserControl x:Name="userControl" x:Class="Ymf825MidiDriver.EqualizerControl.EqualizerGraphControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Ymf825MidiDriver.EqualizerControl"
+             mc:Ignorable="d" Height="190" Width="850">
+    <UserControl.Resources>
+        <Style TargetType="Label">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style TargetType="Polygon">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Label Content="Input" Margin="0,18,0,0"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="36,32,0,0" Height="6" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="55,29,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="61,23,0,0" Width="18" Height="19"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="79,32,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="138,29,0,0" Width="6" Height="7"/>
+        <Label Content="z" Margin="107,57,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="116,57,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="144,23,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="116,51,0,0" Width="7" Height="6"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="119,32,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="144,93,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="144,160,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="116,120,0,0" Width="7" Height="6"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="119,81,0,0" HorizontalAlignment="Left" Width="1" Height="40" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="119,102,0,0" Height="6" HorizontalAlignment="Left" Width="20" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="138,99,0,0" Width="6" Height="7"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="119,150,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="119,169,0,0" Height="6" HorizontalAlignment="Left" Width="20" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="138,166,0,0" Width="6" Height="7"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="117,30,0,0" VerticalAlignment="Top" Width="5"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="117,100,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="162,32,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="201,29,0,0" Width="6" Height="7"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="162,102,0,0" Height="6" HorizontalAlignment="Left" Width="30" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="162,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="27" Margin="207,19,0,0" Stroke="Black" VerticalAlignment="Top" Width="27"/>
+        <Label Content="+" Margin="207,15,0,0" Height="27" Width="27" Padding="0" HorizontalContentAlignment="Center" FontSize="22" VerticalContentAlignment="Bottom"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="171,74,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="208,43,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="149,110,0,0" Height="6" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="214,45,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="211,74,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="173,110,0,0" Height="6" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="222,45,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-97.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="228,43,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-110"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="250,102,0,0" Height="6" HorizontalAlignment="Left" Width="30" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="240,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="280,93,0,0" Width="18" Height="19"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="280,160,0,0" Width="18" Height="19"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="303,102,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="303,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="322,150,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="322,81,0,0" HorizontalAlignment="Left" Width="1" Height="40" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="320,100,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Fill="Black" Margin="298,166,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="319,120,0,0" Width="7" Height="6"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Fill="Black" Margin="298,99,0,0" Width="6" Height="7"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="320,167,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="233,32,0,0" Height="6" HorizontalAlignment="Left" Width="110" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="319,51,0,0" Width="7" Height="6"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="322,32,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="320,30,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="342,29,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="348,23,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="348,93,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="348,160,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="342,99,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="342,166,0,0" Width="6" Height="7"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="366,32,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="405,29,0,0" Width="6" Height="7"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="366,102,0,0" Height="6" HorizontalAlignment="Left" Width="30" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="366,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="27" Margin="411,19,0,0" Stroke="Black" VerticalAlignment="Top" Width="27"/>
+        <Label Content="+" Margin="411,15,0,0" Height="27" Width="27" Padding="0" HorizontalContentAlignment="Center" FontSize="22" VerticalContentAlignment="Bottom"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="375,74,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="412,43,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="353,110,0,0" Height="6" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="418,45,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="415,74,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="377,110,0,0" Height="6" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="426,45,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-97.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="432,43,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-110"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="454,102,0,0" Height="6" HorizontalAlignment="Left" Width="30" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="444,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="484,93,0,0" Width="18" Height="19"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="484,160,0,0" Width="18" Height="19"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="526,150,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="526,81,0,0" HorizontalAlignment="Left" Width="1" Height="40" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="524,100,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Fill="Black" Margin="502,166,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="523,120,0,0" Width="7" Height="6"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Fill="Black" Margin="502,99,0,0" Width="6" Height="7"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="524,167,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="437,32,0,0" Height="6" HorizontalAlignment="Left" Width="110" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="523,51,0,0" Width="7" Height="6"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="526,32,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="524,30,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="546,29,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="552,23,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="552,93,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="552,160,0,0" Width="18" Height="19"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="546,99,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="546,166,0,0" Width="6" Height="7"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="570,32,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="609,29,0,0" Width="6" Height="7"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="570,102,0,0" Height="6" HorizontalAlignment="Left" Width="30" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="570,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="27" Margin="615,19,0,0" Stroke="Black" VerticalAlignment="Top" Width="27"/>
+        <Label Content="+" Margin="615,15,0,0" Height="27" Width="27" Padding="0" HorizontalContentAlignment="Center" FontSize="22" VerticalContentAlignment="Bottom"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="579,74,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="616,43,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="557,110,0,0" Height="6" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="622,45,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="619,74,0,0" Height="6" HorizontalAlignment="Left" Width="60" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="70"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="581,110,0,0" Height="6" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Polyline.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="82.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polyline.RenderTransform>
+        </Polyline>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="630,45,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-97.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="636,43,0,0" Width="6" Height="8" RenderTransformOrigin="0.5,0.5">
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-110"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="658,102,0,0" Height="6" HorizontalAlignment="Left" Width="30" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="648,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="688,93,0,0" Width="18" Height="19"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="688,160,0,0" Width="18" Height="19"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="709,102,0,0" Height="6" HorizontalAlignment="Left" Width="20" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="711,169,0,0" Height="6" HorizontalAlignment="Left" Width="20" VerticalAlignment="Top"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="730,150,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="730,81,0,0" HorizontalAlignment="Left" Width="1" Height="40" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="728,100,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Fill="Black" Margin="706,166,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="727,120,0,0" Width="7" Height="6"/>
+        <Polygon Points="1,0 1,1 0,0.5" Stretch="Fill" Fill="Black" Margin="706,99,0,0" Width="6" Height="7"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="641,32,0,0" Height="6" HorizontalAlignment="Left" Width="114" VerticalAlignment="Top"/>
+        <Polygon Points="0,0 1,0 0.5,1" Stretch="Fill" Fill="Black" Margin="727,51,0,0" Width="7" Height="6"/>
+        <Polyline Points="0.5,0 0.5,1" Stretch="Fill" Stroke="Black" Margin="730,32,0,0" HorizontalAlignment="Left" Width="1" Height="20" VerticalAlignment="Top"/>
+        <Ellipse HorizontalAlignment="Left" Height="5" Fill="Black" Margin="728,30,0,0" VerticalAlignment="Top" Width="5"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="507,102,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="507,169,0,0" Height="6" HorizontalAlignment="Left" Width="40" VerticalAlignment="Top"/>
+        <Label Content="Output" Margin="800,18,0,0"/>
+        <Polyline Points="0,0.5 1,0.5" Stretch="Fill" Stroke="Black" Margin="778,32,0,0" Height="6" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="797,29,0,0" Width="6" Height="7"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Stroke="Black" StrokeThickness="2" Margin="760,23,0,0" Width="18" Height="19"/>
+
+        <Label Content="-18dB" Margin="46,0,0,0"/>
+        <Label Content="+18dB" Margin="745,0,0,0"/>
+        <Label Content="{Binding EqualizerItem.Equalizer0.B0, ElementName=userControl, FallbackValue=0.000000}" Margin="133,1,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer1.B0, ElementName=userControl, FallbackValue=0.000000}" Margin="336,1,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer2.B0, ElementName=userControl, FallbackValue=0.000000}" Margin="540,1,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer0.B1, ElementName=userControl, FallbackValue=0.000000}" Margin="132,70,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer0.B2, ElementName=userControl, FallbackValue=0.000000}" Margin="132,137,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer0.A1, ElementName=userControl, FallbackValue=0.000000}" Margin="248,70,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer0.A2, ElementName=userControl, FallbackValue=0.000000}" Margin="248,137,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer1.B1, ElementName=userControl, FallbackValue=0.000000}" Margin="336,70,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer1.B2, ElementName=userControl, FallbackValue=0.000000}" Margin="336,137,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer1.A1, ElementName=userControl, FallbackValue=0.000000}" Margin="453,70,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer1.A2, ElementName=userControl, FallbackValue=0.000000}" Margin="453,137,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer2.B1, ElementName=userControl, FallbackValue=0.000000}" Margin="540,70,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer2.B2, ElementName=userControl, FallbackValue=0.000000}" Margin="540,137,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer2.A1, ElementName=userControl, FallbackValue=0.000000}" Margin="657,70,0,0" ContentStringFormat="{}{0:f6}"/>
+        <Label Content="{Binding EqualizerItem.Equalizer2.A2, ElementName=userControl, FallbackValue=0.000000}" Margin="657,137,0,0" ContentStringFormat="{}{0:f6}"/>
+
+        <Label Content="z" Margin="107,126,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="116,126,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Label Content="z" Margin="310,57,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="319,57,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Label Content="z" Margin="310,126,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="319,126,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Label Content="z" Margin="514,57,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="523,57,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Label Content="z" Margin="514,126,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="523,126,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Label Content="z" Margin="718,57,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="727,57,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Label Content="z" Margin="718,126,0,0" Height="25" Width="25" BorderBrush="Black" BorderThickness="1" VerticalContentAlignment="Center" Padding="5,0,0,0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="16"/>
+        <Label Content="-1" Margin="727,126,0,0" Height="18" Width="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" FontFamily="Times New Roman" FontStyle="Italic" FontSize="8"/>
+        <Polygon Points="0,0 0,1 1,0.5" Stretch="Fill" Fill="Black" Margin="754,29,0,0" Width="6" Height="7"/>
+    </Grid>
+</UserControl>

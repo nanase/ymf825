@@ -97,6 +97,9 @@
     <Compile Include="EnvelopeGraph.xaml.cs">
       <DependentUpon>EnvelopeGraph.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EqualizerControl\EqualizerGraphControl.xaml.cs">
+      <DependentUpon>EqualizerGraphControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EqualizerControl\EqualizerValueControl.xaml.cs">
       <DependentUpon>EqualizerValueControl.xaml</DependentUpon>
     </Compile>
@@ -145,6 +148,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="EnvelopeGraph.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EqualizerControl\EqualizerGraphControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
