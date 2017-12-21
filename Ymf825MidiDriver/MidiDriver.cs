@@ -12,8 +12,14 @@ namespace Ymf825MidiDriver
 
         private readonly int[] noteOnKeys = new int[16];
         private readonly int[] programNumbers = new int[16];
+        private readonly int[] rpnMsb = new int[16];
+        private readonly int[] rpnLsb = new int[16];
+        private readonly int[] dataEntryMsb = new int[16];
+        private readonly int[] dataEntryLsb = new int[16];
+        private readonly double[] pitchBendWidth = new double[16];
         private readonly double[] corrections = new double[16];
         private readonly double[] pitchBends = new double[16];
+        private readonly double[] fineTune = new double[16];
         private readonly double[] volumes = new double[16];
         private readonly double[] toneVolumes = new double[16];
         private readonly double[] lchVolumes = new double[16];
@@ -54,6 +60,11 @@ namespace Ymf825MidiDriver
                 lchVolumes[i] = 1.0;
                 rchVolumes[i] = 1.0;
                 expressions[i] = 1.0;
+
+                rpnMsb[i] = 127;
+                rpnLsb[i] = 127;
+                fineTune[i] = 1.0;
+                pitchBendWidth[i] = 2.0;
             }
         }
 
@@ -223,6 +234,11 @@ namespace Ymf825MidiDriver
         {
             switch (data1)
             {
+                case 6: // data entry MSB
+                    dataEntryMsb[channel] = data2;
+                    Rpn(channel);
+                    break;
+
                 case 7: // volume
                     volumes[channel] = data2 / 127.0;
                     SetVoiceVolume(channel, true);
@@ -237,15 +253,27 @@ namespace Ymf825MidiDriver
                     expressions[channel] = data2 / 127.0;
                     SetVoiceVolume(channel, true);
                     break;
+
+                case 36: // data entry LSB
+                    dataEntryMsb[channel] = data2;
+                    Rpn(channel);
+                    break;
+
+                case 100: // RPN LSB
+                    rpnLsb[channel] = data2;
+                    break;
+                    
+                case 101: // RPN MSB
+                    rpnMsb[channel] = data2;
+                    break;
             }
         }
 
         private void PitchBend(int channel, int data1, int data2)
         {
             var bendData = ((data2 << 7) | data1) - 8192;
-            // precalc: Math.Pow(2.0, 2.0 / 12.0) = 1.122462048309373
-            pitchBends[channel] = Math.Pow(1.122462048309373, bendData / 8192.0);
-            var correction = corrections[channel] * pitchBends[channel];
+            pitchBends[channel] = Math.Pow(Math.Pow(2.0, pitchBendWidth[channel] / 12.0), bendData / 8192.0);
+            var correction = corrections[channel] * pitchBends[channel] * fineTune[channel];
 
             Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
 
@@ -254,6 +282,29 @@ namespace Ymf825MidiDriver
                 Driver.SetVoiceNumber(channel);
                 Driver.SetFrequencyMultiplier(integer, fraction);
             });
+        }
+
+        private void Rpn(int channel)
+        {
+            if (rpnMsb[channel] == 0 && rpnLsb[channel] == 1)
+            {
+                var bendData = ((dataEntryMsb[channel] << 7) | dataEntryLsb[channel]) - 8192;
+                // precalc: Math.Pow(2.0, 2.0 / 12.0) = 1.122462048309373
+                fineTune[channel] = Math.Pow(Math.Pow(2.0, 2.0 / 12.0), bendData / 8192.0);
+                var correction = corrections[channel] * pitchBends[channel] * fineTune[channel];
+
+                Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
+
+                Driver.Section(() =>
+                {
+                    Driver.SetVoiceNumber(channel);
+                    Driver.SetFrequencyMultiplier(integer, fraction);
+                });
+            }
+            if (rpnMsb[channel] == 0 && rpnLsb[channel] == 0)
+            {
+                pitchBendWidth[channel] = dataEntryMsb[channel];
+            }
         }
 
         // ------
@@ -316,7 +367,7 @@ namespace Ymf825MidiDriver
 
             Ymf825Driver.GetFnumAndBlock(key, out var fnum, out var block, out var correction);
             corrections[channel] = correction;
-            correction *= pitchBends[channel];
+            correction *= pitchBends[channel] * fineTune[channel];
             Ymf825Driver.ConvertForFrequencyMultiplier(correction, out var integer, out var fraction);
 
             Driver.Section(() =>
