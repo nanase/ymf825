@@ -113,6 +113,7 @@
       <DependentUpon>ToneExportWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ToneItem.cs" />
+    <Compile Include="EqualizerNumberToStringConveter.cs" />
     <Compile Include="ToneNumberToStringConveter.cs" />
     <Compile Include="WaveShape.cs" />
     <Page Include="AlgorithmControl\Algorithm0.xaml">
