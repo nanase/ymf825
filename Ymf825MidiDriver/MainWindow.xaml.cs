@@ -139,9 +139,9 @@ namespace Ymf825MidiDriver
                     return;
             }
 
-            midiDriver.Stop();
+            midiDriver?.Stop();
             midiDriver = null;
-            midiIn.Dispose();
+            midiIn?.Dispose();
             midiIn = null;
             ServerWindow.Close();
         }
