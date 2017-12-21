@@ -108,6 +108,7 @@
     <Compile Include="OperatorEnabledConveter.cs" />
     <Compile Include="AlgorithmConverter.cs" />
     <Compile Include="MidiConnectionConverter.cs" />
+    <Compile Include="Project.cs" />
     <Compile Include="ServerConnectionConverter.cs" />
     <Compile Include="ToneExportWindow.xaml.cs">
       <DependentUpon>ToneExportWindow.xaml</DependentUpon>

@@ -40,6 +40,8 @@ namespace Ymf825MidiDriver
         private readonly ObservableCollection<ToneItem> toneItems;
         private readonly ObservableCollection<string> midiDevices;
 
+        private readonly Project project = new Project();
+
         private MidiIn midiIn;
         private MidiDriver midiDriver;
 
@@ -88,9 +90,10 @@ namespace Ymf825MidiDriver
 
             toneItems = new ObservableCollection<ToneItem>();
             midiDevices = new ObservableCollection<string>();
-            DataContext = toneItems;
+            ToneListBox.DataContext = toneItems;
             ComboBoxMidiDevice.DataContext = midiDevices;
 
+            project.Tones = toneItems;
             toneItems.CollectionChanged += ToneItemsOnCollectionChanged;
             UpdateWindowTitle();
             UpdateComboBoxMidiDevice();
@@ -398,7 +401,7 @@ namespace Ymf825MidiDriver
 
         private void SaveProject()
         {
-            var serializeObject = JsonConvert.SerializeObject(toneItems, new JsonSerializerSettings
+            var serializeObject = JsonConvert.SerializeObject(project, new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -412,15 +415,16 @@ namespace Ymf825MidiDriver
         private void LoadProject()
         {
             var serializeText = File.ReadAllText(filePath);
-            var toneItemsObject = JsonConvert.DeserializeObject<IEnumerable<ToneItem>>(serializeText);
+            var importedProject = JsonConvert.DeserializeObject<Project>(serializeText);
 
             isMonitoringChanging = false;
 
             toneItems.Clear();
 
-            foreach (var item in toneItemsObject)
+            foreach (var item in importedProject.Tones)
                 toneItems.Add(item);
 
+            importedProject.Tones = toneItems;
             fileChanged = false;
             UpdateWindowTitle();
             isMonitoringChanging = true;
