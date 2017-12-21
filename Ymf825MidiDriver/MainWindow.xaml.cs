@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
@@ -29,15 +28,21 @@ namespace Ymf825MidiDriver
         public static readonly RoutedCommand ServerConnectionToggleCommand = new RoutedCommand();
         public static readonly RoutedCommand MidiConnectionToggleCommand = new RoutedCommand();
         public static readonly RoutedCommand ToneExportCommand = new RoutedCommand();
+        public static readonly RoutedCommand NewEqualizerCommand = new RoutedCommand();
+        public static readonly RoutedCommand DeleteEqualizerCommand = new RoutedCommand();
+        public static readonly RoutedCommand DuplicateEqualizerCommand = new RoutedCommand();
+
         public static readonly DependencyProperty SpiConnectedProperty = DependencyProperty.Register(nameof(SpiConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty MidiConnectedProperty = DependencyProperty.Register(nameof(MidiConnected), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool)));
         public static readonly DependencyProperty SelectedToneItemProperty = DependencyProperty.Register(nameof(SelectedToneItem), typeof(ToneItem), typeof(MainWindow), new PropertyMetadata(default(ToneItem)));
+        public static readonly DependencyProperty SelectedEqualizerItemProperty = DependencyProperty.Register(nameof(SelectedEqualizerItem), typeof(EqualizerItem), typeof(MainWindow), new PropertyMetadata(default(EqualizerItem)));
 
         #endregion
 
         #region -- Private Fields --
 
         private readonly ObservableCollection<ToneItem> toneItems;
+        private readonly ObservableCollection<EqualizerItem> equalizerItems;
         private readonly ObservableCollection<string> midiDevices;
 
         private readonly Project project = new Project();
@@ -59,6 +64,13 @@ namespace Ymf825MidiDriver
             // ReSharper disable once PossibleNullReferenceException
             get => (ToneItem)GetValue(SelectedToneItemProperty);
             set => SetValue(SelectedToneItemProperty, value);
+        }
+
+        public EqualizerItem SelectedEqualizerItem
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            get => (EqualizerItem)GetValue(SelectedEqualizerItemProperty);
+            set => SetValue(SelectedEqualizerItemProperty, value);
         }
 
         public bool MidiConnected
@@ -89,11 +101,16 @@ namespace Ymf825MidiDriver
             ServerWindow.Disconnected += (sender, args) => SpiConnected = false;
 
             toneItems = new ObservableCollection<ToneItem>();
+            equalizerItems = new ObservableCollection<EqualizerItem>();
             midiDevices = new ObservableCollection<string>();
+
             ToneListBox.DataContext = toneItems;
+            EqualizerListBox.DataContext = equalizerItems;
             ComboBoxMidiDevice.DataContext = midiDevices;
 
             project.Tones = toneItems;
+            project.Equalizers = equalizerItems;
+
             toneItems.CollectionChanged += ToneItemsOnCollectionChanged;
             UpdateWindowTitle();
             UpdateComboBoxMidiDevice();
@@ -224,6 +241,33 @@ namespace Ymf825MidiDriver
             ToneListBox.SelectedIndex = toneItems.Count - 1;
         }
 
+        private void NewEqualizerCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            equalizerItems.Add(new EqualizerItem());
+            EqualizerListBox.SelectedIndex = equalizerItems.Count - 1;
+        }
+
+        private void DeleteEqualizerCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var index = EqualizerListBox.SelectedIndex;
+            equalizerItems.RemoveAt(index);
+
+            if (equalizerItems.Count == index)
+                index--;
+
+            EqualizerListBox.SelectedIndex = index;
+        }
+
+        private void DuplicateEqualizerCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var index = EqualizerListBox.SelectedIndex;
+            var clone = equalizerItems[index].DeepClone();
+            clone.ProgramNumber = 0;
+            clone.ProgramNumberAssigned = false;
+            equalizerItems.Add(clone);
+            EqualizerListBox.SelectedIndex = equalizerItems.Count - 1;
+        }
+
         private void SaveCommand_OnExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             if (filePath == null)
@@ -298,6 +342,7 @@ namespace Ymf825MidiDriver
             // reset tones
             isMonitoringChanging = false;
             toneItems.Clear();
+            equalizerItems.Clear();
             filePath = null;
             fileName = null;
             fileChanged = false;
@@ -334,7 +379,7 @@ namespace Ymf825MidiDriver
                 try
                 {
                     midiIn = new MidiIn(ComboBoxMidiDevice.SelectedIndex);
-                    midiDriver = new MidiDriver(toneItems, midiIn, ServerWindow.Driver);
+                    midiDriver = new MidiDriver(toneItems, equalizerItems, midiIn, ServerWindow.Driver);
                     midiDriver.Start();
                 }
                 catch (Exception ex)
@@ -354,6 +399,92 @@ namespace Ymf825MidiDriver
         {
             var toneExportWindow = new ToneExportWindow { ToneItem = SelectedToneItem, Owner = this };
             toneExportWindow.ShowDialog();
+        }
+
+        private void ButtonEqualizerApply_Click(object sender, RoutedEventArgs e)
+        {
+            double[] coefficients;
+            Equalizer equalizer;
+
+            switch (ComboBoxFilterType.SelectedIndex)
+            {
+                // Lowpass
+                case 0:
+                    coefficients = FilterCoefficients.Lowpass((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownQ.Value);
+                    break;
+
+                // Highpass
+                case 1:
+                    coefficients = FilterCoefficients.Highpass((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownQ.Value);
+                    break;
+
+                // Bandpass
+                case 2:
+                    coefficients = FilterCoefficients.Bandpass((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownBandWidth.Value, (double)NumericUpDownQ.Value);
+                    break;
+
+                // Bandstop
+                case 3:
+                    coefficients = FilterCoefficients.Bandstop((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownBandWidth.Value);
+                    break;
+
+                // Lowshelf
+                case 4:
+                    coefficients = FilterCoefficients.LowShelf((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownGain.Value, (double)NumericUpDownQ.Value);
+                    break;
+
+                // Highshelf
+                case 5:
+                    coefficients = FilterCoefficients.HighShelf((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownGain.Value, (double)NumericUpDownQ.Value);
+                    break;
+
+                // Peaking
+                case 6:
+                    coefficients = FilterCoefficients.Peaking((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownBandWidth.Value, (double)NumericUpDownGain.Value);
+                    break;
+
+                // Allpass
+                case 7:
+                    coefficients = FilterCoefficients.Allpass((double)NumericUpDownCutoff.Value,
+                        (double)NumericUpDownQ.Value);
+                    break;
+
+                default:
+                    coefficients = new[] { 1.0, 0.0, 0.0, 0.0, 0.0 };
+                    break;
+            }
+
+            switch (int.Parse(((Button)sender).Tag.ToString()))
+            {
+                case 0:
+                    equalizer = SelectedEqualizerItem.Equalizer0;
+                    break;
+
+                case 1:
+                    equalizer = SelectedEqualizerItem.Equalizer1;
+                    break;
+
+                case 2:
+                    equalizer = SelectedEqualizerItem.Equalizer2;
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            for (var i = 0; i < 5; i++)
+                equalizer[i] = coefficients[i];
+
+            var index = EqualizerListBox.SelectedIndex;
+            EqualizerListBox.SelectedIndex = -1;
+            EqualizerListBox.SelectedIndex = index;
         }
 
         #endregion
@@ -424,7 +555,14 @@ namespace Ymf825MidiDriver
             foreach (var item in importedProject.Tones)
                 toneItems.Add(item);
 
+            equalizerItems.Clear();
+
+            foreach (var item in importedProject.Equalizers)
+                equalizerItems.Add(item);
+
             importedProject.Tones = toneItems;
+            importedProject.Equalizers = equalizerItems;
+
             fileChanged = false;
             UpdateWindowTitle();
             isMonitoringChanging = true;

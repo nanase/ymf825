@@ -34,6 +34,8 @@ namespace Ymf825MidiDriver
 
         public IList<ToneItem> ToneItems { get; }
 
+        public IList<EqualizerItem> EqualizerItems { get; }
+
         public MidiIn MidiIn { get; }
 
         public Ymf825Driver Driver { get; }
@@ -42,9 +44,10 @@ namespace Ymf825MidiDriver
 
         #region -- Constructors --
 
-        public MidiDriver(IList<ToneItem> toneItems, MidiIn midiIn, Ymf825Driver driver)
+        public MidiDriver(IList<ToneItem> toneItems, IList<EqualizerItem> equalizerItems, MidiIn midiIn, Ymf825Driver driver)
         {
             ToneItems = toneItems;
+            EqualizerItems = equalizerItems;
             MidiIn = midiIn;
             Driver = driver;
             Driver.EnableSectionMode();
@@ -266,6 +269,10 @@ namespace Ymf825MidiDriver
                 case 101: // RPN MSB
                     rpnMsb[channel] = data2;
                     break;
+
+                case 112: // x-equalizer
+                    SetEqualizer(data2);
+                    break;
             }
         }
 
@@ -399,6 +406,20 @@ namespace Ymf825MidiDriver
             lchVolumes[channel] = panValue > 0.0 ? Math.Sin((panValue + 1.0) * Math.PI / 2.0) : 1.0;
             rchVolumes[channel] = panValue < 0.0 ? Math.Sin((-panValue + 1.0) * Math.PI / 2.0) : 1.0;
             //Console.WriteLine($"Panpot: #{channel} - L:{lchVolumes[channel]:f2}, R:{rchVolumes[channel]:f2}");
+        }
+
+        private void SetEqualizer(int number)
+        {
+            var equalizerItem =
+                EqualizerItems.FirstOrDefault(e => e.ProgramNumberAssigned && e.ProgramNumber == number) ??
+                new EqualizerItem();
+
+            Driver.Section(() =>
+            {
+                Driver.SetEqualizer(0, equalizerItem.Equalizer0.ToArray());
+                Driver.SetEqualizer(1, equalizerItem.Equalizer1.ToArray());
+                Driver.SetEqualizer(2, equalizerItem.Equalizer2.ToArray());
+            });
         }
 
         #endregion
