@@ -30,7 +30,7 @@ namespace Ymf825Server
         #endregion
 
         #region -- Public Events --
-        
+
         public event EventHandler Connected;
         public event EventHandler Disconnected;
 
@@ -83,7 +83,7 @@ namespace Ymf825Server
             UpdateControlByConnected();
             RefreshDeviceList();
         }
-        
+
         #endregion
 
         #region -- Event Handlers --
@@ -173,7 +173,7 @@ namespace Ymf825Server
         }
 
         #endregion
-        
+
         #region -- Private Methods --
 
         private void ConnectDevice()
@@ -191,21 +191,34 @@ namespace Ymf825Server
                 if (args.Data.Count <= 0)
                     return;
 
-                registerMap.SetData(args.Address, args.Data.Last());
-
-                var toneNumber = args.Data[0] - 0x80;
-
-                if (toneNumber < 0 || toneNumber > 16 || args.Data.Count < toneNumber * 30 + 5)
+                if (args.Address == 0x07)
                 {
-                    Console.WriteLine($"Invalid BurstWrite Data - Tone Number: {toneNumber}, Data Size: {args.Data.Count} (required {toneNumber * 30 + 5})");
-                    return;
-                }
+                    registerMap.SetData(args.Address, args.Data.Last());
 
-                for (var i = 0; i < toneNumber; i++)
-                    for (var j = 0; j < 30; j++)
-                        toneParameterRegisterMap[i].SetData(j, args.Data[i * 30 + j + 1]);
+                    var toneNumber = args.Data[0] - 0x80;
+
+                    if (toneNumber < 0 || toneNumber > 16 || args.Data.Count < toneNumber * 30 + 5)
+                    {
+                        Console.WriteLine($"Invalid BurstWrite Data - Tone Number: {toneNumber}, Data Size: {args.Data.Count} (required {toneNumber * 30 + 5})");
+                        return;
+                    }
+
+                    for (var i = 0; i < toneNumber; i++)
+                        for (var j = 0; j < 30; j++)
+                            toneParameterRegisterMap[i].SetData(j, args.Data[i * 30 + j + 1]);
+                }
+                else if (args.Address >= 0x20 || args.Address <= 0x22)
+                {
+                    var eq = args.Address - 0x20;
+
+                    if (args.Data.Count < 5)
+                        return;
+
+                    for (var i = 0; i < 5; i++)
+                        registerMap.SetData(0x23 + 3 * eq + i, args.Data[i]);
+                }
             };
-            
+
             SpiConnected = true;
             Driver.ResetHardware();
             Driver.ResetSoftware();
