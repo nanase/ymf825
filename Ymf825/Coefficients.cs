@@ -1,4 +1,5 @@
-﻿using static System.Math;
+﻿using System;
+using static System.Math;
 
 namespace Ymf825
 {
@@ -19,6 +20,12 @@ namespace Ymf825
 
         public static double[] Lowpass(double cutoff, double q = DefaultQ)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (q < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(q));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var alpha = Sin(omega) / (2.0 * q);
 
@@ -34,6 +41,12 @@ namespace Ymf825
 
         public static double[] Highpass(double cutoff, double q = DefaultQ)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (q < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(q));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var alpha = Sin(omega) / (2.0 * q);
 
@@ -49,6 +62,15 @@ namespace Ymf825
 
         public static double[] Bandpass(double cutoff, double bandwidth, double q = DefaultQ)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (bandwidth < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(bandwidth));
+
+            if (q < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(q));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var alpha = Sin(omega) * Sinh(Log(2.0) / 2.0 * bandwidth * omega / Sin(omega));
 
@@ -64,6 +86,12 @@ namespace Ymf825
 
         public static double[] Bandstop(double cutoff, double bandwidth)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (bandwidth < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(bandwidth));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var alpha = Sin(omega) * Sinh(Log(2.0) / 2.0 * bandwidth * omega / Sin(omega));
 
@@ -79,6 +107,12 @@ namespace Ymf825
 
         public static double[] LowShelf(double cutoff, double gain, double q = DefaultQ)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (q < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(q));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var a = Pow(10.0, gain / 40.0);
             var beta = Sqrt(a) / q;
@@ -95,6 +129,12 @@ namespace Ymf825
 
         public static double[] HighShelf(double cutoff, double gain, double q = DefaultQ)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (q < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(q));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var a = Pow(10.0, gain / 40.0);
             var beta = Sqrt(a) / q;
@@ -111,6 +151,12 @@ namespace Ymf825
 
         public static double[] Peaking(double cutoff, double bandwidth, double gain)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (bandwidth < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(bandwidth));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var alpha = Sin(omega) * Sinh(Log(2.0) / 2.0 * bandwidth * omega / Sin(omega));
             var a = Pow(10.0, gain / 40.0);
@@ -127,6 +173,12 @@ namespace Ymf825
 
         public static double[] Allpass(double cutoff, double q = DefaultQ)
         {
+            if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
+                throw new ArgumentOutOfRangeException(nameof(cutoff));
+
+            if (q < 0.0)
+                throw new ArgumentOutOfRangeException(nameof(q));
+
             var omega = 2.0 * PI * cutoff / SoundChipSamplingRate;
             var alpha = Sin(omega) / (2.0 * q);
 
