@@ -243,5 +243,14 @@
   <ItemGroup>
     <Resource Include="Resources\server_green.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\arrow_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\arrow_up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\asterisk_yellow.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
