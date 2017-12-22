@@ -52,7 +52,7 @@ MIDI メッセージを YMF825 のメッセージに変換します。GUI とし
 | Equalizer | `112` | イコライザ番号指定のための独自コントロール |
 
 | RPN | MSB | LSB | 備考 |
-|---|---|---|
+|---|---|---|---|
 | Pitchbend Sensitivity | `00` | `00` | 初期値 `2` |
 | Master Finetune | `00` | `01` |  |
 
