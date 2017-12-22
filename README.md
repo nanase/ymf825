@@ -1,35 +1,65 @@
-Ymf825
+YMF825
 ======
 
 ## 概要
 
-C# から Arduino Nano を介して [YMF825Board](https://yamaha-webmusic.github.io/ymf825board/intro/) と接続するためのライブラリラッパと各種ライブラリです。
+C# から [YMF825Board](https://yamaha-webmusic.github.io/ymf825board/intro/) に接続するためのライブラリラッパと各種ライブラリです。
 
 ## プロジェクト
 
-### Ymf825
+### YMF825
 
-Arduino Nano 接続ライブラリと C# 向けの YMF825 ドライバクラスです。 
+C# 向けの YMF825 ドライバクラスです。FT232HL を介した SPI 接続や、YMF825 のための高レベル API を提供しています。 
 
-### Ymf825Server
+### YMF825 Server
 
-![サーバ動作画面](https://raw.githubusercontent.com/nanase/ymf825/master/doc/server.png)
+![サーバ動作画面](https://qiita-image-store.s3.amazonaws.com/0/30370/2ea26b8a-352c-f681-0c42-777264fd53e6.png)
 
-YMF825Board にデータを転送するためのサーバです。接続先USBデバイスの選択、統計情報、YMF825Board に書き込まれたレジスタデータのマップが表示されます。
+接続先 USB デバイスの選択、統計情報、YMF825Board に書き込まれたレジスタデータのマップが表示されます。改良予定。
 
-WCF を用いた IPC（プロセス間通信）でクライアントからのレジスタ制御命令を受け付けます。そのため、サーバは多重起動ができません。
+### YMF825 MIDI Driver
+
+![トーンエディタ](https://qiita-image-store.s3.amazonaws.com/0/30370/f8f17244-a1eb-6a88-2a2f-290cc54eb8ce.png)
+
+![イコライザエディタ](https://qiita-image-store.s3.amazonaws.com/0/30370/9ddb9ae0-7cb9-b50f-ed92-2d32bb20a27e.png)
+
+MIDI メッセージを YMF825 のメッセージに変換します。GUI としてトーンエディタとイコライザエディタを搭載しています。
+対応 MIDI メッセージは以下のとおりです。
+
+| MIDI イベント | hex | 備考 |
+|---|---|---|
+| NoteOff | `80` | ノートオフベロシティは対応なし |
+| NoteOn  | `90` |  |
+| ControlChange | `b0` | 下表参照 |
+| ProgramChange | `c0` | バンク未対応 |
+| Pitchbend | `e0` |  |
+| SystemExclusiveF0 | `f0` | 下表参照 |
+| SystemExclusiveF7 | `f7` | 下表参照 |
+
+| SystemExclusive メッセージ | hex | 備考 |
+|---|---|---|
+| ドラムパート変更 | `41 10 42 12 40 xx 15 yy` | `yy` は `0` (melody) とそれ以外で判別 |
+
+| ControlChange | dec | 備考 |
+|---|---|---|
+| DataEntry MSB | `6` |  |
+| Volume        | `7` | 初期値 `100` |
+| Panpot        | `10` | 初期値 `64` (中央) |
+| Expression    | `11` | 初期値 `127` |
+| DataEntry LSB | `36` |  |
+| RPN LSB | `100` | 下表参照 |
+| RPN MSB | `101` | 下表参照 |
+| Equalizer | `112` | イコライザ番号指定のための独自コントロール |
+
+| RPN | MSB | LSB | 備考 |
+|---|---|---|
+| Pitchbend Sensitivity | `00` | `00` | 初期値 `2` |
+| Master Finetune | `00` | `01` |  |
 
 ## 動作確認環境
 
 - Windows 10 64bit
-- Arduino Nano
-- YMF825Board (2個)
-
-## 想定回路
-
-![回路図](https://raw.githubusercontent.com/nanase/ymf825/master/doc/ymf825board.png)|![ブレッドボード写真 正面](https://raw.githubusercontent.com/nanase/ymf825/master/doc/breadboard_1.jpg)|![ブレッドボード写真 裏面](https://raw.githubusercontent.com/nanase/ymf825/master/doc/breadboard_2.jpg)|![ブレッドボード写真 上 配線](https://raw.githubusercontent.com/nanase/ymf825/master/doc/breadboard_3.jpg)
-:-:|:-:|:-:|:-:
-**回路図** | **正面** | **裏面** | **上**
+- CBW-YMF825-BB rev0.1
 
 ## ライセンス
 
