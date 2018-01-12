@@ -111,7 +111,7 @@ namespace Ymf825MidiDriver
                     Width = width + offsetX * 2.0
                 };
 
-                var shape = WaveShape.ShapeFunctions[(int)values[j]];
+                var shape = WaveShape.ShapeFunctions[values[j]];
                 {
                     shapeLine.Points.Add(new Point(offsetX, centerLine + offsetY));
 
@@ -128,7 +128,7 @@ namespace Ymf825MidiDriver
                     shapeLine.Points.Add(new Point(width + offsetX, centerLine + offsetY));
                 }
 
-                polylines[j] = new Grid { Tag = j };
+                polylines[j] = new Grid();
                 polylines[j].Children.Add(gridLine);
                 polylines[j].Children.Add(shapeLine);
             }
@@ -139,6 +139,41 @@ namespace Ymf825MidiDriver
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException();
+        }
+
+    }
+
+    [ValueConversion(typeof(int), typeof(int))]
+    internal class WaveShapeToSelectedIndexConverter : IValueConverter
+    {
+        private static readonly int[] WaveShapeValueMap =
+        {
+            // SelectedIndex -> WaveShapeValue
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30
+        };
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(value is int))
+                return Binding.DoNothing;
+
+            var intValue = (int)value;
+            var index = Array.IndexOf(WaveShapeValueMap, intValue);
+
+            return index == -1 ? Binding.DoNothing : index;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(value is int))
+                return Binding.DoNothing;
+
+            var intValue = (int)value;
+
+            if (intValue < 0 || WaveShapeValueMap.Length <= intValue)
+                return Binding.DoNothing;
+
+            return WaveShapeValueMap[intValue];
         }
 
     }
