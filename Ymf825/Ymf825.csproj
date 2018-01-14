@@ -1,7 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.0</Version>
     <TargetFrameworks>net47;netstandard2.0</TargetFrameworks>
+    <Description>Wrapping library and driver utilities for YMF825Board</Description>
+    <Authors>Tomona Nanase</Authors>
+    <Copyright>Copyright © 2017-2018 Tomona Nanase</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/nanase/ymf825</PackageProjectUrl>
+    <PackageTags>YMF825;SPI;Embedded</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/nanase/ymf825.git</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
