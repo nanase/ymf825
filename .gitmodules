@@ -1,6 +1,0 @@
-[submodule "submodule/RegisterMap"]
-	path = submodule/RegisterMap
-	url = git@github.com:nanase/RegisterMap.git
-[submodule "submodule/MidiUtils"]
-	path = submodule/MidiUtils
-	url = git@github.com:nanase/MidiUtils.git

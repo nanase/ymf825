@@ -3,15 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ymf825Server", "Ymf825Server\Ymf825Server.csproj", "{399E3A23-4F60-46A4-8824-BE582099E51B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ymf825", "Ymf825\Ymf825.csproj", "{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegisterMap", "submodule\RegisterMap\RegisterMap\RegisterMap.csproj", "{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ymf825MidiDriver", "Ymf825MidiDriver\Ymf825MidiDriver.csproj", "{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MidiUtils", "submodule\MidiUtils\src\MidiUtils.csproj", "{76C90E84-9450-4635-897D-2C065F8DFC17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTestApp", "ConsoleTestApp\ConsoleTestApp.csproj", "{D42202FF-F8E3-4E37-BD10-C002A1AC39D6}"
 EndProject
@@ -21,26 +13,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{399E3A23-4F60-46A4-8824-BE582099E51B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{399E3A23-4F60-46A4-8824-BE582099E51B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{399E3A23-4F60-46A4-8824-BE582099E51B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{399E3A23-4F60-46A4-8824-BE582099E51B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DF42A16C-D481-45A5-AF57-06FD0B92D8C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C2C69BF-FB7E-44BE-8C3D-091D68F015A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{76C90E84-9450-4635-897D-2C065F8DFC17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76C90E84-9450-4635-897D-2C065F8DFC17}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76C90E84-9450-4635-897D-2C065F8DFC17}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76C90E84-9450-4635-897D-2C065F8DFC17}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D42202FF-F8E3-4E37-BD10-C002A1AC39D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D42202FF-F8E3-4E37-BD10-C002A1AC39D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D42202FF-F8E3-4E37-BD10-C002A1AC39D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
