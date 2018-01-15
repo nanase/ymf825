@@ -1,68 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7B92175F-EDAF-42BF-88A7-D113C1C40AFF}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ymf825</RootNamespace>
-    <AssemblyName>Ymf825</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <Version>1.0.0</Version>
+    <TargetFrameworks>net47;netstandard2.0</TargetFrameworks>
+    <Description>Wrapping library and driver utilities for YMF825Board</Description>
+    <Authors>Tomona Nanase</Authors>
+    <Copyright>Copyright © 2017-2018 Tomona Nanase</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/nanase/ymf825</PackageProjectUrl>
+    <PackageTags>YMF825;SPI;Embedded</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/nanase/ymf825.git</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AnalogBlock.cs" />
-    <Compile Include="CbwYmf825Bb.cs" />
-    <Compile Include="Coefficients.cs" />
-    <Compile Include="DataBurstWriteEventArgs.cs" />
-    <Compile Include="DataTransferedEventArgs.cs" />
-    <Compile Include="Gain.cs" />
-    <Compile Include="IO\DeviceInfo.cs" />
-    <Compile Include="IO\DllDirectorySwitcher.cs" />
-    <Compile Include="IO\FtStatus.cs" />
-    <Compile Include="IO\Spi.cs" />
-    <Compile Include="IO\Ymf825Spi.cs" />
-    <Compile Include="OperatorParameter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SequencerSetting.cs" />
-    <Compile Include="TargetChip.cs" />
-    <Compile Include="ToneParameter.cs" />
-    <Compile Include="ToneParameterCollection.cs" />
-    <Compile Include="Ymf825.cs" />
-    <Compile Include="Ymf825Driver.cs" />
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="Ymf825.targets">
+      <PackagePath>build/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Include="lib\x64\ftd2xx.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <PackagePath>runtimes/win-x64/native</PackagePath>
+      <Pack>true</Pack>
     </Content>
     <Content Include="lib\x86\ftd2xx.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <PackagePath>runtimes/win-x86/native</PackagePath>
+      <Pack>true</Pack>
     </Content>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>
