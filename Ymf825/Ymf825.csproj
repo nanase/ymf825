@@ -19,6 +19,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Ymf825.targets">
+      <PackagePath>build/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Include="lib\x64\ftd2xx.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <PackagePath>runtimes/win-x64/native</PackagePath>
