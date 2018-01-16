@@ -18,6 +18,17 @@ namespace Ymf825
 
         #region -- Public Methods --
 
+        public static double[] Default()
+        {
+            return NormalizeFilter(
+                1.0,   // a0
+                0.0,   // a1
+                0.0,   // a2
+                1.0,   // b0
+                0.0,   // b1
+                0.0    // b2
+            );
+        }
         public static double[] Lowpass(double cutoff, double q = DefaultQ)
         {
             if (cutoff < 0.0 || cutoff > SoundChipSamplingRate / 2.0)
