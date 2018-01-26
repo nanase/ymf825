@@ -759,6 +759,11 @@ namespace Ymf825
 
         #region #32,33,34 W_CEQ0/1/2 (0x20,0x21,0x22)
 
+        /// <summary>
+        /// イコライザの係数を設定します。
+        /// </summary>
+        /// <param name="band">イコライザのバンド番号を表す整数値。範囲は 0 から 2 です。</param>
+        /// <param name="coefficients">イコライザの係数を表す数値。範囲は -8.0 から 8.0 です。</param>
         public void SetEqualizer(int band, double[] coefficients)
         {
             if (band < 0 || band > 2)
