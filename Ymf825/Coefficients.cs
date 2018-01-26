@@ -263,6 +263,58 @@ namespace Ymf825
             );
         }
 
+        /// <summary>
+        /// フィルタ係数の値をレジスタ形式へ変換します。
+        /// </summary>
+        /// <param name="coefficient">フィルタ係数を表す実数値。範囲は -8.0 から 8.0 です。</param>
+        /// <returns>変換結果が格納された整数値。下位 24 ビットが有効なデータです。</returns>
+        public static int ToRegisterFormat(this double coefficient)
+        {
+              if (double.IsNaN(coefficient) || double.IsInfinity(coefficient) ||
+                coefficient <= -8.0 || coefficient >= 8.0)
+                throw new ArgumentOutOfRangeException(nameof(coefficient));
+
+            var integer = (int)Abs(coefficient);
+            var fraction = (int)Round(Abs(coefficient - (int)coefficient) * 1048575.0);
+
+            // 2'complement
+            if (coefficient < 0.0)
+            {
+                integer = 0x08 | (~integer & 0x07);
+                fraction = ~fraction & 0x0fffff;
+            }
+
+            // Sign bit:       1 bit  (CEQ##[23])
+            // Integer part:   3 bits (CEQ##[22:20]) -> 2'complement
+            // Fraction part: 20 bits (CEQ##[19:0])  -> 2'complement
+            return (integer << 20) | fraction;
+        }
+
+        /// <summary>
+        /// レジスタ形式のフィルタ係数を実数値へ変換します。
+        /// </summary>
+        /// <param name="registerFormat">レジスタ形式のフィルタ係数が格納された整数値。下位 24 ビットが有効なデータです。</param>
+        /// <returns>変換結果となる実数値。</returns>
+        public static double ToDouble(int registerFormat)
+        {
+            if (registerFormat < 0 || registerFormat >> 24 > 0)
+                throw new ArgumentOutOfRangeException(nameof(registerFormat));
+
+            // value is negative when sign is true
+            var sign = (registerFormat & 0x00800000) != 0;
+            var integer = (registerFormat & 0x00700000) >> 20;
+            var fraction = registerFormat & 0x000fffff;
+
+            // 2'complement
+            if (sign)
+            {
+                integer = ~integer & 0x07;
+                fraction = ~fraction & 0x0fffff;
+            }
+
+            return (integer + fraction / 1048575.0) * (sign ? -1.0 : 1.0);
+        }
+
         #endregion
 
         #region -- Private Methods --

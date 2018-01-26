@@ -779,26 +779,11 @@ namespace Ymf825
 
             for (var i = 0; i < 5; i++)
             {
-                if (double.IsNaN(coefficients[i]) || double.IsInfinity(coefficients[i]) ||
-                    coefficients[i] <= -8.0 || coefficients[i] >= 8.0)
-                    throw new ArgumentOutOfRangeException(nameof(coefficients));
+                var registerFormat = coefficients[i].ToRegisterFormat();
 
-                var integer = (int)Math.Abs(coefficients[i]);
-                var fraction = (int)Math.Round(Math.Abs(coefficients[i] - (int)coefficients[i]) * 1048575.0);
-
-                // 2'complement
-                if (coefficients[i] < 0.0)
-                {
-                    integer = 0x08 | (~integer & 0x07);
-                    fraction = ~fraction & 0x0fffff;
-                }
-
-                // Sign bit:       1 bit  (CEQ##[23])
-                // Integer part:   3 bits (CEQ##[22:20]) -> 2'complement
-                // Fraction part: 20 bits (CEQ##[19:0])  -> 2'complement
-                data[i * 3 + 0] = (byte)(((integer << 4) & 0xf0) | ((fraction >> 16) & 0x0f));
-                data[i * 3 + 1] = (byte)((fraction >> 8) & 0xff);
-                data[i * 3 + 2] = (byte)(fraction & 0xff);
+                data[i * 3 + 0] = (byte)(registerFormat >> 16);
+                data[i * 3 + 1] = (byte)((registerFormat >> 8) & 0xff);
+                data[i * 3 + 2] = (byte)(registerFormat & 0xff);
             }
 
             SoundChip.BurstWrite((byte)(0x20 + band), data, 0, 15);
