@@ -793,6 +793,43 @@ namespace Ymf825
 
         #region #35-79 CEQ (0x23-0x4f)
 
+        /// <summary>
+        /// イコライザの係数の値をレジスタ形式で取得します。
+        /// このメソッドはセクション内で実行できません。
+        /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
+        /// <param name="band">イコライザのバンド番号。有効範囲は 0 から 2 です。</param>
+        /// <param name="coefficientNumber">イコライザの係数番号。有効範囲は 0 から 4 です。</param>
+        /// <returns>イコライザの係数の値を表す、レジスタ形式で表された整数値。有効なビットは下位 24 ビットです。</returns>
+        public int GetEqualizerCoefficient(TargetChip chip, int band, int coefficientNumber)
+        {
+            return SectionForRead(chip, () =>
+            {
+                var baseAddress = 35 + band * 15 + coefficientNumber * 3;
+                var byte0 = SoundChip.Read((byte)(baseAddress + 0));
+                var byte1 = SoundChip.Read((byte)(baseAddress + 1));
+                var byte2 = SoundChip.Read((byte)(baseAddress + 2));
+                return (byte0 << 16) + (byte1 << 8) + byte2;
+            });
+        }
+
+        /// <summary>
+        /// イコライザの係数の各値を取得します。
+        /// このメソッドはセクション内で実行できません。
+        /// </summary>
+        /// <param name="chip">読み込み対象の YMF825Board を表す <see cref="TargetChip"/> 列挙体。</param>
+        /// <param name="band">イコライザのバンド番号。有効範囲は 0 から 2 です。</param>
+        /// <returns>イコライザの係数の値を表す実数の配列。</returns>
+        public double[] GetEqualizer(TargetChip chip, int band)
+        {
+            var coefficients = new double[5];
+
+            for (var i = 0; i < coefficients.Length; i++)
+                coefficients[i] = FilterCoefficients.ToDouble(GetEqualizerCoefficient(chip, band, i));
+
+            return coefficients;
+        }
+
         #endregion
 
         #region #80 Software test communication (0x50)
