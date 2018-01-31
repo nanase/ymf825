@@ -16,41 +16,41 @@ namespace Ymf825.IO
         // from: ftd2xx.h
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_CreateDeviceInfoList(out uint numDevs);
+        protected static extern FtStatus FT_CreateDeviceInfoList(out uint numDevs);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_GetDeviceInfoList(IntPtr dest, ref uint numDevs);
+        protected static extern FtStatus FT_GetDeviceInfoList(IntPtr dest, ref uint numDevs);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_Open(uint deviceNumber, out IntPtr handle);
+        protected static extern FtStatus FT_Open(uint deviceNumber, out IntPtr handle);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_Close(IntPtr handle);
+        protected static extern FtStatus FT_Close(IntPtr handle);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_GetQueueStatus(IntPtr handle, out uint rxBytes);
+        protected static extern FtStatus FT_GetQueueStatus(IntPtr handle, out uint rxBytes);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_SetBitMode(IntPtr handle, byte mask, byte enable);
+        protected static extern FtStatus FT_SetBitMode(IntPtr handle, byte mask, byte enable);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_SetTimeouts(IntPtr handle, uint readTimeout, uint writeTimeout);
+        protected static extern FtStatus FT_SetTimeouts(IntPtr handle, uint readTimeout, uint writeTimeout);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_SetLatencyTimer(IntPtr handle, byte latency);
+        protected static extern FtStatus FT_SetLatencyTimer(IntPtr handle, byte latency);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_Read(IntPtr handle, IntPtr buffer, uint bytesToRead, out uint bytesReturned);
+        protected static extern FtStatus FT_Read(IntPtr handle, IntPtr buffer, uint bytesToRead, out uint bytesReturned);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_Write(IntPtr handle, IntPtr buffer, uint bytesToWrite, out uint bytesWritten);
+        protected static extern FtStatus FT_Write(IntPtr handle, IntPtr buffer, uint bytesToWrite, out uint bytesWritten);
 
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_Purge(IntPtr handle, uint mask);
+        protected static extern FtStatus FT_Purge(IntPtr handle, uint mask);
 
 #if TRACE
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
-        private static extern FtStatus FT_GetStatus(IntPtr handle, out uint rxBytes, out uint txBytes, out uint eventDWord);
+        protected static extern FtStatus FT_GetStatus(IntPtr handle, out uint rxBytes, out uint txBytes, out uint eventDWord);
 #endif
         #endregion
 
