@@ -3,7 +3,7 @@
 namespace Ymf825.IO
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal enum FtStatus : uint
+    public enum FtStatus : uint
     {
         FT_OK,
         FT_INVALID_HANDLE,
@@ -28,7 +28,7 @@ namespace Ymf825.IO
         FT_DEVICE_LIST_NOT_READY,
     }
 
-    internal static class FtStatusEx
+    public static class FtStatusEx
     {
         #region -- Public Methods --
 
