@@ -37,6 +37,21 @@ namespace Ymf825
         /// <summary>
         /// 5つ目の YMF825Board。
         /// </summary>
-        Board4 = 16
+        Board4 = 16,
+
+        /// <summary>
+        /// 6つ目の YMF825Board。
+        /// </summary>
+        Board5 = 32,
+
+        /// <summary>
+        /// 7つ目の YMF825Board。
+        /// </summary>
+        Board6 = 64,
+
+        /// <summary>
+        /// 8つ目の YMF825Board。
+        /// </summary>
+        Board7 = 128
     }
 }
