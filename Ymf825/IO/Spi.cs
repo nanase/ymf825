@@ -64,10 +64,6 @@ namespace Ymf825.IO
         private const int FtBitmodeMpsse = 0x02;
 
         private readonly IntPtr handle;
-        private readonly bool csEnableLevelHigh;
-
-        private readonly byte csPin;
-        private byte csTargetPin;
 
         #endregion
 
@@ -106,37 +102,18 @@ namespace Ymf825.IO
         /// パラメータを指定して新しい <see cref="Spi"/> クラスのインスタンスを初期化します。
         /// </summary>
         /// <param name="deviceIndex">デバイスのインデクス。</param>
-        /// <param name="csEnableLevelHigh">CS ピンを有効にする際の IO レベルを表す真偽値。
-        /// true のとき、High レベル。false のとき、Low レベル。</param>
-        /// <param name="csPin">FT シリーズにおける CS ピン位置を表す整数値。</param>
-        public Spi(int deviceIndex, bool csEnableLevelHigh, byte csPin)
+        public Spi(int deviceIndex)
         {
             CheckStatus(FT_Open((uint)deviceIndex, out handle));
             ReadBuffer = Marshal.AllocHGlobal(ReadBufferSize);
             WriteBuffer = Marshal.AllocHGlobal(WriteBufferSize);
-            this.csEnableLevelHigh = csEnableLevelHigh;
-            this.csPin = csPin;
+
             Initialize();
         }
 
         #endregion
 
         #region -- Public Methods --
-
-        /// <summary>
-        /// CS ピンを有効にする際の対象となる、ピン位置を表す整数値を設定します。
-        /// </summary>
-        /// <param name="pin">ピン位置を表す整数値。有効範囲は 0x08 から 0xf8 です。</param>
-        public void SetCsTargetPin(byte pin)
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(ToString());
-
-            if ((csTargetPin & 0x07) != 0)
-                throw new InvalidOperationException("使用できない CS ピンが指定されています。");
-
-            csTargetPin = pin;
-        }
 
         /// <summary>
         /// デバイスの送信キューをフラッシュし、コマンドを即時に実行します。
@@ -148,88 +125,6 @@ namespace Ymf825.IO
 
             QueueFlushCommand();
             SendBuffer();
-        }
-
-        /// <summary>
-        /// アドレスとデータを書き込むコマンドを送信キューに追加します。
-        /// </summary>
-        /// <param name="address">アドレスを表す 1 バイトの整数値。</param>
-        /// <param name="data">データを表す 1 バイトの整数値。</param>
-        public void Write(byte address, byte data)
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(ToString());
-
-            if (csTargetPin == 0)
-                throw new InvalidOperationException("CS ピンが指定されていません。");
-
-            QueueBufferCsEnable();
-            QueueBuffer(0x11, 0x01, 0x00, address, data);
-            QueueBufferCsDisable();
-        }
-
-        /// <summary>
-        /// アドレスと可変長のデータを書き込むコマンドを送信キューに追加します。
-        /// </summary>
-        /// <param name="address">アドレスを表す 1 バイトの整数値。</param>
-        /// <param name="data">データが格納されている <see cref="byte"/> 型の配列。</param>
-        /// <param name="offset">配列を読み出しを開始するオフセット値。</param>
-        /// <param name="count">配列から読み出すバイト数。</param>
-        public void BurstWrite(byte address, byte[] data, int offset, int count)
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(ToString());
-
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
-
-            if (offset < 0 || offset >= data.Length)
-                throw new ArgumentOutOfRangeException(nameof(offset));
-
-            if (count <= 0 || offset + count > data.Length || count > 65535)
-                throw new ArgumentOutOfRangeException(nameof(count));
-
-            if (csTargetPin == 0)
-                throw new InvalidOperationException("CS ピンが指定されていません。");
-
-            QueueBufferCsEnable();
-            QueueBuffer(0x11, (byte)((count) & 0x00ff), (byte)(count >> 8), address);
-            QueueBuffer(data, offset, count);
-            QueueBufferCsDisable();
-        }
-
-        /// <summary>
-        /// アドレスを指定して SPI デバイスから 1 バイトを読み出します。
-        /// このコマンドは即時に実行されます。
-        /// </summary>
-        /// <param name="address">アドレスを表す 1 バイトの整数値。</param>
-        /// <returns>SPI デバイスから返却されたデータ。</returns>
-        public byte Read(byte address)
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(ToString());
-
-            if (csTargetPin == 0)
-                throw new InvalidOperationException("CS ピンが指定されていません。");
-
-            if (csTargetPin != 0 && (csTargetPin & (csTargetPin - 1)) != 0)
-                throw new InvalidOperationException("複数の CS ピンを指定して Read 命令は実行できません。");
-            
-            SendBuffer();
-
-            if (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes > 0)
-                CheckStatus(FT_Purge(handle, FtPurgeRx));
-
-            Marshal.WriteInt16(ReadBuffer, 0);
-
-            QueueBufferCsEnable();
-            QueueBuffer(0x31, 0x01, 0x00, address, 0x00);
-            QueueBufferCsDisable();
-            QueueFlushCommand();
-            SendBuffer();
-            WaitQueue(2);
-
-            return ReadRaw()[1];
         }
 
         /// <inheritdoc cref="IDisposable.Dispose"/>
@@ -270,7 +165,72 @@ namespace Ymf825.IO
 
             return deviceInfoList;
         }
-        
+
+        public void QueueBuffer(byte[] data, int offset, int count)
+        {
+            if (WriteBufferIndex + count > WriteBufferSize)
+            {
+                var tempBuffer = new byte[WriteBufferSize];
+                var newWriteBuffer = Marshal.AllocHGlobal(WriteBufferIndex + count);
+                Marshal.Copy(WriteBuffer, tempBuffer, 0, WriteBufferSize);
+                Marshal.Copy(tempBuffer, 0, newWriteBuffer, WriteBufferSize);
+                Marshal.FreeHGlobal(WriteBuffer);
+                WriteBuffer = newWriteBuffer;
+                WriteBufferSize = WriteBufferIndex + count;
+            }
+
+            Marshal.Copy(data, offset, WriteBuffer + WriteBufferIndex, count);
+            WriteBufferIndex += count;
+        }
+
+        public void QueueBuffer(params byte[] data) => QueueBuffer(data, 0, data.Length);
+
+        public void QueueFlushCommand() => QueueBuffer(0x87);
+
+        public void SendBuffer()
+        {
+            if (WriteBufferIndex == 0)
+                return;
+
+            CheckStatus(FT_Write(handle, WriteBuffer, (uint)WriteBufferIndex - 1, out var _));
+#if TRACE
+            Trace(WriteBuffer, WriteBufferIndex);
+#endif
+            WriteBufferIndex = 0;
+        }
+
+        public IReadOnlyList<byte> ReadRaw()
+        {
+            CheckStatus(FT_Read(handle, ReadBuffer, (uint)ReadBufferSize, out var bytesReturned));
+            var readData = new byte[bytesReturned];
+            Marshal.Copy(ReadBuffer, readData, 0, (int)bytesReturned);
+            return readData;
+        }
+
+        public void WaitQueue(int requireBytes)
+        {
+            while (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes < requireBytes)
+            {
+            }
+        }
+
+        public void PurgeRxBuffer()
+        {
+            if (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes > 0)
+                CheckStatus(FT_Purge(handle, FtPurgeRx));
+        }
+
+        public void PurgeTxBuffer()
+        {
+            if (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes > 0)
+                CheckStatus(FT_Purge(handle, FtPurgeTx));
+        }
+
+        public void QueueGpio(bool highByte, byte value, byte direction)
+        {
+            QueueBuffer((byte)(highByte ? 0x82 : 0x80), value, direction);
+        }
+
         #endregion
 
         #region -- Protected Methods --
@@ -299,48 +259,11 @@ namespace Ymf825.IO
             Dispose(false);
         }
 
-        protected void SendBuffer()
+        protected static void CheckStatus(FtStatus ftStatus)
         {
-            if (WriteBufferIndex == 0)
-                return;
-
-            CheckStatus(FT_Write(handle, WriteBuffer, (uint)WriteBufferIndex - 1, out var _));
-#if TRACE
-            Trace(WriteBuffer, WriteBufferIndex);
-#endif
-            WriteBufferIndex = 0;
+            if (ftStatus != FtStatus.FT_OK)
+                throw new InvalidOperationException(ftStatus.GetErrorMessage());
         }
-
-        protected void QueueBuffer(byte[] data, int offset, int count)
-        {
-            if (WriteBufferIndex + count > WriteBufferSize)
-            {
-                var tempBuffer = new byte[WriteBufferSize];
-                var newWriteBuffer = Marshal.AllocHGlobal(WriteBufferIndex + count);
-                Marshal.Copy(WriteBuffer, tempBuffer, 0, WriteBufferSize);
-                Marshal.Copy(tempBuffer, 0, newWriteBuffer, WriteBufferSize);
-                Marshal.FreeHGlobal(WriteBuffer);
-                WriteBuffer = newWriteBuffer;
-                WriteBufferSize = WriteBufferIndex + count;
-            }
-
-            Marshal.Copy(data, offset, WriteBuffer + WriteBufferIndex, count);
-            WriteBufferIndex += count;
-        }
-
-        protected void QueueBuffer(params byte[] data) => QueueBuffer(data, 0, data.Length);
-
-        protected void QueueFlushCommand() => QueueBuffer(0x87);
-
-        protected void QueueBufferCsEnable() => QueueBuffer(
-            0x80,
-            (byte)(csEnableLevelHigh ? csPin & csTargetPin : csPin ^ csTargetPin),
-            0xfb);
-
-        protected void QueueBufferCsDisable() => QueueBuffer(
-            0x80,
-            (byte)(csEnableLevelHigh ? 0x00 : csPin),
-            0xfb);
 
         #endregion
 
@@ -385,27 +308,6 @@ namespace Ymf825.IO
             SendBuffer();
 
             Thread.Sleep(100);
-        }
-
-        private IReadOnlyList<byte> ReadRaw()
-        {
-            CheckStatus(FT_Read(handle, ReadBuffer, (uint)ReadBufferSize, out var bytesReturned));
-            var readData = new byte[bytesReturned];
-            Marshal.Copy(ReadBuffer, readData, 0, (int)bytesReturned);
-            return readData;
-        }
-
-        private void WaitQueue(int requireBytes)
-        {
-            while (FT_GetQueueStatus(handle, out var rxBytes) == FtStatus.FT_OK && rxBytes < requireBytes)
-            {
-            }
-        }
-
-        private static void CheckStatus(FtStatus ftStatus)
-        {
-            if (ftStatus != FtStatus.FT_OK)
-                throw new InvalidOperationException(ftStatus.GetErrorMessage());
         }
 
         #endregion
