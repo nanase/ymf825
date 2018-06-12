@@ -86,10 +86,10 @@ namespace Ymf825
 
         #region -- Constructors --
 
-        protected Ymf825(int spiDeviceIndex, byte csPin)
+        protected Ymf825(int spiDeviceIndex, TargetChip availableChips, SpiPinConfig csPinConfig, SpiPinConfig icPinConfig)
         {
-            SpiInterface = new Ymf825Spi(spiDeviceIndex, csPin);
-            SpiInterface.SetCsTargetPin(csPin);
+            SpiInterface = new Ymf825Spi(spiDeviceIndex, csPinConfig, icPinConfig);
+            SpiInterface.SetTarget(availableChips);
             CurrentTargetChip = AvailableChip;
         }
 
@@ -222,7 +222,7 @@ namespace Ymf825
             lock (lockObject)
             {
                 CurrentTargetChip = target;
-                SpiInterface.SetCsTargetPin((byte)(targetValue << 3));
+                SpiInterface.SetTarget(target);
             }
         }
 

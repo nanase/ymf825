@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="spiDeviceIndex">接続する SPI デバイスの番号。</param>
         public CbwYmf825Bb(int spiDeviceIndex)
-            : base(spiDeviceIndex, CsPin)
+            : base(spiDeviceIndex, AllAvailableChip, new IO.SpiPinConfig(true, CsPin, 0x00, false), new IO.SpiPinConfig(true, 0x00, 0x00, false))
         {
         }
 

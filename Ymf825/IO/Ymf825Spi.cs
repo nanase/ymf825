@@ -34,7 +34,7 @@ namespace Ymf825.IO
         /// </summary>
         /// <param name="deviceIndex">デバイスのインデクス。</param>
         /// <inheritdoc />
-        protected Ymf825Spi(int deviceIndex, SpiPinConfig csPinConfig, SpiPinConfig icPinConfig)
+        public Ymf825Spi(int deviceIndex, SpiPinConfig csPinConfig, SpiPinConfig icPinConfig)
             : base(deviceIndex)
         {
             CsPinConfig = csPinConfig;

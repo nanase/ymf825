@@ -5,6 +5,16 @@ using Ymf825.IO;
 
 namespace TestConsoleApp
 {
+    class Ymf825Ft232h : Ymf825.Ymf825
+    {
+        public override TargetChip AvailableChip => TargetChip.Board0;
+
+        public Ymf825Ft232h()
+            : base(0, TargetChip.Board0, new SpiPinConfig(true, 0x01, 0x00, false), new SpiPinConfig(true, 0x01, 0x00, false))
+        {
+        }
+    }
+
     internal class Program
     {
         private static void Main()
@@ -14,7 +24,7 @@ namespace TestConsoleApp
             if (Spi.DeviceCount < 1)
                 return;
 
-            using (var ymf825 = new CbwYmf825Bb(0))
+            using (var ymf825 = new Ymf825Ft232h())
             {
                 var driver = new Ymf825Driver(ymf825);
                 driver.EnableSectionMode();
