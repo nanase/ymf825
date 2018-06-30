@@ -1,4 +1,4 @@
-﻿namespace Ymf825
+﻿namespace Ymf825.Driver
 {
     /// <summary>
     /// YMF825 の DAC アンプの増幅率を表す列挙体です。

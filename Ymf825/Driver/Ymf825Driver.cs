@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     /// <summary>
     /// YMF825 のレジスタ命令を抽象化し、各種操作を提供します。

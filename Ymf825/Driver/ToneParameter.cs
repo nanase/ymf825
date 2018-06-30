@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     /// <summary>
     /// トーンパラメータを格納したクラスです。

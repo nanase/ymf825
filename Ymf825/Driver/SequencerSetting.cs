@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     [Flags]
     public enum SequencerSetting : byte

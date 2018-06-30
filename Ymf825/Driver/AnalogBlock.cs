@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     /// <summary>
     /// YMF825 の物理ブロックを表す列挙体です。

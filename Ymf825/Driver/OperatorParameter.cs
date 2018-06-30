@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     /// <summary>
     /// FM音源のオペレータのパラメータを格納したクラスです。

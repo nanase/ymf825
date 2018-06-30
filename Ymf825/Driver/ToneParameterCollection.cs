@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     /// <summary>
     /// 各ボイスのトーンパラメータを格納するクラスです。

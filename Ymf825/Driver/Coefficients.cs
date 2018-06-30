@@ -1,7 +1,7 @@
 ﻿using System;
 using static System.Math;
 
-namespace Ymf825
+namespace Ymf825.Driver
 {
     /// <summary>
     /// イコライザに設定できるフィルタ係数を生成する機能を提供します。
