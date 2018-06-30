@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+#if TRACE
+using System.Linq;
+#endif
+
 namespace Ymf825.IO
 {
     /// <summary>
     /// USB を介して SPI を使用するための機能を提供します。
     /// </summary>
     /// <inheritdoc cref="IDisposable"/>
-    public class Spi : IDisposable
+    public class D2xxSpi : IDisposable
     {
         #region -- Extern Methods --
 
@@ -93,16 +97,16 @@ namespace Ymf825.IO
 
         #region -- Constructors --
 
-        static Spi()
+        static D2xxSpi()
         {
             DllDirectorySwitcher.Apply();
         }
 
         /// <summary>
-        /// パラメータを指定して新しい <see cref="Spi"/> クラスのインスタンスを初期化します。
+        /// パラメータを指定して新しい <see cref="D2xxSpi"/> クラスのインスタンスを初期化します。
         /// </summary>
         /// <param name="deviceIndex">デバイスのインデクス。</param>
-        public Spi(int deviceIndex)
+        public D2xxSpi(int deviceIndex)
         {
             CheckStatus(FT_Open((uint)deviceIndex, out handle));
             ReadBuffer = Marshal.AllocHGlobal(ReadBufferSize);
@@ -136,29 +140,29 @@ namespace Ymf825.IO
         /// <summary>
         /// 利用可能なデバイスのリストを取得します。
         /// </summary>
-        /// <returns>利用可能なデバイスが格納された、<see cref="DeviceInfo"/>クラスの配列。</returns>
-        public static DeviceInfo[] GetDeviceInfoList()
+        /// <returns>利用可能なデバイスが格納された、<see cref="FtDeviceInfo"/>クラスの配列。</returns>
+        public static FtDeviceInfo[] GetDeviceInfoList()
         {
             var devNums = (uint)DeviceCount;
-            var deviceInfoList = new DeviceInfo[devNums];
+            var deviceInfoList = new FtDeviceInfo[devNums];
 
             if (devNums < 1)
                 return deviceInfoList;
 
-            var structSize = Marshal.SizeOf<DeviceListInfoNode>();
+            var structSize = Marshal.SizeOf<FtDeviceListInfoNode>();
             var listPointer = Marshal.AllocHGlobal(structSize * (int)devNums);
 
             if (FT_GetDeviceInfoList(listPointer, ref devNums) == FtStatus.FT_OK)
             {
                 for (var i = 0; i < devNums; i++)
                 {
-                    var node = Marshal.PtrToStructure<DeviceListInfoNode>(listPointer + structSize * i);
-                    deviceInfoList[i] = new DeviceInfo(i, node);
+                    var node = Marshal.PtrToStructure<FtDeviceListInfoNode>(listPointer + structSize * i);
+                    deviceInfoList[i] = new FtDeviceInfo(i, node);
                 }
             }
             else
             {
-                deviceInfoList = new DeviceInfo[0];
+                deviceInfoList = new FtDeviceInfo[0];
             }
 
             Marshal.FreeHGlobal(listPointer);
@@ -254,7 +258,7 @@ namespace Ymf825.IO
             IsDisposed = true;
         }
 
-        ~Spi()
+        ~D2xxSpi()
         {
             Dispose(false);
         }

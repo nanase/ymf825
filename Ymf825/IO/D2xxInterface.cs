@@ -9,7 +9,7 @@ namespace Ymf825.IO
     /// YMF825 と SPI による通信を行うための機能を提供します。
     /// </summary>
     /// <inheritdoc cref="Spi" />
-    public class Ymf825Spi : Spi, IYmf825Device
+    public abstract class D2xxInterface : D2xxSpi, IYmf825
     {
         #region -- Private Fields --
 
@@ -21,20 +21,26 @@ namespace Ymf825.IO
 
         #region -- Public Properties --
 
-        public SpiPinConfig CsPinConfig { get; }
+        public D2xxSpiPinConfig CsPinConfig { get; }
 
-        public SpiPinConfig IcPinConfig { get; }
+        public D2xxSpiPinConfig IcPinConfig { get; }
+
+        public abstract TargetChip AvailableChips { get; }
+
+        public TargetChip CurrentTargetChips { get; private set; }
+
+        public bool AutoFlush { get; set; }
 
         #endregion
 
         #region -- Constructors --
 
         /// <summary>
-        /// パラメータを指定して新しい <see cref="Ymf825Spi"/> クラスのインスタンスを初期化します。
+        /// パラメータを指定して新しい <see cref="D2xxToYmf825"/> クラスのインスタンスを初期化します。
         /// </summary>
         /// <param name="deviceIndex">デバイスのインデクス。</param>
         /// <inheritdoc />
-        public Ymf825Spi(int deviceIndex, SpiPinConfig csPinConfig, SpiPinConfig icPinConfig)
+        public D2xxInterface(int deviceIndex, D2xxSpiPinConfig csPinConfig, D2xxSpiPinConfig icPinConfig)
             : base(deviceIndex)
         {
             CsPinConfig = csPinConfig;
@@ -42,7 +48,7 @@ namespace Ymf825.IO
             csTargetPin = csPinConfig.Value;
             csPinMap = CreateDeviceMap(csPinConfig.Value);
 
-            ResetHardware();
+            InvokeHardwareReset();
         }
 
         #endregion
@@ -52,7 +58,10 @@ namespace Ymf825.IO
         public void SetTarget(TargetChip chip)
         {
             if (csPinMap.ContainsKey(chip))
+            {
                 csTargetPin = csPinMap[chip];
+                CurrentTargetChips = chip;
+            }
             else
                 throw new ArgumentOutOfRangeException(nameof(chip));
         }
@@ -137,27 +146,6 @@ namespace Ymf825.IO
             return ReadRaw()[1];
         }
 
-        /// <summary>
-        /// ハードウェアリセットを行います。
-        /// このコマンドは即時に実行されます。
-        /// </summary>
-        public void ResetHardware()
-        {
-            QueueGpio(IcPinConfig.IsHighByte, (byte)(IcPinConfig.EnableLevelHigh ? 0x00 : IcPinConfig.Value), IcPinConfig.Direction);
-            QueueFlushCommand();
-            SendBuffer();
-            Thread.Sleep(2);
-
-            QueueGpio(IcPinConfig.IsHighByte, (byte)(IcPinConfig.EnableLevelHigh ? IcPinConfig.Value : 0x00), IcPinConfig.Direction);
-            QueueFlushCommand();
-            SendBuffer();
-            Thread.Sleep(2);
-
-            QueueGpio(IcPinConfig.IsHighByte, (byte)(IcPinConfig.EnableLevelHigh ? 0x00 : IcPinConfig.Value), IcPinConfig.Direction);
-            QueueFlushCommand();
-            SendBuffer();
-        }
-
         #endregion
 
         #region -- Private Methods --
@@ -196,13 +184,30 @@ namespace Ymf825.IO
 
         private void QueueBufferCsEnable() => QueueGpio(
             CsPinConfig.IsHighByte,
-            (byte)(CsPinConfig.EnableLevelHigh ? CsPinConfig.Value & csTargetPin : CsPinConfig.Value ^ csTargetPin),
+            (byte)(CsPinConfig.HighLevelToEnable ? CsPinConfig.Value & csTargetPin : CsPinConfig.Value ^ csTargetPin),
             CsPinConfig.Direction);
 
         private void QueueBufferCsDisable() => QueueGpio(
             CsPinConfig.IsHighByte,
-            (byte)(CsPinConfig.EnableLevelHigh ? 0x00 : CsPinConfig.Value),
+            (byte)(CsPinConfig.HighLevelToEnable ? 0x00 : CsPinConfig.Value),
             CsPinConfig.Direction);
+
+        public void InvokeHardwareReset()
+        {
+            QueueGpio(IcPinConfig.IsHighByte, (byte)(IcPinConfig.HighLevelToEnable ? 0x00 : IcPinConfig.Value), IcPinConfig.Direction);
+            QueueFlushCommand();
+            SendBuffer();
+            Thread.Sleep(2);
+
+            QueueGpio(IcPinConfig.IsHighByte, (byte)(IcPinConfig.HighLevelToEnable ? IcPinConfig.Value : 0x00), IcPinConfig.Direction);
+            QueueFlushCommand();
+            SendBuffer();
+            Thread.Sleep(2);
+
+            QueueGpio(IcPinConfig.IsHighByte, (byte)(IcPinConfig.HighLevelToEnable ? 0x00 : IcPinConfig.Value), IcPinConfig.Direction);
+            QueueFlushCommand();
+            SendBuffer();
+        }
 
         #endregion
     }

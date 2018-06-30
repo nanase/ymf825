@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Ymf825.IO
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct DeviceListInfoNode
+    internal struct FtDeviceListInfoNode
     {
         #region -- Public Fields --
 
@@ -27,11 +27,11 @@ namespace Ymf825.IO
     /// <summary>
     /// 通信可能なデバイスの情報を格納したクラスです。
     /// </summary>
-    public class DeviceInfo
+    public class FtDeviceInfo
     {
         #region -- Private Fields --
 
-        private readonly DeviceListInfoNode deviceInfoInternal;
+        private readonly FtDeviceListInfoNode deviceInfoInternal;
 
         #endregion
 
@@ -82,7 +82,7 @@ namespace Ymf825.IO
 
         #region -- Constructors --
 
-        internal DeviceInfo(int index, DeviceListInfoNode deviceInfoInternal)
+        internal FtDeviceInfo(int index, FtDeviceListInfoNode deviceInfoInternal)
         {
             Index = index;
             this.deviceInfoInternal = deviceInfoInternal;
