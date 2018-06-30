@@ -3,7 +3,7 @@
 namespace Ymf825
 {
     /// <summary>
-    /// 命令を送信する YMF825Board の指定に使われる列挙体です。
+    /// 命令を送信する YMF825 の指定に使われる列挙体です。
     /// この列挙体はフラグとして扱います。
     /// </summary>
     [Flags]
@@ -15,42 +15,42 @@ namespace Ymf825
         None = 0,
 
         /// <summary>
-        /// 1つ目の YMF825Board。
+        /// 1つ目の YMF825。
         /// </summary>
         Board0 = 1,
 
         /// <summary>
-        /// 2つ目の YMF825Board。
+        /// 2つ目の YMF825。
         /// </summary>
         Board1 = 2,
 
         /// <summary>
-        /// 3つ目の YMF825Board。
+        /// 3つ目の YMF825。
         /// </summary>
         Board2 = 4,
 
         /// <summary>
-        /// 4つ目の YMF825Board。
+        /// 4つ目の YMF825。
         /// </summary>
         Board3 = 8,
 
         /// <summary>
-        /// 5つ目の YMF825Board。
+        /// 5つ目の YMF825。
         /// </summary>
         Board4 = 16,
 
         /// <summary>
-        /// 6つ目の YMF825Board。
+        /// 6つ目の YMF825。
         /// </summary>
         Board5 = 32,
 
         /// <summary>
-        /// 7つ目の YMF825Board。
+        /// 7つ目の YMF825。
         /// </summary>
         Board6 = 64,
 
         /// <summary>
-        /// 8つ目の YMF825Board。
+        /// 8つ目の YMF825。
         /// </summary>
         Board7 = 128
     }
