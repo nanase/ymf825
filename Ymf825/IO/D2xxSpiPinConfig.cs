@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ymf825.IO
+﻿namespace Ymf825.IO
 {
     public class D2xxSpiPinConfig
     {
