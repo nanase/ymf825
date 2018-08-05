@@ -1,7 +1,7 @@
 ﻿namespace Ymf825.IO
 {
     /// <summary>
-    /// YMF825Boardステレオ化基板 (CBW-YMF825-BB) と通信するための機能を提供します。
+    /// Adafruit FT232H Breakout を介して YMF825Board と通信するための機能を提供します。
     /// </summary>
     /// <inheritdoc />
     public class AdafruitFt232HInterface : D2XxInterface
