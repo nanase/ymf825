@@ -1,10 +1,12 @@
-﻿namespace Ymf825
+﻿using System;
+
+namespace Ymf825
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="IDisposable" />
     /// <summary>
     /// YMF825 との接続を行うインタフェースが実装すべき機能です。
     /// </summary>
-    public interface IYmf825
+    public interface IYmf825 : IDisposable
     {
         #region -- Properties --
 
