@@ -117,8 +117,12 @@ namespace TestConsoleApp
                     Console.Write("Select device [0]: ");
 
                     var index = Console.ReadLine();
+
                     if (index == null)
                         Environment.Exit(0);
+
+                    if (string.IsNullOrWhiteSpace(index))
+                        index = "0";
 
                     if (int.TryParse(index, out deviceIndex) && deviceIndex >= 0 && deviceIndex < deviceInfoList.Length)
                         break;
@@ -136,8 +140,12 @@ namespace TestConsoleApp
                 Console.Write("Select interface [0]: ");
 
                 var index = Console.ReadLine();
+
                 if (index == null)
                     Environment.Exit(0);
+
+                if (string.IsNullOrWhiteSpace(index))
+                    index = "0";
 
                 if (int.TryParse(index, out interfaceIndex) && interfaceIndex >= 0 && interfaceIndex < 2)
                     break;
