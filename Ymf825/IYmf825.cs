@@ -63,7 +63,7 @@
         /// <summary>
         /// 命令が実行される対象の YMF825 を指定します。
         /// </summary>
-        /// <param name="chip"></param>
+        /// <param name="chips"></param>
         void SetTarget(TargetChip chips);
 
         #endregion
