@@ -8,8 +8,8 @@ namespace Ymf825.IO
     /// <summary>
     /// YMF825 と SPI による通信を行うための機能を提供します。
     /// </summary>
-    /// <inheritdoc cref="Spi" />
-    public abstract class D2xxInterface : D2xxSpi, IYmf825
+    /// <inheritdoc cref="D2XxSpi" />
+    public abstract class D2XxInterface : D2XxSpi, IYmf825
     {
         #region -- Private Fields --
 
@@ -21,9 +21,9 @@ namespace Ymf825.IO
 
         #region -- Public Properties --
 
-        public D2xxSpiPinConfig CsPinConfig { get; }
+        public D2XxSpiPinConfig CsPinConfig { get; }
 
-        public D2xxSpiPinConfig IcPinConfig { get; }
+        public D2XxSpiPinConfig IcPinConfig { get; }
 
         public abstract TargetChip AvailableChips { get; }
 
@@ -36,11 +36,13 @@ namespace Ymf825.IO
         #region -- Constructors --
 
         /// <summary>
-        /// パラメータを指定して新しい <see cref="D2xxToYmf825"/> クラスのインスタンスを初期化します。
+        /// パラメータを指定して新しい <see cref="D2XxInterface"/> クラスのインスタンスを初期化します。
         /// </summary>
         /// <param name="deviceIndex">デバイスのインデクス。</param>
+        /// <param name="csPinConfig">CS ピンのピン設定が記述された <see cref="D2XxSpiPinConfig" /> クラスのインスタンス。</param>
+        /// <param name="icPinConfig">IC ピンのピン設定が記述された <see cref="D2XxSpiPinConfig" /> クラスのインスタンス。</param>
         /// <inheritdoc />
-        public D2xxInterface(int deviceIndex, D2xxSpiPinConfig csPinConfig, D2xxSpiPinConfig icPinConfig)
+        protected D2XxInterface(int deviceIndex, D2XxSpiPinConfig csPinConfig, D2XxSpiPinConfig icPinConfig)
             : base(deviceIndex)
         {
             CsPinConfig = csPinConfig;

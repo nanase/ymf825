@@ -1,6 +1,6 @@
 ﻿namespace Ymf825.IO
 {
-    public class D2xxSpiPinConfig
+    public class D2XxSpiPinConfig
     {
         #region -- Public Properties --
 
@@ -28,7 +28,7 @@
 
         #region -- Constructors --
 
-        public D2xxSpiPinConfig(bool isHighByte, byte value, byte direction, bool highLevelToEnable)
+        public D2XxSpiPinConfig(bool isHighByte, byte value, byte direction, bool highLevelToEnable)
         {
             IsHighByte = isHighByte;
             Value = value;

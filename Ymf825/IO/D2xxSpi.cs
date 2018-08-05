@@ -13,7 +13,7 @@ namespace Ymf825.IO
     /// USB を介して SPI を使用するための機能を提供します。
     /// </summary>
     /// <inheritdoc cref="IDisposable"/>
-    public class D2xxSpi : IDisposable
+    public class D2XxSpi : IDisposable
     {
         #region -- Extern Methods --
 
@@ -97,16 +97,16 @@ namespace Ymf825.IO
 
         #region -- Constructors --
 
-        static D2xxSpi()
+        static D2XxSpi()
         {
             DllDirectorySwitcher.Apply();
         }
 
         /// <summary>
-        /// パラメータを指定して新しい <see cref="D2xxSpi"/> クラスのインスタンスを初期化します。
+        /// パラメータを指定して新しい <see cref="D2XxSpi"/> クラスのインスタンスを初期化します。
         /// </summary>
         /// <param name="deviceIndex">デバイスのインデクス。</param>
-        public D2xxSpi(int deviceIndex)
+        public D2XxSpi(int deviceIndex)
         {
             CheckStatus(FT_Open((uint)deviceIndex, out handle));
             ReadBuffer = Marshal.AllocHGlobal(ReadBufferSize);
@@ -258,7 +258,7 @@ namespace Ymf825.IO
             IsDisposed = true;
         }
 
-        ~D2xxSpi()
+        ~D2XxSpi()
         {
             Dispose(false);
         }

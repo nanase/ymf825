@@ -4,7 +4,7 @@
     /// YMF825Boardステレオ化基板 (CBW-YMF825-BB) と通信するための機能を提供します。
     /// </summary>
     /// <inheritdoc />
-    public class AdafruitFt232hInterface : D2xxInterface
+    public class AdafruitFt232HInterface : D2XxInterface
     {
         #region -- Private Fields --
 
@@ -14,8 +14,8 @@
         private const int IcPin = 0x01;
         private const int IcDirection = 0xff;
 
-        private static readonly D2xxSpiPinConfig csPinConfig = new D2xxSpiPinConfig(false, CsPin, CsDirection, false);
-        private static readonly D2xxSpiPinConfig icPinConfig = new D2xxSpiPinConfig(true, IcPin, IcDirection, false);
+        private static readonly D2XxSpiPinConfig CsConfig = new D2XxSpiPinConfig(false, CsPin, CsDirection, false);
+        private static readonly D2XxSpiPinConfig IcConfig = new D2XxSpiPinConfig(true, IcPin, IcDirection, false);
 
         #endregion
 
@@ -27,12 +27,12 @@
 
         #region -- Constructors --
         
-        public AdafruitFt232hInterface(int deviceIndex)
-            : this(deviceIndex, csPinConfig, icPinConfig)
+        public AdafruitFt232HInterface(int deviceIndex)
+            : this(deviceIndex, CsConfig, IcConfig)
         {
         }
 
-        public AdafruitFt232hInterface(int deviceIndex, D2xxSpiPinConfig csPinConfig, D2xxSpiPinConfig icPinConfig) 
+        public AdafruitFt232HInterface(int deviceIndex, D2XxSpiPinConfig csPinConfig, D2XxSpiPinConfig icPinConfig) 
             : base(deviceIndex, csPinConfig, icPinConfig)
         {
         }
