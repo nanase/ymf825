@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ymf825.Driver
 {
     [Flags]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum SequencerSetting : byte
     {
         Reset = 0x00,
