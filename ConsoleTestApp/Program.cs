@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Threading;
 using Ymf825;
+using Ymf825.Driver;
 using Ymf825.IO;
 
 namespace TestConsoleApp
 {
-    class Ymf825Ft232h : Ymf825.Ymf825
-    {
-        public override TargetChip AvailableChip => TargetChip.Board0;
-
-        public Ymf825Ft232h()
-            : base(0, TargetChip.Board0, new SpiPinConfig(true, 0x01, 0x00, false), new SpiPinConfig(true, 0x01, 0x00, false))
-        {
-        }
-    }
-
     internal class Program
     {
         private static void Main()
         {
             Console.WriteLine("Image type: {0}bit", Environment.Is64BitProcess ? "64" : "32");
 
-            if (Spi.DeviceCount < 1)
+            if (D2XxSpi.DeviceCount < 1)
                 return;
 
-            using (var ymf825 = new Ymf825Ft232h())
+            using (var ymf825 = SelectInterface())
             {
                 var driver = new Ymf825Driver(ymf825);
                 driver.EnableSectionMode();
@@ -35,7 +26,7 @@ namespace TestConsoleApp
                 {
                     Console.WriteLine("Tone Init");
                     var tones = new ToneParameterCollection { [0] = ToneParameter.GetSine() };
-                    
+
                     driver.Section(() =>
                     {
                         driver.WriteContentsData(tones, 0);
@@ -103,8 +94,61 @@ namespace TestConsoleApp
                         index = 0;
                 }
 
-                ymf825.ResetHardware();
+                ymf825.InvokeHardwareReset();
             }
+        }
+
+        private static IYmf825 SelectInterface()
+        {
+            var deviceInfoList = D2XxSpi.GetDeviceInfoList();
+            var deviceIndex = 0;
+            int interfaceIndex;
+
+            if (deviceInfoList.Length > 1)
+            {
+                Console.WriteLine();
+
+                while (true)
+                {
+                    for (var i = 0; i < deviceInfoList.Length; i++)
+                        Console.WriteLine($"  {i}: {deviceInfoList[i].Description} ({deviceInfoList[i].SerialNumber})");
+
+                    Console.WriteLine();
+                    Console.Write("Select device [0]: ");
+
+                    var index = Console.ReadLine();
+                    if (index == null)
+                        Environment.Exit(0);
+
+                    if (int.TryParse(index, out deviceIndex) && deviceIndex >= 0 && deviceIndex < deviceInfoList.Length)
+                        break;
+
+                    Console.WriteLine();
+                }
+            }
+
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("  0: AE-FT232HL (for CBW-YMF825-BB)");
+                Console.WriteLine("  1: Adafruit FT232H Breakout");
+                Console.WriteLine();
+                Console.Write("Select interface [0]: ");
+
+                var index = Console.ReadLine();
+                if (index == null)
+                    Environment.Exit(0);
+
+                if (int.TryParse(index, out interfaceIndex) && interfaceIndex >= 0 && interfaceIndex < 2)
+                    break;
+
+                Console.WriteLine();
+            }
+
+            if (interfaceIndex == 0)
+                return new AeFt232HInterface(deviceIndex);
+
+            return new AdafruitFt232HInterface(deviceIndex);
         }
     }
 }
