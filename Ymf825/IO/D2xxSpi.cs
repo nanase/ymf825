@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-#if TRACE
+#if DEBUG
 using System.Linq;
 #endif
 
@@ -52,7 +52,7 @@ namespace Ymf825.IO
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
         protected static extern FtStatus FT_Purge(IntPtr handle, uint mask);
 
-#if TRACE
+#if DEBUG
         [DllImport(D2XxLibrary, CallingConvention = CallingConvention.StdCall)]
         protected static extern FtStatus FT_GetStatus(IntPtr handle, out uint rxBytes, out uint txBytes, out uint eventDWord);
 #endif
@@ -197,7 +197,7 @@ namespace Ymf825.IO
                 return;
 
             CheckStatus(FT_Write(handle, WriteBuffer, (uint)WriteBufferIndex - 1, out var _));
-#if TRACE
+#if DEBUG
             Trace(WriteBuffer, WriteBufferIndex);
 #endif
             WriteBufferIndex = 0;
@@ -273,7 +273,7 @@ namespace Ymf825.IO
 
         #region -- Private Methods --
 
-#if TRACE
+#if DEBUG
         private void Trace(IntPtr buffer, int length)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
