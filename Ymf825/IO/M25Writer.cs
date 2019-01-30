@@ -35,7 +35,7 @@ namespace Ymf825.IO
         /// <summary>
         /// 命令が実行される対象の YMF825 を取得します。
         /// </summary>
-        public TargetChip CurrentTargetChips { get; private set; }
+        public TargetChip CurrentTargetChips { get; private set; } = TargetChip.Board0 | TargetChip.Board1;
 
         /// <inheritdoc />
         /// <summary>
