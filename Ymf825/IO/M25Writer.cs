@@ -196,6 +196,9 @@ namespace Ymf825.IO
 
         public void SetTarget(TargetChip chips)
         {
+            FlushWait();
+            Flush();
+
             CurrentTargetChips = chips;
 
             if (chips == (TargetChip.Board0 | TargetChip.Board1))
