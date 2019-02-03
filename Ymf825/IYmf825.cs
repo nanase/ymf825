@@ -24,6 +24,16 @@ namespace Ymf825
         /// インタフェースが自動的に命令をフラッシュするかの真偽値を取得または設定します。
         /// </summary>
         bool AutoFlush { get; set; }
+        
+        /// <summary>
+        /// YMF825 のレジスタ読み取り命令に対応しているかを表す真偽値を取得します。
+        /// </summary>
+        bool SupportReadOperation { get; }
+
+        /// <summary>
+        /// ハードウェアリセット命令に対応しているかを表す真偽値を取得します。
+        /// </summary>
+        bool SupportHardwareReset { get; }
 
         #endregion
 

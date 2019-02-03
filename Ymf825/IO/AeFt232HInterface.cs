@@ -23,10 +23,14 @@
 
         public override TargetChip AvailableChips => TargetChip.Board0 | TargetChip.Board1;
 
+        public override bool SupportReadOperation { get; } = true;
+
+        public override bool SupportHardwareReset { get; } = true;
+
         #endregion
 
         #region -- Constructors --
-        
+
         public AeFt232HInterface(int deviceIndex)
             : this(deviceIndex, CsConfig, IcConfig)
         {

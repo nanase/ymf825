@@ -31,6 +31,10 @@ namespace Ymf825.IO
 
         public bool AutoFlush { get; set; }
 
+        public abstract bool SupportReadOperation { get; }
+
+        public abstract bool SupportHardwareReset { get; }
+
         #endregion
 
         #region -- Constructors --

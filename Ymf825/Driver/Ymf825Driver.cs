@@ -13,7 +13,7 @@ namespace Ymf825.Driver
         private readonly object lockObject = new object();
 
         private Action<int> sleepAction = Thread.Sleep;
-        
+
         private TargetChip previousTargetChip;
 
         private Thread sectionThread;
@@ -175,7 +175,8 @@ namespace Ymf825.Driver
         /// </summary>
         public void ResetHardware()
         {
-            SoundChip.InvokeHardwareReset();
+            if (SoundChip.SupportHardwareReset)
+                SoundChip.InvokeHardwareReset();
         }
 
         #endregion

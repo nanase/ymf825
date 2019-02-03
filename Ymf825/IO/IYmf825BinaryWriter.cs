@@ -25,16 +25,6 @@ namespace Ymf825.IO
         /// </summary>
         double TickResolution { get; }
 
-        /// <summary>
-        /// 実装されるクラスが YMF825 のレジスタ読み取り命令に対応しているかを表す真偽値を取得します。
-        /// </summary>
-        bool SupportReadOperation { get; }
-
-        /// <summary>
-        /// 実装されるクラスがハードウェアリセット命令に対応しているかを表す真偽値を取得します。
-        /// </summary>
-        bool SupportHardwareReset { get; }
-
         #endregion
 
         #region -- Methods --
